@@ -72,10 +72,31 @@ class GoalsNotifier extends _$GoalsNotifier {
       },
       (newGoal) {
         if (oldState is GoalsLoaded) {
-          state = GoalsLoaded([...oldState.goals, newGoal]);
+          final updatedOldGoals = newGoal.isPrimary
+              ? oldState.goals.map((g) => g.copyWith(isPrimary: false)).toList()
+              : oldState.goals;
+          state = GoalsLoaded([...updatedOldGoals, newGoal]);
         } else {
           state = GoalsLoaded([newGoal]);
         }
+        return null;
+      },
+    );
+  }
+
+  Future<Failure?> setPrimaryGoal(String goalId) async {
+    final oldState = state;
+    state = const GoalsLoading();
+    
+    final result = await ref.read(goalRepositoryProvider).setPrimaryGoal(goalId);
+    return result.fold(
+      (failure) {
+        state = oldState; // revert
+        return failure;
+      },
+      (_) {
+        // Re-fetch all goals to get updated primary state
+        _fetchGoals();
         return null;
       },
     );

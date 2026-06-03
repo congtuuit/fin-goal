@@ -130,13 +130,22 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
     // 5. Build UI
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(primaryGoal.emoji ?? '🎯'),
-            const Gap(AppSizes.sm),
-            Text(primaryGoal.name),
-          ],
+        title: InkWell(
+          onTap: () => _showSwitchGoalSheet(context, goalsState as GoalsLoaded, isPremium),
+          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(primaryGoal.emoji ?? '🎯'),
+                const Gap(AppSizes.sm),
+                Text(primaryGoal.name),
+                const Gap(AppSizes.xs),
+                const Icon(Icons.arrow_drop_down),
+              ],
+            ),
+          ),
         ),
         actions: [
           if (!isPremium)
@@ -152,7 +161,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Center(
-                  child: Text('PRO',
+                  child: Text('Premium',
                       style: TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold))),
@@ -183,6 +192,73 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showSwitchGoalSheet(BuildContext context, GoalsLoaded goalsState, bool isPremium) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surfaceElevatedDark,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Gap(AppSizes.md),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const Gap(AppSizes.lg),
+              Text('Mục tiêu của bạn', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              const Gap(AppSizes.md),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: goalsState.goals.length,
+                  itemBuilder: (context, index) {
+                    final goal = goalsState.goals[index];
+                    final isCurrent = goal.id == goalsState.primaryGoal?.id;
+                    return ListTile(
+                      leading: Text(goal.emoji ?? '🎯', style: const TextStyle(fontSize: 24)),
+                      title: Text(goal.name, style: TextStyle(fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal)),
+                      trailing: isCurrent ? const Icon(Icons.check_circle, color: AppColors.primary) : null,
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        if (!isCurrent) {
+                          ref.read(goalsProvider.notifier).setPrimaryGoal(goal.id);
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+              const Divider(color: AppColors.borderDark),
+              ListTile(
+                leading: const Icon(Icons.add_circle_outline, color: AppColors.primary, size: 28),
+                title: const Text('Tạo mục tiêu mới', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  if (!isPremium && goalsState.goals.isNotEmpty) {
+                    // Limit free users to 1 goal
+                    context.go('/home/paywall');
+                  } else {
+                    context.go('/home/goal-selection');
+                  }
+                },
+              ),
+              const Gap(AppSizes.md),
+            ],
+          ),
+        );
+      },
     );
   }
 

@@ -37,7 +37,7 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
     
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Thanh toán thành công! Tài khoản đã lên PRO.'),
+        content: Text('Thanh toán thành công! Tài khoản đã lên Premium.'),
         backgroundColor: AppColors.success,
       ),
     );
