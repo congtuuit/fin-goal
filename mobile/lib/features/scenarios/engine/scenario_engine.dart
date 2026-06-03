@@ -70,7 +70,10 @@ class ScenarioEngine {
   // ---------------------------------------------------------------------------
 
   int _remainingAmount(ScenarioInput input) {
-    return (input.targetAmount - input.currentSavings).clamp(0, input.targetAmount);
+    final remaining = input.targetAmount - input.currentSavings;
+    // No upper clamp — savings can go negative in what-if scenarios,
+    // which correctly inflates remaining and shows the real impact.
+    return remaining < 0 ? 0 : remaining;
   }
 
   /// Base case: straightforward division.
