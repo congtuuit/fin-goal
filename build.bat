@@ -1,17 +1,16 @@
 @echo off
-chcp 65001 > nul
 setlocal enabledelayedexpansion
 
-echo ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-echo       🛠️ FIN-GOAL BUILD TOOL UTILITY 🛠️
-echo ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo ====================================================
+echo       [*] FIN-GOAL BUILD TOOL UTILITY [*]
+echo ====================================================
 echo.
 
 :: Check Node.js
 where node >nul 2>nul
 if %errorlevel% neq 0 (
-    echo [❌ ERROR] Dự án yêu cầu cài đặt Node.js để chạy script build.
-    echo Vui lòng tải Node.js tại https://nodejs.org/ và thử lại.
+    echo [X ERROR] Du an yeu cau cai dat Node.js de chay script build.
+    echo Vui long tai Node.js tai https://nodejs.org/ va thu lai.
     pause
     exit /b 1
 )
@@ -19,21 +18,21 @@ if %errorlevel% neq 0 (
 :: Check Flutter
 where flutter >nul 2>nul
 if %errorlevel% neq 0 (
-    echo [❌ ERROR] Không tìm thấy Flutter CLI trong hệ thống.
-    echo Vui lòng thêm Flutter vào PATH của bạn.
+    echo [X ERROR] Khong tim thay Flutter CLI trong he thong.
+    echo Vui long them Flutter vao PATH cua ban.
     pause
     exit /b 1
 )
 
 :MENU
-echo Chọn nền tảng bạn muốn build:
-echo   [1] Android APK (File cài đặt trực tiếp)
-echo   [2] Android App Bundle - AAB (Để phát hành Google Play)
-echo   [3] iOS IPA (Yêu cầu macOS để chạy)
-echo   [4] Thoát
+echo Chon nen tang ban muon build:
+echo   [1] Android APK (File cai dat truc tiep)
+echo   [2] Android App Bundle - AAB (De phat hanh Google Play)
+echo   [3] iOS IPA (Yeu cau macOS de chay)
+echo   [4] Thoat
 echo.
 
-set /p platform_choice="Nhập lựa chọn của bạn [1-4]: "
+set /p platform_choice="Nhap lua chon cua ban [1-4]: "
 
 if "%platform_choice%"=="1" (
     set TARGET=apk
@@ -52,19 +51,19 @@ if "%platform_choice%"=="4" (
 )
 
 echo.
-echo [❌ Lựa chọn không hợp lệ! Vui lòng thử lại.]
+echo [X Lua chon khong hop le! Vui long thu lai.]
 echo.
 goto MENU
 
 :ENV_MENU
 echo.
-echo Chọn môi trường cấu hình:
-echo   [1] Development (Sử dụng .env.development / lib/main_dev.dart)
-echo   [2] Production (Sử dụng .env.production / lib/main.dart)
-echo   [3] Quay lại menu trước
+echo Chon moi truong cau hinh:
+echo   [1] Development (Su dung .env.development / lib/main_dev.dart)
+echo   [2] Production (Su dung .env.production / lib/main.dart)
+echo   [3] Quay lai menu truoc
 echo.
 
-set /p env_choice="Nhập lựa chọn của bạn [1-3]: "
+set /p env_choice="Nhap lua chon cua ban [1-3]: "
 
 if "%env_choice%"=="1" (
     set ENV=dev
@@ -80,32 +79,32 @@ if "%env_choice%"=="3" (
 )
 
 echo.
-echo [❌ Lựa chọn không hợp lệ! Vui lòng thử lại.]
+echo [X Lua chon khong hop le! Vui long thu lai.]
 echo.
 goto ENV_MENU
 
 :RUN_BUILD
 echo.
-echo ⏳ Đang chạy lệnh build: node scripts\build_app.js %TARGET% %ENV%
-echo ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+echo [*] Dang chay lenh build: node scripts\build_app.js %TARGET% %ENV%
+echo ====================================================
 echo.
 
 node scripts\build_app.js %TARGET% %ENV%
 
 if %errorlevel% neq 0 (
     echo.
-    echo [❌ BUILD THẤT BẠI] Đã xảy ra lỗi trong quá trình build.
+    echo [X BUILD THAT BAI] Da xay ra loi trong qua trinh build.
     echo.
     pause
     goto MENU
 )
 
 echo.
-echo [🎉 HOÀN THÀNH] Quá trình build hoàn tất thành công!
+echo [v HOAN THANH] Qua trinh build hoan tat thanh cong!
 echo.
 pause
 goto MENU
 
 :END
-echo Cảm ơn bạn đã sử dụng. Hẹn gặp lại!
+echo Cam on ban da su dung. Hen gap lai!
 endlocal
