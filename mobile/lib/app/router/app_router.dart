@@ -10,11 +10,13 @@ import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/scenarios/presentation/pages/monthly_checkin_page.dart';
 import '../../features/scenarios/presentation/pages/scenario_dashboard_page.dart';
 import '../../features/scenarios/presentation/pages/what_if_page.dart';
+import '../../features/profile/presentation/providers/profile_provider.dart';
 import 'routes.dart';
 
 /// GoRouter provider — manually created (no code generation needed for router).
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
+  final hasCompletedOnboarding = ref.watch(hasCompletedOnboardingProvider);
 
   return GoRouter(
     initialLocation: AppRoutes.splash,
@@ -23,6 +25,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isAuth = authState.valueOrNull != null;
       final isAuthRoute = state.matchedLocation == AppRoutes.login;
       final isSplash = state.matchedLocation == AppRoutes.splash;
+      final isOnboardingRoute = state.matchedLocation == AppRoutes.onboarding;
 
       // Still loading auth state — don't redirect yet
       if (authState.isLoading) return null;
@@ -30,8 +33,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Not authenticated → go to login
       if (!isAuth && !isAuthRoute && !isSplash) return AppRoutes.login;
 
-      // Already authenticated → skip login/splash
-      if (isAuth && (isAuthRoute || isSplash)) return AppRoutes.home;
+      if (isAuth) {
+        // Still checking onboarding state
+        if (hasCompletedOnboarding.isLoading) return null;
+
+        final hasOnboarded = hasCompletedOnboarding.valueOrNull ?? false;
+
+        if (!hasOnboarded) {
+          // Must complete onboarding first
+          if (!isOnboardingRoute) return AppRoutes.onboarding;
+        } else {
+          // Already onboarded → skip login, splash, and onboarding
+          if (isAuthRoute || isSplash || isOnboardingRoute) {
+            return AppRoutes.home;
+          }
+        }
+      }
 
       return null;
     },
