@@ -17,12 +17,24 @@
   },
   "pending_tasks": [
     {
-      "task": "Kiểm thử ứng dụng trên thiết bị",
-      "priority": "high",
-      "notes": "Người dùng hiện đang khởi chạy thử trên Emulator-5554."
+      "task": "Nghiên cứu tính năng Thêm nhiều mục tiêu",
+      "priority": "medium",
+      "notes": "Người dùng thắc mắc làm sao để tạo nhiều mục tiêu."
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-06-03T21:50:00Z",
+      "type": "feature",
+      "description": "Fix loạt bug trải nghiệm (Splash kẹt, UI giật cục, văng app do Riverpod autoDispose) và làm xong tính năng Lịch sử Check-in (xem và sửa lịch sử).",
+      "files": [
+        "mobile/lib/features/scenarios/presentation/pages/scenario_dashboard_page.dart",
+        "mobile/lib/features/scenarios/presentation/pages/monthly_checkin_page.dart",
+        "mobile/lib/app/router/app_router.dart",
+        "mobile/lib/features/scenarios/presentation/providers/scenario_provider.dart",
+        "mobile/lib/features/profile/presentation/providers/profile_provider.dart"
+      ]
+    },
     {
       "timestamp": "2026-06-03T19:04:00Z",
       "type": "feature",
@@ -98,6 +110,11 @@
     {
       "error": "Kẹt màn hình Splash",
       "solution": "Bỏ điều kiện && !isSplash trong logic check auth của GoRouter",
+      "resolved": true
+    },
+    {
+      "error": "Treo Async do Riverpod autoDispose",
+      "solution": "Dùng @Riverpod(keepAlive: true) trên repository và notifier",
       "resolved": true
     }
   ],

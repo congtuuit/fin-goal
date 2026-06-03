@@ -28,3 +28,14 @@ Dự án: **fin-goal (Financial Simulator App)**
 
 ### Fixed
 - Sửa lỗi kẹt màn hình Splash (loading vô tận) bằng cách hiệu chỉnh logic điều hướng trong `lib/app/router/app_router.dart`.
+- Tự động focus input (FocusNode) trong các bước Onboarding.
+- Sửa lỗi văng app khi gọi `createProfile` và `saveRecord` (treo loading) do Provider bị huỷ (autoDispose) khi đang await async logic. Áp dụng `@Riverpod(keepAlive: true)`.
+- Sửa lỗi vòng lặp chuyển trang (navigation loop) gây giật màn hình khi bấm Back từ màn hình chọn mục tiêu (Dashboard hiển thị Empty State thay vì ép chuyển trang).
+- Fix lỗi UI giật cục (layout shift) khi thanh Slider làm chuỗi text "Tháng 12/2026" vắt dòng, bằng cách bọc `FittedBox`.
+- Gỡ bỏ `.animate()` ở các component cập nhật liên tục (khi kéo slider) để tránh quá tải render.
+
+### Added
+- Tính năng Lịch sử Check-in:
+  - Nút "Check-in tháng này" tự đổi thành "Sửa Check-in" nếu đã cập nhật.
+  - Hiển thị danh sách lịch sử dưới Dashboard.
+  - Bấm vào thẻ lịch sử để sửa số tiền cũ mượt mà.

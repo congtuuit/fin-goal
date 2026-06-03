@@ -77,10 +77,12 @@
       "Gọi AI trực tiếp từ thiết bị: Sử dụng HttpClient core của dart:io giúp tránh lỗi CORS và không cần cài thêm các package API Generative ngoài.",
       "Android SDK hiện đại (như thư viện androidx.browser của Firebase) yêu cầu tối thiểu AGP 8.9.1.",
       "AGP 9.0.1 loại bỏ Kotlin Gradle Plugin (KGP). Nếu có plugin cũ (như app_links) đòi KGP, phải khai báo android.builtInKotlin=false trong gradle.properties để vượt rào.",
-      "sentry_flutter (JNI) có lỗi Cannot query provider với các bản AGP hiện đại. Hiện tại đã tháo gỡ khỏi dự án."
+      "sentry_flutter (JNI) có lỗi Cannot query provider với các bản AGP hiện đại. Hiện tại đã tháo gỡ khỏi dự án.",
+      "Lỗi treo app do Riverpod autoDispose: Khi Notifier thực hiện các tác vụ async dài (như gọi API, DB), nếu màn hình hiện tại không lắng nghe (watch), provider sẽ tự động bị huỷ. Khi async chạy xong, nó cố gắng cập nhật `state` nhưng object đã bị giải phóng, gây lỗi `Ref._throwIfInvalidUsage`. Khắc phục bằng `@Riverpod(keepAlive: true)`."
     ],
     "conventions": [
-      "Kiến trúc Clean Architecture kết hợp Feature-first folder (gom theo tính năng thay vì phân lớp)."
+      "Kiến trúc Clean Architecture kết hợp Feature-first folder (gom theo tính năng thay vì phân lớp).",
+      "Repository và Notifier chứa logic async phức tạp cần sử dụng `@Riverpod(keepAlive: true)` để tránh lỗi huỷ giữa chừng."
     ]
   }
 }
