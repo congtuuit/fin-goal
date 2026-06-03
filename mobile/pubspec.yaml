@@ -1,0 +1,104 @@
+name: fin_goal
+description: Financial Scenario Simulator — Mô phỏng tài chính dựa trên dữ liệu bạn cung cấp.
+publish_to: 'none'
+
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ── State Management ──────────────────────────────────────────────────────
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+
+  # ── Navigation ────────────────────────────────────────────────────────────
+  go_router: ^14.0.0
+
+  # ── Dependency Injection ──────────────────────────────────────────────────
+  get_it: ^8.0.0
+  injectable: ^2.4.4
+
+  # ── Network ───────────────────────────────────────────────────────────────
+  dio: ^5.4.3
+  retrofit: ^4.1.0
+
+  # ── Backend (Supabase) ────────────────────────────────────────────────────
+  supabase_flutter: ^2.5.0
+
+  # ── Local Database (Offline-first) ────────────────────────────────────────
+  isar: ^3.1.0+1
+  isar_flutter_libs: ^3.1.0+1
+  path_provider: ^2.1.3
+
+  # ── Payments (RevenueCat) ─────────────────────────────────────────────────
+  purchases_flutter: ^6.22.0
+
+  # ── Push Notifications ────────────────────────────────────────────────────
+  firebase_core: ^3.0.0
+  firebase_messaging: ^15.0.0
+
+  # ── Analytics & Error Tracking ────────────────────────────────────────────
+  posthog_flutter: ^4.0.0
+  sentry_flutter: ^8.0.0
+
+  # ── UI / Animations ───────────────────────────────────────────────────────
+  google_fonts: ^6.2.1
+  lottie: ^3.1.0
+  flutter_svg: ^2.0.10
+  screenshot: ^2.1.0           # Viral card generator
+  flutter_animate: ^4.5.0      # Micro-animations
+  gap: ^3.0.1                  # Spacing helper
+
+  # ── Utils ─────────────────────────────────────────────────────────────────
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.9.0
+  intl: ^0.19.0
+  equatable: ^2.0.5
+  dartz: ^0.10.1               # Either type — functional error handling
+  shared_preferences: ^2.3.0
+  package_info_plus: ^8.0.0
+  url_launcher: ^6.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # ── Code Generation ───────────────────────────────────────────────────────
+  build_runner: ^2.4.11
+  riverpod_generator: ^2.4.3
+  injectable_generator: ^2.4.4
+  freezed: ^2.5.2
+  json_serializable: ^6.8.0
+  isar_generator: ^3.1.0+1
+  retrofit_generator: ^8.1.0
+
+  # ── Testing ───────────────────────────────────────────────────────────────
+  mocktail: ^1.0.4
+
+  # ── Linting ───────────────────────────────────────────────────────────────
+  flutter_lints: ^4.0.0
+  very_good_analysis: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/goals/
+    - assets/animations/
+    - assets/fonts/
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700

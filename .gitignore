@@ -1,0 +1,49 @@
+# Flutter / Dart
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/pubspec.lock
+mobile/android/.gradle
+mobile/android/local.properties
+mobile/android/app/google-services.json
+mobile/ios/.symlinks
+mobile/ios/Pods
+mobile/ios/Runner.xcworkspace/xcshareddata/
+mobile/ios/GoogleService-Info.plist
+
+# Generated files
+mobile/lib/**/*.g.dart
+mobile/lib/**/*.freezed.dart
+mobile/lib/**/*.config.dart
+mobile/lib/app/di/injection.config.dart
+
+# Isar
+mobile/lib/**/*.isar.dart
+
+# Environment
+.env
+.env.local
+.env.staging
+.env.production
+**/.env
+
+# Supabase
+supabase/.temp/
+supabase/functions/.cache/
+
+# IDE
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Secrets — NEVER commit these
+**/google-services.json
+**/GoogleService-Info.plist
+**/keystore.jks
+**/*.keystore
+**/key.properties
