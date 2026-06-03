@@ -9,7 +9,6 @@ class FinancialProfileModel {
   final int age;
   final int monthlyIncome;
   final int fixedExpenses;
-  final int currentSavings;
   final int salaryDate;
 
   const FinancialProfileModel({
@@ -17,7 +16,6 @@ class FinancialProfileModel {
     required this.age,
     required this.monthlyIncome,
     required this.fixedExpenses,
-    required this.currentSavings,
     required this.salaryDate,
   });
 
@@ -32,7 +30,6 @@ class FinancialProfileModel {
       age: entity.age,
       monthlyIncome: entity.monthlyIncome,
       fixedExpenses: entity.fixedExpenses,
-      currentSavings: entity.currentSavings,
       salaryDate: entity.salaryDate,
     );
   }
@@ -43,7 +40,6 @@ class FinancialProfileModel {
       age: age,
       monthlyIncome: monthlyIncome,
       fixedExpenses: fixedExpenses,
-      currentSavings: currentSavings,
       salaryDate: salaryDate,
     );
   }

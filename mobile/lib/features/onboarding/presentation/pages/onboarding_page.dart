@@ -31,8 +31,8 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final _savingsCtrl = TextEditingController();
   final _salaryDateCtrl = TextEditingController();
 
-  final _formKeys = List.generate(5, (_) => GlobalKey<FormState>());
-  final _focusNodes = List.generate(5, (_) => FocusNode());
+  final _formKeys = List.generate(4, (_) => GlobalKey<FormState>());
+  final _focusNodes = List.generate(4, (_) => FocusNode());
 
   @override
   void initState() {
@@ -58,7 +58,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
   void _nextPage() {
     if (_formKeys[_currentIndex].currentState?.validate() ?? false) {
-      if (_currentIndex < 4) {
+      if (_currentIndex < 3) {
         FocusScope.of(context).unfocus(); // Unfocus before animating
         _pageController.nextPage(
           duration: const Duration(milliseconds: 300),
@@ -97,7 +97,6 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       age: int.parse(_ageCtrl.text.trim()),
       monthlyIncome: CurrencyFormatter.parse(_incomeCtrl.text) ?? 0,
       fixedExpenses: CurrencyFormatter.parse(_expenseCtrl.text) ?? 0,
-      currentSavings: CurrencyFormatter.parse(_savingsCtrl.text) ?? 0,
       salaryDate: int.parse(_salaryDateCtrl.text.trim()),
     );
 
@@ -164,7 +163,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             : null,
         title: Row(
           children: List.generate(
-            5,
+            4,
             (index) => Expanded(
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -236,23 +235,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     ),
                   ),
 
-                  // Step 4: Savings
+                  // Step 4: Salary Date
                   _buildStep(
                     index: 3,
-                    title: 'Bạn đang có bao nhiêu tiền tiết kiệm?',
-                    subtitle: 'Để trống nếu bạn mới bắt đầu.',
-                    child: _buildCurrencyInput(
-                      _savingsCtrl,
-                      '',
-                      '50.000.000',
-                      Validators.savings,
-                      _focusNodes[3],
-                    ),
-                  ),
-
-                  // Step 5: Salary Date
-                  _buildStep(
-                    index: 4,
                     title: 'Ngày nhận lương hàng tháng?',
                     subtitle: 'Để ứng dụng nhắc nhở bạn cập nhật tình hình tiết kiệm.',
                     child: TextFormField(
@@ -285,7 +270,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                         width: 20,
                         child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                       )
-                    : Text(_currentIndex == 4 ? 'Hoàn tất' : 'Tiếp tục'),
+                    : Text(_currentIndex == 3 ? 'Hoàn tất' : 'Tiếp tục'),
               ),
             ),
           ],

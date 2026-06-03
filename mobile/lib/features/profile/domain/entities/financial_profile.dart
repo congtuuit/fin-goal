@@ -12,8 +12,6 @@ class FinancialProfile extends Equatable {
   /// Fixed monthly expenses in VND (rent, loan repayments, etc.)
   final int fixedExpenses;
 
-  /// Current total savings in VND
-  final int currentSavings;
 
   /// Day of month salary is received (1-31)
   final int salaryDate;
@@ -23,7 +21,6 @@ class FinancialProfile extends Equatable {
     required this.age,
     required this.monthlyIncome,
     required this.fixedExpenses,
-    required this.currentSavings,
     required this.salaryDate,
   });
 
@@ -44,7 +41,6 @@ class FinancialProfile extends Equatable {
     int? age,
     int? monthlyIncome,
     int? fixedExpenses,
-    int? currentSavings,
     int? salaryDate,
   }) {
     return FinancialProfile(
@@ -52,11 +48,10 @@ class FinancialProfile extends Equatable {
       age: age ?? this.age,
       monthlyIncome: monthlyIncome ?? this.monthlyIncome,
       fixedExpenses: fixedExpenses ?? this.fixedExpenses,
-      currentSavings: currentSavings ?? this.currentSavings,
       salaryDate: salaryDate ?? this.salaryDate,
     );
   }
 
   @override
-  List<Object?> get props => [userId, age, monthlyIncome, fixedExpenses, currentSavings, salaryDate];
+  List<Object?> get props => [userId, age, monthlyIncome, fixedExpenses, salaryDate];
 }

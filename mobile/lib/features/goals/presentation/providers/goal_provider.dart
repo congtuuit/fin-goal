@@ -101,4 +101,25 @@ class GoalsNotifier extends _$GoalsNotifier {
       },
     );
   }
+
+  Future<Failure?> updateGoal(Goal goal) async {
+    final oldState = state;
+    // Tạm thời hiển thị loading hoặc có thể optimistic UI update
+    
+    final result = await ref.read(goalRepositoryProvider).updateGoal(goal);
+    return result.fold(
+      (failure) {
+        return failure;
+      },
+      (updatedGoal) {
+        if (oldState is GoalsLoaded) {
+          final updatedGoals = oldState.goals.map((g) {
+            return g.id == updatedGoal.id ? updatedGoal : g;
+          }).toList();
+          state = GoalsLoaded(updatedGoals);
+        }
+        return null;
+      },
+    );
+  }
 }

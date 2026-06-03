@@ -51,7 +51,7 @@ class _MonthlyCheckinPageState extends ConsumerState<MonthlyCheckinPage> {
     final goal = (ref.read(goalsProvider) as GoalsLoaded).primaryGoal!;
     
     final actual = CurrencyFormatter.parse(_actualCtrl.text) ?? 0;
-    final planned = profile.suggestedMonthlySaving;
+    final planned = goal.monthlySaving;
     
     // Calculate variance: (planned - actual) / planned
     final variance = planned > 0 ? (planned - actual) / planned : 0.0;
@@ -79,11 +79,11 @@ class _MonthlyCheckinPageState extends ConsumerState<MonthlyCheckinPage> {
     final error = await ref.read(recordsProvider(goal.id).notifier).saveRecord(record);
 
     if (error == null) {
-      // Update profile savings
-      final updatedProfile = profile.copyWith(
-        currentSavings: profile.currentSavings + actual,
+      // Update goal savings
+      final updatedGoal = goal.copyWith(
+        currentSavings: goal.currentSavings + actual,
       );
-      await ref.read(profileProvider.notifier).updateProfile(updatedProfile);
+      await ref.read(goalsProvider.notifier).updateGoal(updatedGoal);
 
       if (mounted) {
         setState(() {
@@ -119,12 +119,12 @@ class _MonthlyCheckinPageState extends ConsumerState<MonthlyCheckinPage> {
   }
 
   Widget _buildFormView() {
-    final profileState = ref.watch(profileProvider);
-    if (profileState is! ProfileLoaded || profileState.profile == null) {
+    final goalsState = ref.watch(goalsProvider);
+    if (goalsState is! GoalsLoaded || goalsState.primaryGoal == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    final planned = profileState.profile!.suggestedMonthlySaving;
+    final planned = goalsState.primaryGoal!.monthlySaving;
 
     return Form(
       key: _formKey,

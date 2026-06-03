@@ -10,6 +10,8 @@ class GoalModel {
   final String type;
   final String name;
   final int targetAmount;
+  final int currentSavings;
+  final int monthlySaving;
   final String? emoji;
   final bool isActive;
   final bool isPrimary;
@@ -23,6 +25,8 @@ class GoalModel {
     required this.type,
     required this.name,
     required this.targetAmount,
+    this.currentSavings = 0,
+    this.monthlySaving = 0,
     this.emoji,
     this.isActive = true,
     this.isPrimary = false,
@@ -54,6 +58,8 @@ class GoalModel {
       type: entity.type.name,
       name: entity.name,
       targetAmount: entity.targetAmount,
+      currentSavings: entity.currentSavings,
+      monthlySaving: entity.monthlySaving,
       emoji: entity.emoji,
       isActive: entity.isActive,
       isPrimary: entity.isPrimary,
@@ -73,6 +79,8 @@ class GoalModel {
       ),
       name: name,
       targetAmount: targetAmount,
+      currentSavings: currentSavings,
+      monthlySaving: monthlySaving,
       emoji: emoji,
       isActive: isActive,
       isPrimary: isPrimary,

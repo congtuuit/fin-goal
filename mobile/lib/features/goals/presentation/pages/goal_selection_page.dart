@@ -10,6 +10,7 @@ import 'package:fin_goal/core/utils/currency_formatter.dart';
 import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
 import 'package:fin_goal/features/goals/domain/entities/goal.dart';
 import 'package:fin_goal/features/goals/presentation/providers/goal_provider.dart';
+import 'package:fin_goal/features/profile/presentation/providers/profile_provider.dart';
 
 class GoalSelectionPage extends ConsumerStatefulWidget {
   const GoalSelectionPage({super.key});
@@ -40,6 +41,15 @@ class _GoalSelectionPageState extends ConsumerState<GoalSelectionPage> {
   Future<void> _showGoalConfigSheet(_GoalPreset preset) async {
     final amountCtrl = TextEditingController();
     final nameCtrl = TextEditingController(text: preset.title);
+    
+    final profileState = ref.read(profileProvider);
+    // ignore: invalid_use_of_visible_for_testing_member
+    final defaultMonthlySaving = profileState is ProfileLoaded ? profileState.profile?.suggestedMonthlySaving ?? 0 : 0;
+    
+    final currentSavingsCtrl = TextEditingController();
+    final monthlySavingCtrl = TextEditingController(
+      text: defaultMonthlySaving > 0 ? CurrencyFormatter.formatInput(defaultMonthlySaving) : '',
+    );
     final formKey = GlobalKey<FormState>();
 
     await showModalBottomSheet(
@@ -104,6 +114,56 @@ class _GoalSelectionPageState extends ConsumerState<GoalSelectionPage> {
                     }
                   },
                 ),
+                const Gap(AppSizes.lg),
+                TextFormField(
+                  controller: currentSavingsCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Số tiền đã có sẵn (Tùy chọn)',
+                    hintText: 'VD: 10.000.000',
+                    suffixText: '₫',
+                  ),
+                  onChanged: (value) {
+                    final parsed = CurrencyFormatter.parse(value);
+                    if (parsed != null) {
+                      final formatted = CurrencyFormatter.formatInput(parsed);
+                      if (formatted != value) {
+                        currentSavingsCtrl.value = TextEditingValue(
+                          text: formatted,
+                          selection: TextSelection.collapsed(offset: formatted.length),
+                        );
+                      }
+                    }
+                  },
+                ),
+                const Gap(AppSizes.lg),
+                TextFormField(
+                  controller: monthlySavingCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Số tiền sẽ tiết kiệm mỗi tháng',
+                    hintText: 'VD: 5.000.000',
+                    suffixText: '₫',
+                  ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Vui lòng nhập số tiền';
+                    final val = CurrencyFormatter.parse(v);
+                    if (val == null || val <= 0) return 'Số tiền không hợp lệ';
+                    return null;
+                  },
+                  onChanged: (value) {
+                    final parsed = CurrencyFormatter.parse(value);
+                    if (parsed != null) {
+                      final formatted = CurrencyFormatter.formatInput(parsed);
+                      if (formatted != value) {
+                        monthlySavingCtrl.value = TextEditingValue(
+                          text: formatted,
+                          selection: TextSelection.collapsed(offset: formatted.length),
+                        );
+                      }
+                    }
+                  },
+                ),
                 const Gap(AppSizes.xxl),
                 ElevatedButton(
                   onPressed: () {
@@ -112,6 +172,8 @@ class _GoalSelectionPageState extends ConsumerState<GoalSelectionPage> {
                       _createGoal(
                         name: nameCtrl.text.trim(),
                         amount: CurrencyFormatter.parse(amountCtrl.text)!,
+                        currentSavings: CurrencyFormatter.parse(currentSavingsCtrl.text) ?? 0,
+                        monthlySaving: CurrencyFormatter.parse(monthlySavingCtrl.text) ?? 0,
                         preset: preset,
                       );
                     }
@@ -134,6 +196,8 @@ class _GoalSelectionPageState extends ConsumerState<GoalSelectionPage> {
   Future<void> _createGoal({
     required String name,
     required int amount,
+    required int currentSavings,
+    required int monthlySaving,
     required _GoalPreset preset,
   }) async {
     setState(() => _isLoading = true);
@@ -147,6 +211,8 @@ class _GoalSelectionPageState extends ConsumerState<GoalSelectionPage> {
       type: preset.type,
       name: name,
       targetAmount: amount,
+      currentSavings: currentSavings,
+      monthlySaving: monthlySaving,
       emoji: preset.icon,
       isPrimary: true, // First goal is primary
       createdAt: DateTime.now(),

@@ -49,8 +49,8 @@ class _WhatIfPageState extends ConsumerState<WhatIfPage> {
     final cost = CurrencyFormatter.parse(_costCtrl.text) ?? 0;
     
     final input = ScenarioInput(
-      currentSavings: profile.currentSavings,
-      monthlySaving: profile.suggestedMonthlySaving,
+      currentSavings: goal.currentSavings,
+      monthlySaving: goal.monthlySaving > 0 ? goal.monthlySaving : profile.suggestedMonthlySaving,
       targetAmount: goal.targetAmount,
       inflationRate: 0.05,
       varianceBuffer: 0.15,

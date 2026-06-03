@@ -18,6 +18,8 @@ class Goal extends Equatable {
   final GoalType type;
   final String name;
   final int targetAmount; // VND
+  final int currentSavings; // VND (số dư hiện tại cho mục tiêu này)
+  final int monthlySaving; // VND (số tiền tiết kiệm mỗi tháng cho mục tiêu này)
   final String? emoji;
   final bool isActive;
   final bool isPrimary;
@@ -31,6 +33,8 @@ class Goal extends Equatable {
     required this.type,
     required this.name,
     required this.targetAmount,
+    this.currentSavings = 0,
+    this.monthlySaving = 0,
     this.emoji,
     this.isActive = true,
     this.isPrimary = false,
@@ -45,6 +49,8 @@ class Goal extends Equatable {
     GoalType? type,
     String? name,
     int? targetAmount,
+    int? currentSavings,
+    int? monthlySaving,
     String? emoji,
     bool? isActive,
     bool? isPrimary,
@@ -58,6 +64,8 @@ class Goal extends Equatable {
       type: type ?? this.type,
       name: name ?? this.name,
       targetAmount: targetAmount ?? this.targetAmount,
+      currentSavings: currentSavings ?? this.currentSavings,
+      monthlySaving: monthlySaving ?? this.monthlySaving,
       emoji: emoji ?? this.emoji,
       isActive: isActive ?? this.isActive,
       isPrimary: isPrimary ?? this.isPrimary,
@@ -74,6 +82,8 @@ class Goal extends Equatable {
         type,
         name,
         targetAmount,
+        currentSavings,
+        monthlySaving,
         emoji,
         isActive,
         isPrimary,

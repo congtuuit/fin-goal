@@ -111,10 +111,10 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
 
     // 5. Calculate scenario
     final monthlySaving =
-        _customMonthlySaving ?? profile.suggestedMonthlySaving;
+        _customMonthlySaving ?? primaryGoal.monthlySaving;
 
     final input = ScenarioInput(
-      currentSavings: profile.currentSavings,
+      currentSavings: primaryGoal.currentSavings,
       monthlySaving: monthlySaving,
       targetAmount: primaryGoal.targetAmount,
       inflationRate: 0.05,
