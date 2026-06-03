@@ -162,6 +162,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
                   const Gap(AppSizes.xxl),
 
+                  // Cashflow Game Banner
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, bottom: 8),
+                    child: Text(
+                      'GIÁO DỤC TÀI CHÍNH',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textMuted,
+                            letterSpacing: 1.2,
+                          ),
+                    ),
+                  ),
+                  _buildCashflowBanner(),
+
+                  const Gap(AppSizes.xxl),
+
                   // 4. Khác
                   Padding(
                     padding: const EdgeInsets.only(left: 8, bottom: 8),
@@ -292,6 +308,56 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ),
             ),
             const Icon(Icons.chevron_right, color: AppColors.primary),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCashflowBanner() {
+    return InkWell(
+      onTap: () => context.push(AppRoutes.cashflowDashboard),
+      borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+      child: Container(
+        padding: const EdgeInsets.all(AppSizes.lg),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF2E8B57), Color(0xFF3CB371)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF2E8B57).withValues(alpha: 0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            )
+          ],
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.casino, color: Colors.white, size: 36),
+            const Gap(AppSizes.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Chơi Game Cashflow',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 16)),
+                  const Gap(4),
+                  Text('Thoát khỏi Rat Race cùng AI Cha Giàu',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Colors.white70)),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Colors.white),
           ],
         ),
       ),

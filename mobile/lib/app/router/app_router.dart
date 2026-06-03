@@ -15,6 +15,8 @@ import 'package:fin_goal/features/profile/presentation/pages/settings_page.dart'
 import 'package:fin_goal/features/premium/presentation/pages/paywall_page.dart';
 import 'package:fin_goal/features/premium/presentation/pages/payment_page.dart';
 import 'package:fin_goal/features/scenarios/domain/entities/monthly_record.dart';
+import 'package:fin_goal/features/cashflow/presentation/pages/cashflow_dashboard_page.dart';
+import 'package:fin_goal/features/cashflow/presentation/pages/cashflow_game_page.dart';
 import 'package:fin_goal/app/router/routes.dart';
 
 /// GoRouter provider — manually created (no code generation needed for router).
@@ -72,6 +74,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.profile,
         builder: (_, __) => const SettingsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.cashflowDashboard,
+        builder: (_, __) => const CashflowDashboardPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.cashflowGame,
+        builder: (_, __) => const CashflowGamePage(),
       ),
       GoRoute(
         path: AppRoutes.home,
