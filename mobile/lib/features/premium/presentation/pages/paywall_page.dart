@@ -26,7 +26,7 @@ class PaywallPage extends ConsumerWidget {
               ),
             ),
           ),
-          
+
           SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -39,47 +39,56 @@ class PaywallPage extends ConsumerWidget {
                     onPressed: () => context.pop(),
                   ),
                 ),
-                
+
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(AppSizes.pageHorizontalPadding),
+                    padding:
+                        const EdgeInsets.all(AppSizes.pageHorizontalPadding),
                     child: Column(
                       children: [
                         const Icon(
                           Icons.diamond_outlined,
                           size: 80,
                           color: AppColors.primary,
-                        ).animate().scale(delay: 200.ms, curve: Curves.easeOutBack),
+                        )
+                            .animate()
+                            .scale(delay: 200.ms, curve: Curves.easeOutBack),
                         const Gap(AppSizes.lg),
                         Text(
                           'Mở khóa toàn bộ\nsức mạnh của AI',
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            height: 1.2,
-                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                height: 1.2,
+                              ),
                         ).animate().fadeIn(delay: 300.ms),
                         const Gap(AppSizes.xl),
-                        
-                        _buildFeatureRow(context, 'Không giới hạn kịch bản "What-if"'),
-                        _buildFeatureRow(context, 'AI phân tích chuyên sâu mỗi tháng'),
-                        _buildFeatureRow(context, 'Tạo nhiều mục tiêu cùng lúc'),
+
+                        _buildFeatureRow(
+                            context, 'Không giới hạn kịch bản "What-if"'),
+                        _buildFeatureRow(
+                            context, 'AI phân tích chuyên sâu mỗi tháng'),
+                        _buildFeatureRow(
+                            context, 'Tạo nhiều mục tiêu cùng lúc'),
                         _buildFeatureRow(context, 'Hỗ trợ ưu tiên 24/7'),
-                        
+
                         const Gap(AppSizes.xxl),
-                        
+
                         // Pricing Cards
                         _buildPricingCard(
                           context,
-                          title: 'Gói Năm (Tiết kiệm 50%)',
+                          title: 'Gói Năm',
                           price: '599.000₫',
-                          subtitle: 'chỉ 49.000₫ / tháng',
+                          subtitle: 'Giảm 50% • chỉ 49.000₫ / tháng',
                           isPopular: true,
                           onTap: () => _purchase(context, ref),
                         ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
-                        
+
                         const Gap(AppSizes.md),
-                        
+
                         _buildPricingCard(
                           context,
                           title: 'Gói Tháng',
@@ -129,48 +138,74 @@ class PaywallPage extends ConsumerWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(AppSizes.lg),
+        padding: const EdgeInsets.all(AppSizes.xl),
         decoration: BoxDecoration(
-          color: isPopular ? AppColors.primary.withValues(alpha: 0.1) : AppColors.surfaceDark,
-          borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+          color: isPopular
+              ? AppColors.primary.withValues(alpha: 0.1)
+              : AppColors.surfaceElevatedDark,
+          borderRadius: BorderRadius.circular(AppSizes.radiusXl),
           border: Border.all(
             color: isPopular ? AppColors.primary : AppColors.borderDark,
             width: isPopular ? 2 : 1,
           ),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(title, style: Theme.of(context).textTheme.titleMedium),
-                      if (isPopular) ...[
-                        const Gap(AppSizes.sm),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Text(
-                            'Phổ biến',
-                            style: TextStyle(fontSize: 10, color: Colors.black, fontWeight: FontWeight.bold),
-                          ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: isPopular
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
                         ),
-                      ],
-                    ],
                   ),
-                  const Gap(AppSizes.xs),
-                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-                ],
-              ),
+                ),
+                if (isPopular)
+                  Container(
+                    margin: const EdgeInsets.only(left: AppSizes.sm),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      '🔥 TỐT NHẤT',
+                      style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+              ],
             ),
+            const Gap(AppSizes.md),
             Text(
               price,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const Gap(AppSizes.xs),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  subtitle,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textMuted,
+                      ),
+                ),
+                Icon(Icons.arrow_forward_ios,
+                    size: 16,
+                    color: isPopular ? AppColors.primary : AppColors.textMuted),
+              ],
             ),
           ],
         ),
