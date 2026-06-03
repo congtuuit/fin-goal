@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/errors/failures.dart';
-import '../entities/goal.dart';
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/goals/domain/entities/goal.dart';
 
 abstract class GoalRepository {
   /// Fetch all active goals for the current user

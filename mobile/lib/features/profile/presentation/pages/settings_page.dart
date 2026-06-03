@@ -4,12 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:gap/gap.dart';
 
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_sizes.dart';
-import '../../../../app/di/injection.dart';
-import '../../../../app/router/routes.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../../core/services/direct_client_ai_service.dart';
+import 'package:fin_goal/core/constants/app_colors.dart';
+import 'package:fin_goal/core/constants/app_sizes.dart';
+import 'package:fin_goal/app/di/injection.dart';
+import 'package:fin_goal/app/router/routes.dart';
+import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
+import 'package:fin_goal/core/services/direct_client_ai_service.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -60,6 +60,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       await _prefs.setString(DirectClientAiService.keyProvider, _selectedProvider);
       await _prefs.setString(DirectClientAiService.keyApiKey, _apiKeyCtrl.text.trim());
       await _prefs.setString(DirectClientAiService.keyModel, _selectedModel);
+
+      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -160,9 +162,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         ),
                       );
 
-                      if (confirm == true && mounted) {
-                        await ref.read(authNotifierProvider.notifier).signOut();
-                        if (mounted) context.go(AppRoutes.login);
+                      if (confirm == true) {
+                        await ref.read(authProvider.notifier).signOut();
+                        if (context.mounted) context.go(AppRoutes.login);
                       }
                     },
                   ),
@@ -185,7 +187,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundColor: AppColors.primary.withOpacity(0.2),
+            backgroundColor: AppColors.primary.withValues(alpha: 0.2),
             child: Text(
               displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U',
               style: const TextStyle(
@@ -234,7 +236,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           const Text('Chọn nhà cung cấp AI', style: TextStyle(fontWeight: FontWeight.w500)),
           const Gap(AppSizes.xs),
           DropdownButtonFormField<String>(
-            value: _selectedProvider,
+            initialValue: _selectedProvider,
             decoration: const InputDecoration(
               prefixIcon: Icon(Icons.psychology_outlined),
             ),
@@ -276,7 +278,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           const Text('Chọn mô hình (Model)', style: TextStyle(fontWeight: FontWeight.w500)),
           const Gap(AppSizes.xs),
           DropdownButtonFormField<String>(
-            value: _selectedModel,
+            initialValue: _selectedModel,
             decoration: const InputDecoration(
               prefixIcon: Icon(Icons.settings_suggest_outlined),
             ),

@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/auth/presentation/pages/login_page.dart';
-import '../../features/auth/presentation/pages/splash_page.dart';
-import '../../features/auth/presentation/providers/auth_provider.dart';
-import '../../features/goals/presentation/pages/goal_selection_page.dart';
-import '../../features/onboarding/presentation/pages/onboarding_page.dart';
-import '../../features/scenarios/presentation/pages/monthly_checkin_page.dart';
-import '../../features/scenarios/presentation/pages/scenario_dashboard_page.dart';
-import '../../features/scenarios/presentation/pages/what_if_page.dart';
-import '../../features/profile/presentation/providers/profile_provider.dart';
-import '../../features/profile/presentation/pages/settings_page.dart';
-import '../../features/premium/presentation/pages/paywall_page.dart';
-import 'routes.dart';
+import 'package:fin_goal/features/auth/presentation/pages/login_page.dart';
+import 'package:fin_goal/features/auth/presentation/pages/splash_page.dart';
+import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
+import 'package:fin_goal/features/goals/presentation/pages/goal_selection_page.dart';
+import 'package:fin_goal/features/onboarding/presentation/pages/onboarding_page.dart';
+import 'package:fin_goal/features/scenarios/presentation/pages/monthly_checkin_page.dart';
+import 'package:fin_goal/features/scenarios/presentation/pages/scenario_dashboard_page.dart';
+import 'package:fin_goal/features/scenarios/presentation/pages/what_if_page.dart';
+import 'package:fin_goal/features/profile/presentation/providers/profile_provider.dart';
+import 'package:fin_goal/features/profile/presentation/pages/settings_page.dart';
+import 'package:fin_goal/features/premium/presentation/pages/paywall_page.dart';
+import 'package:fin_goal/app/router/routes.dart';
 
 /// GoRouter provider — manually created (no code generation needed for router).
 final appRouterProvider = Provider<GoRouter>((ref) {

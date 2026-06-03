@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../../core/errors/failures.dart';
-import '../../domain/entities/monthly_record.dart';
-import '../../domain/repositories/record_repository.dart';
-import '../models/monthly_record_model.dart';
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/scenarios/domain/entities/monthly_record.dart';
+import 'package:fin_goal/features/scenarios/domain/repositories/record_repository.dart';
+import 'package:fin_goal/features/scenarios/data/models/monthly_record_model.dart';
 
 class LocalRecordRepositoryImpl implements RecordRepository {
   final SharedPreferences _prefs;

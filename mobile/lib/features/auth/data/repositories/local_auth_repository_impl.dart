@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../../core/errors/failures.dart';
-import '../../domain/entities/app_user.dart';
-import '../../domain/repositories/auth_repository.dart';
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/auth/domain/entities/app_user.dart';
+import 'package:fin_goal/features/auth/domain/repositories/auth_repository.dart';
 
 class LocalAuthRepositoryImpl implements AuthRepository {
   final SharedPreferences _prefs;
@@ -13,14 +13,12 @@ class LocalAuthRepositoryImpl implements AuthRepository {
   // Dùng StreamController để phát tin hiệu thay đổi trạng thái Auth
   final _authStreamController = StreamController<AppUser?>.broadcast();
 
-  LocalAuthRepositoryImpl(this._prefs) {
-    // Phát trạng thái hiện tại ngay khi khởi tạo
-    _authStreamController.add(getCurrentUser());
-  }
+  LocalAuthRepositoryImpl(this._prefs);
 
   @override
-  Stream<AppUser?> watchAuthState() {
-    return _authStreamController.stream;
+  Stream<AppUser?> watchAuthState() async* {
+    yield getCurrentUser();
+    yield* _authStreamController.stream;
   }
 
   @override

@@ -4,17 +4,17 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_sizes.dart';
-import '../../../../core/utils/currency_formatter.dart';
-import '../../../goals/presentation/providers/goal_provider.dart';
-import '../../../profile/presentation/providers/profile_provider.dart';
-import '../../domain/entities/scenario_query.dart';
-import '../../engine/scenario_engine.dart';
-import '../../engine/scenario_input.dart';
-import '../providers/scenario_provider.dart';
-import '../providers/ai_explanation_provider.dart';
-import '../widgets/ai_explanation_card.dart';
+import 'package:fin_goal/core/constants/app_colors.dart';
+import 'package:fin_goal/core/constants/app_sizes.dart';
+import 'package:fin_goal/core/utils/currency_formatter.dart';
+import 'package:fin_goal/features/goals/presentation/providers/goal_provider.dart';
+import 'package:fin_goal/features/profile/presentation/providers/profile_provider.dart';
+import 'package:fin_goal/features/scenarios/domain/entities/scenario_query.dart';
+import 'package:fin_goal/features/scenarios/engine/scenario_engine.dart';
+import 'package:fin_goal/features/scenarios/engine/scenario_input.dart';
+import 'package:fin_goal/features/scenarios/presentation/providers/scenario_provider.dart';
+import 'package:fin_goal/features/scenarios/presentation/providers/ai_explanation_provider.dart';
+import 'package:fin_goal/features/scenarios/presentation/widgets/ai_explanation_card.dart';
 
 class WhatIfPage extends ConsumerStatefulWidget {
   const WhatIfPage({super.key});
@@ -157,9 +157,9 @@ class _WhatIfPageState extends ConsumerState<WhatIfPage> {
                       return Container(
                         padding: const EdgeInsets.all(AppSizes.lg),
                         decoration: BoxDecoration(
-                          color: AppColors.danger.withOpacity(0.1),
+                          color: AppColors.danger.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-                          border: Border.all(color: AppColors.danger.withOpacity(0.3)),
+                          border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

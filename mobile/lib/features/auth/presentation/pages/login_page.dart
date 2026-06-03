@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_sizes.dart';
-import '../../../../core/constants/app_config.dart';
-import '../../presentation/providers/auth_provider.dart';
+import 'package:fin_goal/core/constants/app_colors.dart';
+import 'package:fin_goal/core/constants/app_sizes.dart';
+import 'package:fin_goal/core/constants/app_config.dart';
+import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -32,11 +32,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (AppConfig.isOffline) {
-      await ref.read(authNotifierProvider.notifier).signInWithName(
+      await ref.read(authProvider.notifier).signInWithName(
             _nameCtrl.text.trim(),
           );
     } else {
-      await ref.read(authNotifierProvider.notifier).signInWithEmail(
+      await ref.read(authProvider.notifier).signInWithEmail(
             email: _emailCtrl.text.trim(),
             password: _passwordCtrl.text,
           );
@@ -45,18 +45,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authStatus = ref.watch(authNotifierProvider);
+    final authStatus = ref.watch(authProvider);
     final isOffline = AppConfig.isOffline;
 
     // Listen for success/error
-    ref.listen(authNotifierProvider, (_, next) {
+    ref.listen(authProvider, (_, next) {
       if (next is AuthSuccess) {
         context.go('/home');
       } else if (next is AuthError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(next.message), backgroundColor: AppColors.danger),
         );
-        ref.read(authNotifierProvider.notifier).reset();
+        ref.read(authProvider.notifier).reset();
       }
     });
 

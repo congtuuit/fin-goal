@@ -1,10 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/errors/failures.dart';
-import '../../domain/entities/goal.dart';
-import '../../domain/repositories/goal_repository.dart';
-import '../models/goal_model.dart';
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/goals/domain/entities/goal.dart';
+import 'package:fin_goal/features/goals/domain/repositories/goal_repository.dart';
+import 'package:fin_goal/features/goals/data/models/goal_model.dart';
 
 class GoalRepositoryImpl implements GoalRepository {
   final SupabaseClient _client;

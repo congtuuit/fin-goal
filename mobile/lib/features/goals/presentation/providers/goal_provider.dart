@@ -1,15 +1,14 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../../core/constants/app_config.dart';
-import '../../../../app/di/injection.dart';
-import '../../../../core/errors/failures.dart';
-import '../../data/repositories/goal_repository_impl.dart';
-import '../../data/repositories/local_goal_repository_impl.dart';
-import '../../domain/entities/goal.dart';
-import '../../domain/repositories/goal_repository.dart';
+import 'package:fin_goal/core/constants/app_config.dart';
+import 'package:fin_goal/app/di/injection.dart';
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/goals/data/repositories/goal_repository_impl.dart';
+import 'package:fin_goal/features/goals/data/repositories/local_goal_repository_impl.dart';
+import 'package:fin_goal/features/goals/domain/entities/goal.dart';
+import 'package:fin_goal/features/goals/domain/repositories/goal_repository.dart';
 
 part 'goal_provider.g.dart';
 

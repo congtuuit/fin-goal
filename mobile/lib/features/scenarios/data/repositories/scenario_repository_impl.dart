@@ -1,10 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/errors/failures.dart';
-import '../../domain/entities/scenario_query.dart';
-import '../../domain/repositories/scenario_repository.dart';
-import '../models/scenario_query_model.dart';
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/scenarios/domain/entities/scenario_query.dart';
+import 'package:fin_goal/features/scenarios/domain/repositories/scenario_repository.dart';
+import 'package:fin_goal/features/scenarios/data/models/scenario_query_model.dart';
 
 class ScenarioRepositoryImpl implements ScenarioRepository {
   final SupabaseClient _client;

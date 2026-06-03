@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/errors/failures.dart';
-import '../entities/financial_profile.dart';
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/profile/domain/entities/financial_profile.dart';
 
 abstract class ProfileRepository {
   /// Get current user's profile. Returns null if not yet created.

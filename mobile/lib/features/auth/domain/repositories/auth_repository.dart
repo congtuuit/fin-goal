@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/errors/failures.dart';
-import '../entities/app_user.dart';
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/auth/domain/entities/app_user.dart';
 
 /// Auth repository contract.
 /// Implementation lives in data layer (Supabase).

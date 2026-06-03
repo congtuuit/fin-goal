@@ -4,13 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_sizes.dart';
-import '../../../../core/utils/currency_formatter.dart';
-import '../../../../core/utils/validators.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../profile/domain/entities/financial_profile.dart';
-import '../../../profile/presentation/providers/profile_provider.dart';
+import 'package:fin_goal/core/constants/app_colors.dart';
+import 'package:fin_goal/core/constants/app_sizes.dart';
+import 'package:fin_goal/core/utils/currency_formatter.dart';
+import 'package:fin_goal/core/utils/validators.dart';
+import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
+import 'package:fin_goal/features/profile/domain/entities/financial_profile.dart';
+import 'package:fin_goal/features/profile/presentation/providers/profile_provider.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
@@ -32,9 +32,21 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final _salaryDateCtrl = TextEditingController();
 
   final _formKeys = List.generate(5, (_) => GlobalKey<FormState>());
+  final _focusNodes = List.generate(5, (_) => FocusNode());
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) _focusNodes[0].requestFocus();
+    });
+  }
 
   @override
   void dispose() {
+    for (var node in _focusNodes) {
+      node.dispose();
+    }
     _pageController.dispose();
     _ageCtrl.dispose();
     _incomeCtrl.dispose();
@@ -47,10 +59,13 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   void _nextPage() {
     if (_formKeys[_currentIndex].currentState?.validate() ?? false) {
       if (_currentIndex < 4) {
+        FocusScope.of(context).unfocus(); // Unfocus before animating
         _pageController.nextPage(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
-        );
+        ).then((_) {
+          if (mounted) _focusNodes[_currentIndex].requestFocus();
+        });
         setState(() => _currentIndex++);
       } else {
         _submit();
@@ -60,10 +75,13 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
   void _prevPage() {
     if (_currentIndex > 0) {
+      FocusScope.of(context).unfocus(); // Unfocus before animating
       _pageController.previousPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-      );
+      ).then((_) {
+        if (mounted) _focusNodes[_currentIndex].requestFocus();
+      });
       setState(() => _currentIndex--);
     }
   }
@@ -103,9 +121,11 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     String label,
     String hint,
     String? Function(String?) validator,
+    FocusNode focusNode,
   ) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       keyboardType: TextInputType.number,
       style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
       decoration: InputDecoration(
@@ -173,6 +193,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     subtitle: 'Giúp ứng dụng tính toán các mốc thời gian phù hợp.',
                     child: TextFormField(
                       controller: _ageCtrl,
+                      focusNode: _focusNodes[0],
                       keyboardType: TextInputType.number,
                       style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                       decoration: const InputDecoration(
@@ -197,6 +218,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                       '',
                       '20.000.000',
                       Validators.income,
+                      _focusNodes[1],
                     ),
                   ),
 
@@ -210,6 +232,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                       '',
                       '10.000.000',
                       (v) => Validators.expenses(v, income: CurrencyFormatter.parse(_incomeCtrl.text) ?? 0),
+                      _focusNodes[2],
                     ),
                   ),
 
@@ -223,6 +246,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                       '',
                       '50.000.000',
                       Validators.savings,
+                      _focusNodes[3],
                     ),
                   ),
 
@@ -233,6 +257,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     subtitle: 'Để ứng dụng nhắc nhở bạn cập nhật tình hình tiết kiệm.',
                     child: TextFormField(
                       controller: _salaryDateCtrl,
+                      focusNode: _focusNodes[4],
                       keyboardType: TextInputType.number,
                       style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                       decoration: const InputDecoration(

@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../domain/entities/financial_profile.dart';
+import 'package:fin_goal/features/profile/domain/entities/financial_profile.dart';
 
 part 'financial_profile_model.g.dart';
 

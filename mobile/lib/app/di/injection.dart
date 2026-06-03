@@ -2,9 +2,9 @@ import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../core/constants/app_config.dart';
-import '../../features/auth/data/repositories/auth_repository_impl.dart';
-import '../../features/auth/domain/repositories/auth_repository.dart';
+import 'package:fin_goal/core/constants/app_config.dart';
+import 'package:fin_goal/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:fin_goal/features/auth/domain/repositories/auth_repository.dart';
 
 final getIt = GetIt.instance;
 

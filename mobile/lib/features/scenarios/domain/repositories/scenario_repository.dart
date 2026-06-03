@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/errors/failures.dart';
-import '../entities/scenario_query.dart';
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/scenarios/domain/entities/scenario_query.dart';
 
 abstract class ScenarioRepository {
   /// Save a what-if query to history

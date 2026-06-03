@@ -4,16 +4,16 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_sizes.dart';
-import '../../../../core/utils/currency_formatter.dart';
-import '../../../goals/presentation/providers/goal_provider.dart';
-import '../../../profile/presentation/providers/profile_provider.dart';
-import '../../engine/scenario_engine.dart';
-import '../../engine/scenario_input.dart';
-import '../../engine/scenario_result.dart';
-import '../../../premium/presentation/providers/subscription_provider.dart';
-import '../../../../app/router/routes.dart';
+import 'package:fin_goal/core/constants/app_colors.dart';
+import 'package:fin_goal/core/constants/app_sizes.dart';
+import 'package:fin_goal/core/utils/currency_formatter.dart';
+import 'package:fin_goal/features/goals/presentation/providers/goal_provider.dart';
+import 'package:fin_goal/features/profile/presentation/providers/profile_provider.dart';
+import 'package:fin_goal/features/scenarios/engine/scenario_engine.dart';
+import 'package:fin_goal/features/scenarios/engine/scenario_input.dart';
+import 'package:fin_goal/features/scenarios/engine/scenario_result.dart';
+import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
+import 'package:fin_goal/app/router/routes.dart';
 
 class ScenarioDashboardPage extends ConsumerStatefulWidget {
   const ScenarioDashboardPage({super.key});

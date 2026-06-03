@@ -1,24 +1,31 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../../core/errors/failures.dart';
-import '../../data/repositories/profile_repository_impl.dart';
-import '../../domain/entities/financial_profile.dart';
-import '../../domain/repositories/profile_repository.dart';
+import 'package:fin_goal/core/constants/app_config.dart';
+import 'package:fin_goal/app/di/injection.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:fin_goal/features/profile/data/repositories/local_profile_repository_impl.dart';
+import 'package:fin_goal/features/profile/domain/entities/financial_profile.dart';
+import 'package:fin_goal/features/profile/domain/repositories/profile_repository.dart';
 
 part 'profile_provider.g.dart';
 
 // ── Repository Provider ───────────────────────────────────────────────────
 
-@riverpod
+@Riverpod(keepAlive: true)
 ProfileRepository profileRepository(Ref ref) {
+  if (AppConfig.isOffline) {
+    return LocalProfileRepositoryImpl(getIt<SharedPreferences>());
+  }
   return ProfileRepositoryImpl(Supabase.instance.client);
 }
 
 // ── Onboarding State Provider ─────────────────────────────────────────────
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<bool> hasCompletedOnboarding(Ref ref) {
   return ref.watch(profileRepositoryProvider).hasCompletedOnboarding();
 }
@@ -43,7 +50,7 @@ class ProfileError extends ProfileState {
   const ProfileError(this.message);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ProfileNotifier extends _$ProfileNotifier {
   @override
   ProfileState build() {

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'ai_service.dart';
+import 'package:fin_goal/core/services/ai_service.dart';
 
 class DirectClientAiService implements AiService {
   final SharedPreferences _prefs;

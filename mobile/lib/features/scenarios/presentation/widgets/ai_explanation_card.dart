@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 
-import '../../../../../core/constants/app_colors.dart';
-import '../../../../../core/constants/app_sizes.dart';
+import 'package:fin_goal/core/constants/app_colors.dart';
+import 'package:fin_goal/core/constants/app_sizes.dart';
 
 class AiExplanationCard extends StatelessWidget {
   final String? text;

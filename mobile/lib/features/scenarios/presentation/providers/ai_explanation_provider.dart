@@ -1,8 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'dart:io';
 
-import '../../../../core/services/ai_provider.dart';
-import '../../domain/entities/scenario_query.dart';
+import 'package:fin_goal/core/services/ai_provider.dart';
+import 'package:fin_goal/features/scenarios/domain/entities/scenario_query.dart';
 
 part 'ai_explanation_provider.g.dart';
 

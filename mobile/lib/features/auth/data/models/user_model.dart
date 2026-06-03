@@ -1,6 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
-import '../../domain/entities/app_user.dart';
+import 'package:fin_goal/features/auth/domain/entities/app_user.dart';
 
 class UserModel {
   final String id;

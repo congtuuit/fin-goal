@@ -60,6 +60,14 @@ class CacheFailure extends Failure {
   });
 }
 
+class StorageFailure extends Failure {
+  const StorageFailure({
+    super.message = 'Lỗi lưu trữ dữ liệu cục bộ.',
+    super.code = 'storage_error',
+  });
+}
+
+
 // ── Validation Failures ───────────────────────────────────────────────────
 
 class ValidationFailure extends Failure {

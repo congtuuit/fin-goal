@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_sizes.dart';
-import '../providers/subscription_provider.dart';
+import 'package:fin_goal/core/constants/app_colors.dart';
+import 'package:fin_goal/core/constants/app_sizes.dart';
+import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
 
 class PaywallPage extends ConsumerWidget {
   const PaywallPage({super.key});

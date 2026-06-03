@@ -1,10 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/errors/failures.dart';
-import '../../domain/entities/monthly_record.dart';
-import '../../domain/repositories/record_repository.dart';
-import '../models/monthly_record_model.dart';
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/scenarios/domain/entities/monthly_record.dart';
+import 'package:fin_goal/features/scenarios/domain/repositories/record_repository.dart';
+import 'package:fin_goal/features/scenarios/data/models/monthly_record_model.dart';
 
 class RecordRepositoryImpl implements RecordRepository {
   final SupabaseClient _client;

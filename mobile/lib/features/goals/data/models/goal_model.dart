@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../domain/entities/goal.dart';
+import 'package:fin_goal/features/goals/domain/entities/goal.dart';
 
 part 'goal_model.g.dart';
 

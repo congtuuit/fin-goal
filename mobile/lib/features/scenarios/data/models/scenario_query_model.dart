@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../domain/entities/scenario_query.dart';
+import 'package:fin_goal/features/scenarios/domain/entities/scenario_query.dart';
 
 part 'scenario_query_model.g.dart';
 

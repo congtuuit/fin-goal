@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
-import '../../../../core/errors/failures.dart';
-import '../../domain/entities/app_user.dart';
-import '../../domain/repositories/auth_repository.dart';
-import '../models/user_model.dart';
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/auth/domain/entities/app_user.dart';
+import 'package:fin_goal/features/auth/domain/repositories/auth_repository.dart';
+import 'package:fin_goal/features/auth/data/models/user_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final sb.SupabaseClient _client;

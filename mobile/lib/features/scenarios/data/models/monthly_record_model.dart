@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../domain/entities/monthly_record.dart';
+import 'package:fin_goal/features/scenarios/domain/entities/monthly_record.dart';
 
 part 'monthly_record_model.g.dart';
 

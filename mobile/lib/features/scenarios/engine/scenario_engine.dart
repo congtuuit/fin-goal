@@ -1,5 +1,5 @@
-import 'scenario_input.dart';
-import 'scenario_result.dart';
+import 'package:fin_goal/features/scenarios/engine/scenario_input.dart';
+import 'package:fin_goal/features/scenarios/engine/scenario_result.dart';
 
 /// Core calculation engine for financial scenarios.
 ///

@@ -1,19 +1,18 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../../core/constants/app_config.dart';
-import '../../../../app/di/injection.dart';
-import '../../../../core/errors/failures.dart';
-import '../../data/repositories/scenario_repository_impl.dart';
-import '../../data/repositories/record_repository_impl.dart';
-import '../../data/repositories/local_scenario_repository_impl.dart';
-import '../../data/repositories/local_record_repository_impl.dart';
-import '../../domain/repositories/scenario_repository.dart';
-import '../../domain/repositories/record_repository.dart';
-import '../../domain/entities/scenario_query.dart';
-import '../../domain/entities/monthly_record.dart';
+import 'package:fin_goal/core/constants/app_config.dart';
+import 'package:fin_goal/app/di/injection.dart';
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/scenarios/data/repositories/scenario_repository_impl.dart';
+import 'package:fin_goal/features/scenarios/data/repositories/record_repository_impl.dart';
+import 'package:fin_goal/features/scenarios/data/repositories/local_scenario_repository_impl.dart';
+import 'package:fin_goal/features/scenarios/data/repositories/local_record_repository_impl.dart';
+import 'package:fin_goal/features/scenarios/domain/repositories/scenario_repository.dart';
+import 'package:fin_goal/features/scenarios/domain/repositories/record_repository.dart';
+import 'package:fin_goal/features/scenarios/domain/entities/scenario_query.dart';
+import 'package:fin_goal/features/scenarios/domain/entities/monthly_record.dart';
 
 part 'scenario_provider.g.dart';
 

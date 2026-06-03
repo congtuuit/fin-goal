@@ -4,12 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_sizes.dart';
-import '../../../../core/utils/currency_formatter.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../domain/entities/goal.dart';
-import '../providers/goal_provider.dart';
+import 'package:fin_goal/core/constants/app_colors.dart';
+import 'package:fin_goal/core/constants/app_sizes.dart';
+import 'package:fin_goal/core/utils/currency_formatter.dart';
+import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
+import 'package:fin_goal/features/goals/domain/entities/goal.dart';
+import 'package:fin_goal/features/goals/presentation/providers/goal_provider.dart';
 
 class GoalSelectionPage extends ConsumerStatefulWidget {
   const GoalSelectionPage({super.key});

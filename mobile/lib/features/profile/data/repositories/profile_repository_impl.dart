@@ -2,10 +2,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/errors/failures.dart';
-import '../../domain/entities/financial_profile.dart';
-import '../../domain/repositories/profile_repository.dart';
-import '../models/financial_profile_model.dart';
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/profile/domain/entities/financial_profile.dart';
+import 'package:fin_goal/features/profile/domain/repositories/profile_repository.dart';
+import 'package:fin_goal/features/profile/data/models/financial_profile_model.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {
   final SupabaseClient _client;

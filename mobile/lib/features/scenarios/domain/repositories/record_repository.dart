@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/errors/failures.dart';
-import '../entities/monthly_record.dart';
+import 'package:fin_goal/core/errors/failures.dart';
+import 'package:fin_goal/features/scenarios/domain/entities/monthly_record.dart';
 
 abstract class RecordRepository {
   /// Save a monthly check-in record
