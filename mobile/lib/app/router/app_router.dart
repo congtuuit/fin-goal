@@ -13,6 +13,7 @@ import 'package:fin_goal/features/scenarios/presentation/pages/what_if_page.dart
 import 'package:fin_goal/features/profile/presentation/providers/profile_provider.dart';
 import 'package:fin_goal/features/profile/presentation/pages/settings_page.dart';
 import 'package:fin_goal/features/premium/presentation/pages/paywall_page.dart';
+import 'package:fin_goal/features/premium/presentation/pages/payment_page.dart';
 import 'package:fin_goal/features/scenarios/domain/entities/monthly_record.dart';
 import 'package:fin_goal/app/router/routes.dart';
 
@@ -94,6 +95,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'paywall',
             builder: (_, __) => const PaywallPage(),
+          ),
+          GoRoute(
+            path: 'payment',
+            builder: (_, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return PaymentPage(
+                title: extra['title'] as String? ?? 'Gói Premium',
+                price: extra['price'] as String? ?? '0₫',
+              );
+            },
           ),
         ],
       ),

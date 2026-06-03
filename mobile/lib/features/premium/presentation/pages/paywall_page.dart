@@ -84,7 +84,7 @@ class PaywallPage extends ConsumerWidget {
                           price: '599.000₫',
                           subtitle: 'Giảm 50% • chỉ 49.000₫ / tháng',
                           isPopular: true,
-                          onTap: () => _purchase(context, ref),
+                          onTap: () => _purchase(context, 'Gói Năm', '599.000₫'),
                         ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
 
                         const Gap(AppSizes.md),
@@ -95,7 +95,7 @@ class PaywallPage extends ConsumerWidget {
                           price: '99.000₫',
                           subtitle: 'thanh toán mỗi tháng',
                           isPopular: false,
-                          onTap: () => _purchase(context, ref),
+                          onTap: () => _purchase(context, 'Gói Tháng', '99.000₫'),
                         ).animate().fadeIn(delay: 700.ms).slideY(begin: 0.1),
                       ],
                     ),
@@ -213,15 +213,10 @@ class PaywallPage extends ConsumerWidget {
     );
   }
 
-  void _purchase(BuildContext context, WidgetRef ref) {
-    // Mock purchase flow
-    ref.read(subscriptionProvider.notifier).upgradeToPremium();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Nâng cấp Premium thành công! (Mock)'),
-        backgroundColor: AppColors.success,
-      ),
-    );
-    context.pop();
+  void _purchase(BuildContext context, String title, String price) {
+    context.push('/home/payment', extra: {
+      'title': title,
+      'price': price,
+    });
   }
 }
