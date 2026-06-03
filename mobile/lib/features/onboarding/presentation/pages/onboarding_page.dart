@@ -111,7 +111,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         );
       } else {
         // Success — router will handle redirect based on state change
-        context.go('/home');
+        context.go('/home/goal-selection');
       }
     }
   }

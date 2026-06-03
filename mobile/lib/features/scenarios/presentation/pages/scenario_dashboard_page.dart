@@ -55,11 +55,40 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
 
     final primaryGoal = (goalsState as GoalsLoaded).primaryGoal;
     if (primaryGoal == null) {
-      // Redirect to goal selection if no goals exist
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) context.go('/home/goal-selection');
-      });
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Dashboard'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.person_outline),
+              onPressed: () => context.go(AppRoutes.profile),
+            ),
+          ],
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Bạn chưa có mục tiêu nào 🎯',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const Gap(AppSizes.md),
+              const Text('Hãy tạo một mục tiêu để bắt đầu mô phỏng.'),
+              const Gap(AppSizes.xl),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(0, AppSizes.buttonHeight),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.xxl),
+                ),
+                onPressed: () => context.go('/home/goal-selection'),
+                icon: const Icon(Icons.add),
+                label: const Text('Tạo mục tiêu ngay'),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     // 4. Calculate scenario
