@@ -180,9 +180,13 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const Gap(AppSizes.sm),
-          Text(
-            isReached ? 'Ngay bây giờ' : 'Tháng ${expectedDate.month}/${expectedDate.year}',
-            style: Theme.of(context).textTheme.displaySmall?.copyWith(color: AppColors.primary),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              isReached ? 'Ngay bây giờ' : 'Tháng ${expectedDate.month}/${expectedDate.year}',
+              style: Theme.of(context).textTheme.displaySmall?.copyWith(color: AppColors.primary),
+              maxLines: 1,
+            ),
           ),
           const Gap(AppSizes.lg),
           const Divider(),
@@ -196,7 +200,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           ),
         ],
       ),
-    ).animate().fadeIn().slideY(begin: 0.1);
+    );
   }
 
   Widget _buildCaseStat(String label, int months, Color color) {
@@ -248,7 +252,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
-    ).animate().fadeIn(delay: 100.ms);
+    );
   }
 
   Widget _buildMonthlySavingSlider(int maxDisposable, int currentSaving) {
@@ -282,7 +286,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           ],
         ),
       ],
-    ).animate().fadeIn(delay: 200.ms);
+    );
   }
 
   Widget _buildActionButtons(BuildContext context) {
@@ -294,7 +298,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           onPressed: () {
             context.go('/home/what-if');
           },
-        ).animate().fadeIn(delay: 300.ms),
+        ),
         const Gap(AppSizes.md),
         ElevatedButton.icon(
           icon: const Icon(Icons.check_circle_outline),
@@ -302,7 +306,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           onPressed: () {
             context.go('/home/monthly-checkin');
           },
-        ).animate().fadeIn(delay: 400.ms),
+        ),
       ],
     );
   }

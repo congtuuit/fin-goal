@@ -162,7 +162,7 @@ class _GoalSelectionPageState extends ConsumerState<GoalSelectionPage> {
           SnackBar(content: Text(error.message), backgroundColor: AppColors.danger),
         );
       } else {
-        context.go('/scenarios');
+        context.go('/home');
       }
     }
   }

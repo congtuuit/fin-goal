@@ -16,7 +16,7 @@ import 'package:fin_goal/features/scenarios/domain/entities/monthly_record.dart'
 
 part 'scenario_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 ScenarioRepository scenarioRepository(Ref ref) {
   if (AppConfig.isOffline) {
     return LocalScenarioRepositoryImpl(getIt<SharedPreferences>());
@@ -24,7 +24,7 @@ ScenarioRepository scenarioRepository(Ref ref) {
   return ScenarioRepositoryImpl(Supabase.instance.client);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 RecordRepository recordRepository(Ref ref) {
   if (AppConfig.isOffline) {
     return LocalRecordRepositoryImpl(getIt<SharedPreferences>());
@@ -32,7 +32,7 @@ RecordRepository recordRepository(Ref ref) {
   return RecordRepositoryImpl(Supabase.instance.client);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ScenarioQueriesNotifier extends _$ScenarioQueriesNotifier {
   @override
   FutureOr<List<ScenarioQuery>> build(String goalId) async {
@@ -56,7 +56,7 @@ class ScenarioQueriesNotifier extends _$ScenarioQueriesNotifier {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class RecordsNotifier extends _$RecordsNotifier {
   @override
   FutureOr<List<MonthlyRecord>> build(String goalId) async {
@@ -92,7 +92,7 @@ class RecordsNotifier extends _$RecordsNotifier {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<bool> hasCheckedInThisMonth(Ref ref, String goalId) async {
   final result = await ref.read(recordRepositoryProvider).hasCheckedInThisMonth(goalId, DateTime.now());
   return result.fold((l) => false, (r) => r);
