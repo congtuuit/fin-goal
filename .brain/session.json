@@ -20,6 +20,26 @@
   ],
   "recent_changes": [
     {
+      "timestamp": "2026-06-03T18:42:00Z",
+      "type": "feature",
+      "description": "Tạo script tự động hóa build/release bằng Node.js (build_app.js), file BAT (build.bat) cho Windows và file SH (build.sh) cho macOS/Linux",
+      "files": [
+        "scripts/build_app.js",
+        "build.bat",
+        "build.sh"
+      ]
+    },
+    {
+      "timestamp": "2026-06-03T18:41:00Z",
+      "type": "documentation",
+      "description": "Tạo tài liệu hướng dẫn cấu hình môi trường docs/environment_setup.md và cập nhật liên kết trong các file .env.example",
+      "files": [
+        "docs/environment_setup.md",
+        ".env.example",
+        "mobile/.env.example"
+      ]
+    },
+    {
       "timestamp": "2026-06-03T18:26:00Z",
       "type": "documentation",
       "description": "Tạo file cấu hình môi trường .env.example ở thư mục gốc và thư mục mobile",
