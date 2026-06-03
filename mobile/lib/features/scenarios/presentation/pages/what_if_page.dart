@@ -43,8 +43,8 @@ class _WhatIfPageState extends ConsumerState<WhatIfPage> {
   void _calculateImpact() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    final profile = (ref.read(profileNotifierProvider) as ProfileLoaded).profile!;
-    final goal = (ref.read(goalsNotifierProvider) as GoalsLoaded).primaryGoal!;
+    final profile = (ref.read(profileProvider) as ProfileLoaded).profile!;
+    final goal = (ref.read(goalsProvider) as GoalsLoaded).primaryGoal!;
     
     final cost = CurrencyFormatter.parse(_costCtrl.text) ?? 0;
     
@@ -70,8 +70,8 @@ class _WhatIfPageState extends ConsumerState<WhatIfPage> {
       createdAt: DateTime.now(),
     );
 
-    ref.read(scenarioQueriesNotifierProvider(goal.id).notifier).saveQuery(query);
-    ref.read(aiExplanationNotifierProvider.notifier).generateExplanationForWhatIf(query);
+    ref.read(scenarioQueriesProvider(goal.id).notifier).saveQuery(query);
+    ref.read(aiExplanationProvider.notifier).generateExplanationForWhatIf(query);
 
     setState(() {
       _delayMonths = delay;
@@ -148,9 +148,9 @@ class _WhatIfPageState extends ConsumerState<WhatIfPage> {
                 const Gap(AppSizes.xl),
                 Consumer(
                   builder: (context, ref, _) {
-                    final explanationState = ref.watch(aiExplanationNotifierProvider);
+                    final explanationState = ref.watch(aiExplanationProvider);
                     return AiExplanationCard(
-                      text: explanationState.valueOrNull,
+                      text: explanationState.value,
                       isLoading: explanationState.isLoading,
                     );
                   },

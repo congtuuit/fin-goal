@@ -23,7 +23,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     redirect: (context, state) {
-      final isAuth = authState.valueOrNull != null;
+      final isAuth = authState.value != null;
       final isAuthRoute = state.matchedLocation == AppRoutes.login;
       final isSplash = state.matchedLocation == AppRoutes.splash;
       final isOnboardingRoute = state.matchedLocation == AppRoutes.onboarding;
@@ -32,13 +32,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (authState.isLoading) return null;
 
       // Not authenticated → go to login
-      if (!isAuth && !isAuthRoute && !isSplash) return AppRoutes.login;
+      if (!isAuth && !isAuthRoute) return AppRoutes.login;
 
       if (isAuth) {
         // Still checking onboarding state
         if (hasCompletedOnboarding.isLoading) return null;
 
-        final hasOnboarded = hasCompletedOnboarding.valueOrNull ?? false;
+        final hasOnboarded = hasCompletedOnboarding.value ?? false;
 
         if (!hasOnboarded) {
           // Must complete onboarding first

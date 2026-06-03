@@ -83,7 +83,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       salaryDate: int.parse(_salaryDateCtrl.text.trim()),
     );
 
-    final error = await ref.read(profileNotifierProvider.notifier).createProfile(profile);
+    final error = await ref.read(profileProvider.notifier).createProfile(profile);
 
     if (mounted) {
       setState(() => _isLoading = false);

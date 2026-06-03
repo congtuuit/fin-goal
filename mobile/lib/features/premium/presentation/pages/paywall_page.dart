@@ -180,7 +180,7 @@ class PaywallPage extends ConsumerWidget {
 
   void _purchase(BuildContext context, WidgetRef ref) {
     // Mock purchase flow
-    ref.read(subscriptionNotifierProvider.notifier).upgradeToPremium();
+    ref.read(subscriptionProvider.notifier).upgradeToPremium();
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Nâng cấp Premium thành công! (Mock)'),

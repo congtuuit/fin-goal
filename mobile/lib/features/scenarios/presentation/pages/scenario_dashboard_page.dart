@@ -29,8 +29,8 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    final profileState = ref.watch(profileNotifierProvider);
-    final goalsState = ref.watch(goalsNotifierProvider);
+    final profileState = ref.watch(profileProvider);
+    final goalsState = ref.watch(goalsProvider);
 
     // 1. Loading states
     if (profileState is ProfileLoading || goalsState is GoalsLoading) {

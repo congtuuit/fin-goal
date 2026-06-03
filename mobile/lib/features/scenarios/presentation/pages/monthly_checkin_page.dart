@@ -37,8 +37,8 @@ class _MonthlyCheckinPageState extends ConsumerState<MonthlyCheckinPage> {
 
     setState(() => _isLoading = true);
 
-    final profile = (ref.read(profileNotifierProvider) as ProfileLoaded).profile!;
-    final goal = (ref.read(goalsNotifierProvider) as GoalsLoaded).primaryGoal!;
+    final profile = (ref.read(profileProvider) as ProfileLoaded).profile!;
+    final goal = (ref.read(goalsProvider) as GoalsLoaded).primaryGoal!;
     
     final actual = CurrencyFormatter.parse(_actualCtrl.text) ?? 0;
     final planned = profile.suggestedMonthlySaving;
@@ -62,14 +62,14 @@ class _MonthlyCheckinPageState extends ConsumerState<MonthlyCheckinPage> {
     );
 
     // Save record
-    final error = await ref.read(recordsNotifierProvider(goal.id).notifier).saveRecord(record);
+    final error = await ref.read(recordsProvider(goal.id).notifier).saveRecord(record);
 
     if (error == null) {
       // Update profile savings
       final updatedProfile = profile.copyWith(
         currentSavings: profile.currentSavings + actual,
       );
-      await ref.read(profileNotifierProvider.notifier).updateProfile(updatedProfile);
+      await ref.read(profileProvider.notifier).updateProfile(updatedProfile);
 
       if (mounted) {
         setState(() {
@@ -105,7 +105,7 @@ class _MonthlyCheckinPageState extends ConsumerState<MonthlyCheckinPage> {
   }
 
   Widget _buildFormView() {
-    final profileState = ref.watch(profileNotifierProvider);
+    final profileState = ref.watch(profileProvider);
     if (profileState is! ProfileLoaded || profileState.profile == null) {
       return const Center(child: CircularProgressIndicator());
     }

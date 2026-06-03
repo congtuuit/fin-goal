@@ -5,21 +5,41 @@ mobile/.flutter-plugins
 mobile/.flutter-plugins-dependencies
 mobile/.packages
 mobile/pubspec.lock
-mobile/android/.gradle
+
+# Android
+mobile/android/.gradle/
+mobile/android/build/
 mobile/android/local.properties
 mobile/android/app/google-services.json
-mobile/ios/.symlinks
-mobile/ios/Pods
+**/*.apk
+**/*.aab
+**/*.jks
+**/*.keystore
+**/local.properties
+
+# iOS
+.kotlin/
+mobile/local_plugins
+mobile/ios/.symlinks/
+mobile/ios/Pods/
 mobile/ios/Runner.xcworkspace/xcshareddata/
 mobile/ios/GoogleService-Info.plist
+mobile/ios/Flutter/App.framework
+mobile/ios/Flutter/Flutter.framework
+mobile/ios/Flutter/Flutter.podspec
+mobile/ios/Flutter/Generated.xcconfig
+mobile/ios/Flutter/app.flx
+mobile/ios/Flutter/app.zip
+mobile/ios/Flutter/flutter_assets/
+mobile/ios/Flutter/flutter_export_environment.sh
+mobile/ios/ServiceDefinitions.json
+**/*.ipa
 
 # Generated files
 mobile/lib/**/*.g.dart
 mobile/lib/**/*.freezed.dart
 mobile/lib/**/*.config.dart
 mobile/lib/app/di/injection.config.dart
-
-# Isar
 mobile/lib/**/*.isar.dart
 
 # Environment
@@ -32,14 +52,19 @@ mobile/lib/**/*.isar.dart
 # Supabase
 supabase/.temp/
 supabase/functions/.cache/
+supabase/functions/**/node_modules/
+supabase/.supabase/
 
-# IDE
+# IDE & OS
 .idea/
-.vscode/settings.json
+.vscode/
 *.swp
 *.swo
 .DS_Store
 Thumbs.db
+*.iml
+*.ipr
+*.iws
 
 # Secrets — NEVER commit these
 **/google-services.json
@@ -47,3 +72,13 @@ Thumbs.db
 **/keystore.jks
 **/*.keystore
 **/key.properties
+
+# Other temporary or generated files
+mobile/deps.txt
+**/coverage/
+*.log
+*.class
+*.pyc
+.buildlog/
+.history/
+migrate_working_dir/

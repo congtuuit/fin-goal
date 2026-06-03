@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
+// import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'app/app.dart';
 import 'app/di/injection.dart';
@@ -26,13 +26,15 @@ Future<void> bootstrap(AppFlavor flavor) async {
 
   // Sentry (production only)
   if (flavor == AppFlavor.production) {
-    await SentryFlutter.init(
-      (options) {
-        options.dsn = AppConfig.sentryDsn;
-        options.tracesSampleRate = 0.2;
-      },
-      appRunner: () => runApp(const ProviderScope(child: App())),
-    );
+    // await SentryFlutter.init(
+    //   (options) {
+    //     options.dsn = AppConfig.sentryDsn;
+    //   },
+    //   appRunner: () => runApp(
+    //     const ProviderScope(child: App()),
+    //   ),
+    // );
+    runApp(const ProviderScope(child: App()));
   } else {
     runApp(const ProviderScope(child: App()));
   }

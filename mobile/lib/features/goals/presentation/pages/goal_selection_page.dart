@@ -153,7 +153,7 @@ class _GoalSelectionPageState extends ConsumerState<GoalSelectionPage> {
       updatedAt: DateTime.now(),
     );
 
-    final error = await ref.read(goalsNotifierProvider.notifier).createGoal(goal);
+    final error = await ref.read(goalsProvider.notifier).createGoal(goal);
     
     if (mounted) {
       setState(() => _isLoading = false);

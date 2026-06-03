@@ -20,5 +20,5 @@ class SubscriptionNotifier extends _$SubscriptionNotifier {
 
 @riverpod
 bool isPremiumUser(Ref ref) {
-  return ref.watch(subscriptionNotifierProvider) == SubscriptionTier.premium;
+  return ref.watch(subscriptionProvider) == SubscriptionTier.premium;
 }
