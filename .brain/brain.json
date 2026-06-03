@@ -1,0 +1,64 @@
+{
+  "meta": {
+    "schema_version": "1.1.0",
+    "awf_version": "3.3.0"
+  },
+  "project": {
+    "name": "fin-goal",
+    "type": "Flutter Mobile App",
+    "status": "In Development"
+  },
+  "tech_stack": {
+    "frontend": {
+      "framework": "Flutter >=3.19.0",
+      "state_management": "Riverpod 3.0",
+      "routing": "GoRouter 17.3.0",
+      "di": "GetIt + Injectable"
+    },
+    "backend": {
+      "baas": "Supabase (Auth, Database, Storage)"
+    },
+    "third_party": {
+      "payments": "RevenueCat (purchases_flutter)",
+      "analytics": "PostHog",
+      "notifications": "Firebase Cloud Messaging"
+    }
+  },
+  "database_schema": {
+    "summary": "Supabase schema is managed via external migrations.",
+    "tables": [],
+    "relationships_explained": "TBD"
+  },
+  "api_endpoints": [
+    {
+      "path": "Supabase Auth",
+      "explained": "Xử lý đăng nhập, đăng ký và Google OAuth qua Supabase Client SDK thay vì REST API."
+    }
+  ],
+  "business_rules": [
+    "Người dùng chưa đăng nhập luôn bị đẩy về /login.",
+    "Người dùng đã đăng nhập phải hoàn thành Onboarding mới được truy cập /home.",
+    "Các tính năng What-If chuyên sâu sẽ yêu cầu mua gói Premium qua RevenueCat."
+  ],
+  "features": [
+    "Xác thực (Auth)",
+    "Onboarding",
+    "Chọn mục tiêu tài chính (Goals)",
+    "Mô phỏng tài chính (Scenarios: Dashboard, Monthly Check-in, What-If)",
+    "Gói trả phí (Premium)",
+    "Hồ sơ người dùng (Profile)"
+  ],
+  "knowledge_items": {
+    "patterns": [
+      "Riverpod 3.0 không tự thêm chữ 'Notifier' vào tên Provider khi sinh code tự động (VD: GoalsNotifier -> goalsProvider)."
+    ],
+    "gotchas": [
+      "Android SDK hiện đại (như thư viện androidx.browser của Firebase) yêu cầu tối thiểu AGP 8.9.1.",
+      "AGP 9.0.1 loại bỏ Kotlin Gradle Plugin (KGP). Nếu có plugin cũ (như app_links) đòi KGP, phải khai báo android.builtInKotlin=false trong gradle.properties để vượt rào.",
+      "sentry_flutter (JNI) có lỗi Cannot query provider với các bản AGP hiện đại. Hiện tại đã tháo gỡ khỏi dự án."
+    ],
+    "conventions": [
+      "Kiến trúc Clean Architecture kết hợp Feature-first folder (gom theo tính năng thay vì phân lớp)."
+    ]
+  }
+}

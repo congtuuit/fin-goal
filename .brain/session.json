@@ -1,0 +1,90 @@
+{
+  "updated_at": "2026-06-03T18:11:00Z",
+  "working_on": {
+    "feature": "Documentation & Visualization",
+    "task": "Định dạng lại biểu đồ luồng Mermaid và cấu trúc lại brain data",
+    "status": "completed",
+    "files": [
+      "docs/architecture/app_flow_chart.md",
+      "CHANGELOG.md"
+    ],
+    "blockers": [],
+    "notes": "Đã sửa xong lỗi hiển thị của biểu đồ và phân chia subgraph rõ ràng."
+  },
+  "pending_tasks": [
+    {
+      "task": "Phát triển tính năng giao diện mới hoặc tích hợp API",
+      "priority": "medium",
+      "notes": "Chờ lệnh từ User."
+    }
+  ],
+  "recent_changes": [
+    {
+      "timestamp": "2026-06-03T18:26:00Z",
+      "type": "documentation",
+      "description": "Tạo file cấu hình môi trường .env.example ở thư mục gốc và thư mục mobile",
+      "files": [
+        ".env.example",
+        "mobile/.env.example"
+      ]
+    },
+    {
+      "timestamp": "2026-06-03T18:11:00Z",
+      "type": "documentation",
+      "description": "Định dạng lại biểu đồ luồng Mermaid trong app_flow_chart.md và khởi tạo CHANGELOG.md",
+      "files": [
+        "docs/architecture/app_flow_chart.md",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "timestamp": "2026-06-03T18:00:00Z",
+      "type": "bug_fix",
+      "description": "Nâng cấp AGP 9.0.1, sửa lỗi JNI, sửa biến tự động sinh của Riverpod 3.0",
+      "files": [
+        "android/settings.gradle.kts",
+        "android/gradle/wrapper/gradle-wrapper.properties",
+        "pubspec.yaml",
+        "lib/main.dart",
+        "lib/features/scenarios/presentation/pages/what_if_page.dart",
+        "lib/app/router/app_router.dart"
+      ]
+    },
+    {
+      "timestamp": "2026-06-03T18:02:00Z",
+      "type": "bug_fix",
+      "description": "Sửa lỗi kẹt màn hình Splash do logic điều hướng sai trong app_router.dart",
+      "files": [
+        "lib/app/router/app_router.dart"
+      ]
+    }
+  ],
+  "errors_encountered": [
+    {
+      "error": "Lỗi KGP với AGP 9.0",
+      "solution": "Thêm android.builtInKotlin=false vào gradle.properties",
+      "resolved": true
+    },
+    {
+      "error": "Lỗi provider của JNI trong sentry_flutter",
+      "solution": "Tạm tháo bỏ sentry_flutter",
+      "resolved": true
+    },
+    {
+      "error": "Lỗi Riverpod 3.0 bỏ hậu tố NotifierProvider",
+      "solution": "Đổi tên hàng loạt trên toàn bộ UI và chạy lại build_runner",
+      "resolved": true
+    },
+    {
+      "error": "Kẹt màn hình Splash",
+      "solution": "Bỏ điều kiện && !isSplash trong logic check auth của GoRouter",
+      "resolved": true
+    }
+  ],
+  "decisions_made": [
+    {
+      "decision": "Dùng AGP 9.0.1",
+      "reason": "Bắt buộc để chạy được firebase_core và androidx.browser mới nhất"
+    }
+  ]
+}
