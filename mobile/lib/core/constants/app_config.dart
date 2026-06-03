@@ -3,6 +3,9 @@
 class AppConfig {
   AppConfig._();
 
+  // ── Mode Configuration ──────────────────────────────────────────────────────
+  static const isOffline = String.fromEnvironment('OFFLINE', defaultValue: 'true') == 'true';
+
   // ── Supabase ──────────────────────────────────────────────────────────────
   static const supabaseUrl = String.fromEnvironment(
     'SUPABASE_URL',

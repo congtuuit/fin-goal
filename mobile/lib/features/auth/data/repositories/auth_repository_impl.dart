@@ -91,6 +91,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, AppUser>> signInWithName(String name) async {
+    return const Left(AuthFailure(message: 'Đăng nhập bằng tên không được hỗ trợ trong chế độ Online.'));
+  }
+
+  @override
   Future<Either<Failure, Unit>> sendPasswordResetEmail(String email) async {
     try {
       await _client.auth.resetPasswordForEmail(email);

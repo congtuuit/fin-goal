@@ -11,6 +11,7 @@ import '../../features/scenarios/presentation/pages/monthly_checkin_page.dart';
 import '../../features/scenarios/presentation/pages/scenario_dashboard_page.dart';
 import '../../features/scenarios/presentation/pages/what_if_page.dart';
 import '../../features/profile/presentation/providers/profile_provider.dart';
+import '../../features/profile/presentation/pages/settings_page.dart';
 import '../../features/premium/presentation/pages/paywall_page.dart';
 import 'routes.dart';
 
@@ -65,6 +66,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.onboarding,
         builder: (_, __) => const OnboardingPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.profile,
+        builder: (_, __) => const SettingsPage(),
       ),
       GoRoute(
         path: AppRoutes.home,

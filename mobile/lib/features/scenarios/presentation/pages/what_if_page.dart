@@ -149,6 +149,53 @@ class _WhatIfPageState extends ConsumerState<WhatIfPage> {
                 Consumer(
                   builder: (context, ref, _) {
                     final explanationState = ref.watch(aiExplanationProvider);
+                    
+                    if (explanationState.hasError) {
+                      final errorMsg = explanationState.error.toString();
+                      final isKeyError = errorMsg.contains('API Key');
+                      
+                      return Container(
+                        padding: const EdgeInsets.all(AppSizes.lg),
+                        decoration: BoxDecoration(
+                          color: AppColors.danger.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                          border: Border.all(color: AppColors.danger.withOpacity(0.3)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.error_outline, color: AppColors.danger, size: 20),
+                                const Gap(AppSizes.sm),
+                                Text(
+                                  'Cấu hình AI chưa hoàn tất',
+                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                        color: AppColors.danger,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            const Gap(AppSizes.md),
+                            Text(errorMsg, style: Theme.of(context).textTheme.bodyMedium),
+                            if (isKeyError) ...[
+                              const Gap(AppSizes.md),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                ),
+                                icon: const Icon(Icons.settings, size: 16, color: Colors.white),
+                                label: const Text('Đi tới Cài đặt', style: TextStyle(color: Colors.white)),
+                                onPressed: () => context.go('/profile'),
+                              ),
+                            ]
+                          ],
+                        ),
+                      ).animate().fadeIn();
+                    }
+                    
                     return AiExplanationCard(
                       text: explanationState.value,
                       isLoading: explanationState.isLoading,

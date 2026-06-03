@@ -1,8 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/constants/app_config.dart';
+import '../../../../app/di/injection.dart';
 import '../../data/repositories/auth_repository_impl.dart';
+import '../../data/repositories/local_auth_repository_impl.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/repositories/auth_repository.dart';
 
@@ -12,6 +16,9 @@ part 'auth_provider.g.dart';
 
 @riverpod
 AuthRepository authRepository(Ref ref) {
+  if (AppConfig.isOffline) {
+    return LocalAuthRepositoryImpl(getIt<SharedPreferences>());
+  }
   return AuthRepositoryImpl(Supabase.instance.client);
 }
 
@@ -65,6 +72,15 @@ class AuthError extends AuthStatus {
 class AuthNotifier extends _$AuthNotifier {
   @override
   AuthStatus build() => const AuthIdle();
+
+  Future<void> signInWithName(String name) async {
+    state = const AuthLoading();
+    final result = await ref.read(authRepositoryProvider).signInWithName(name);
+    state = result.fold(
+      (failure) => AuthError(failure.message),
+      (user) => AuthSuccess(user),
+    );
+  }
 
   Future<void> signInWithEmail({
     required String email,

@@ -16,43 +16,65 @@
       "di": "GetIt + Injectable"
     },
     "backend": {
-      "baas": "Supabase (Auth, Database, Storage)"
+      "baas": "Supabase (Auth, Database, Storage)",
+      "offline_mode": "SharedPreferences & local JSON storage (Bypass Supabase)"
     },
     "third_party": {
       "payments": "RevenueCat (purchases_flutter)",
       "analytics": "PostHog",
-      "notifications": "Firebase Cloud Messaging"
+      "notifications": "Firebase Cloud Messaging",
+      "ai": "Direct REST Client calls (Google Gemini & OpenAI APIs)"
     }
   },
   "database_schema": {
-    "summary": "Supabase schema is managed via external migrations.",
-    "tables": [],
-    "relationships_explained": "TBD"
+    "summary": "Supabase online schema & local SharedPreferences JSON model schema.",
+    "tables": [
+      {
+        "name": "local_goals",
+        "explained": "Lưu trữ cục bộ danh sách mục tiêu tài chính của người dùng."
+      },
+      {
+        "name": "local_scenarios",
+        "explained": "Lưu lịch sử các kịch bản câu hỏi mô phỏng What-If."
+      },
+      {
+        "name": "local_records",
+        "explained": "Lưu các bản ghi cập nhật tiến độ tiết kiệm hàng tháng cục bộ."
+      }
+    ],
+    "relationships_explained": "Tất cả các bản ghi local liên kết thông qua goalId cục bộ."
   },
   "api_endpoints": [
     {
-      "path": "Supabase Auth",
-      "explained": "Xử lý đăng nhập, đăng ký và Google OAuth qua Supabase Client SDK thay vì REST API."
+      "path": "Supabase Auth & DB",
+      "explained": "Được sử dụng khi chạy Online Mode (AppConfig.isOffline = false)."
+    },
+    {
+      "path": "Direct AI APIs (Gemini & OpenAI)",
+      "explained": "Gọi trực tiếp bằng API Key cá nhân của người dùng được cấu hình trên thiết bị."
     }
   ],
   "business_rules": [
-    "Người dùng chưa đăng nhập luôn bị đẩy về /login.",
-    "Người dùng đã đăng nhập phải hoàn thành Onboarding mới được truy cập /home.",
-    "Các tính năng What-If chuyên sâu sẽ yêu cầu mua gói Premium qua RevenueCat."
+    "Offline Mode: Người dùng nhập tên để bỏ qua xác thực Supabase, vào thẳng Dashboard.",
+    "Mục tiêu và kịch bản tài chính được đọc/ghi trực tiếp vào SharedPreferences của máy.",
+    "Mô phỏng What-If: Yêu cầu người dùng cấu hình API Key và Model trong phần Cài đặt trước khi gọi AI thật."
   ],
   "features": [
-    "Xác thực (Auth)",
-    "Onboarding",
+    "Xác thực (Auth - hỗ trợ Offline & Online)",
+    "Khảo sát Onboarding",
     "Chọn mục tiêu tài chính (Goals)",
-    "Mô phỏng tài chính (Scenarios: Dashboard, Monthly Check-in, What-If)",
+    "Mô phỏng tài chính (Dashboard, Monthly Check-in, What-If)",
+    "Cấu hình API Key AI (Gemini / OpenAI)",
     "Gói trả phí (Premium)",
-    "Hồ sơ người dùng (Profile)"
+    "Hồ sơ & Cài đặt (Profile/Settings)"
   ],
   "knowledge_items": {
     "patterns": [
+      "Kiến trúc Repository Pattern + DI: Định nghĩa interface, viết LocalRepository & RemoteRepository tương ứng để cắm/rút offline/online dễ dàng.",
       "Riverpod 3.0 không tự thêm chữ 'Notifier' vào tên Provider khi sinh code tự động (VD: GoalsNotifier -> goalsProvider)."
     ],
     "gotchas": [
+      "Gọi AI trực tiếp từ thiết bị: Sử dụng HttpClient core của dart:io giúp tránh lỗi CORS và không cần cài thêm các package API Generative ngoài.",
       "Android SDK hiện đại (như thư viện androidx.browser của Firebase) yêu cầu tối thiểu AGP 8.9.1.",
       "AGP 9.0.1 loại bỏ Kotlin Gradle Plugin (KGP). Nếu có plugin cũ (như app_links) đòi KGP, phải khai báo android.builtInKotlin=false trong gradle.properties để vượt rào.",
       "sentry_flutter (JNI) có lỗi Cannot query provider với các bản AGP hiện đại. Hiện tại đã tháo gỡ khỏi dự án."

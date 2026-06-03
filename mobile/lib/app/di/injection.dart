@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/constants/app_config.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
@@ -10,6 +11,10 @@ final getIt = GetIt.instance;
 /// Configure all dependencies.
 /// Called once at app startup.
 Future<void> configureDependencies(AppFlavor flavor) async {
+  // ── SharedPreferences (Offline storage) ───────────────────────────────────
+  final prefs = await SharedPreferences.getInstance();
+  getIt.registerSingleton<SharedPreferences>(prefs);
+
   // ── External ──────────────────────────────────────────────────────────────
   getIt.registerLazySingleton<SupabaseClient>(
     () => Supabase.instance.client,

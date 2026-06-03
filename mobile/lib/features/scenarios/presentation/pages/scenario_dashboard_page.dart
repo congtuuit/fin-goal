@@ -13,6 +13,7 @@ import '../../engine/scenario_engine.dart';
 import '../../engine/scenario_input.dart';
 import '../../engine/scenario_result.dart';
 import '../../../premium/presentation/providers/subscription_provider.dart';
+import '../../../../app/router/routes.dart';
 
 class ScenarioDashboardPage extends ConsumerStatefulWidget {
   const ScenarioDashboardPage({super.key});
@@ -106,7 +107,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           IconButton(
             icon: const Icon(Icons.person_outline),
             onPressed: () {
-              // TODO: Open settings/profile
+              context.go(AppRoutes.profile);
             },
           ),
         ],

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/constants/app_config.dart';
 import '../../presentation/providers/auth_provider.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -15,12 +16,14 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
+  final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
+    _nameCtrl.dispose();
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
     super.dispose();
@@ -28,25 +31,32 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    await ref.read(authProvider.notifier).signInWithEmail(
-          email: _emailCtrl.text.trim(),
-          password: _passwordCtrl.text,
-        );
+    if (AppConfig.isOffline) {
+      await ref.read(authNotifierProvider.notifier).signInWithName(
+            _nameCtrl.text.trim(),
+          );
+    } else {
+      await ref.read(authNotifierProvider.notifier).signInWithEmail(
+            email: _emailCtrl.text.trim(),
+            password: _passwordCtrl.text,
+          );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final authStatus = ref.watch(authProvider);
+    final authStatus = ref.watch(authNotifierProvider);
+    final isOffline = AppConfig.isOffline;
 
     // Listen for success/error
-    ref.listen(authProvider, (_, next) {
+    ref.listen(authNotifierProvider, (_, next) {
       if (next is AuthSuccess) {
         context.go('/home');
       } else if (next is AuthError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(next.message), backgroundColor: AppColors.danger),
         );
-        ref.read(authProvider.notifier).reset();
+        ref.read(authNotifierProvider.notifier).reset();
       }
     });
 
@@ -73,46 +83,64 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: const Icon(Icons.trending_up_rounded, color: Colors.white, size: 28),
                 ),
                 const SizedBox(height: AppSizes.lg),
-                Text('Chào mừng trở lại', style: Theme.of(context).textTheme.headlineMedium),
+                Text(
+                  isOffline ? 'Chào mừng bạn' : 'Chào mừng trở lại',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
                 const SizedBox(height: AppSizes.sm),
                 Text(
-                  'Đăng nhập để xem kịch bản tài chính của bạn',
+                  isOffline
+                      ? 'Nhập tên của bạn để bắt đầu mô phỏng tài chính'
+                      : 'Đăng nhập để xem kịch bản tài chính của bạn',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: AppSizes.xl),
 
-                // Email
-                TextFormField(
-                  controller: _emailCtrl,
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
-                  ),
-                  validator: (v) => v != null && v.contains('@') ? null : 'Email không hợp lệ',
-                ),
-                const SizedBox(height: AppSizes.md),
-
-                // Password
-                TextFormField(
-                  controller: _passwordCtrl,
-                  obscureText: _obscurePassword,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => _submit(),
-                  decoration: InputDecoration(
-                    labelText: 'Mật khẩu',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(_obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
-                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                if (isOffline) ...[
+                  // Name Input for Offline Mode
+                  TextFormField(
+                    controller: _nameCtrl,
+                    keyboardType: TextInputType.name,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => _submit(),
+                    decoration: const InputDecoration(
+                      labelText: 'Họ và tên của bạn',
+                      prefixIcon: Icon(Icons.person_outline),
                     ),
+                    validator: (v) => v != null && v.trim().isNotEmpty ? null : 'Vui lòng nhập tên của bạn',
                   ),
-                  validator: (v) => v != null && v.length >= 6 ? null : 'Mật khẩu tối thiểu 6 ký tự',
-                ),
+                ] else ...[
+                  // Email & Password Inputs for Online Mode
+                  TextFormField(
+                    controller: _emailCtrl,
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(Icons.email_outlined),
+                    ),
+                    validator: (v) => v != null && v.contains('@') ? null : 'Email không hợp lệ',
+                  ),
+                  const SizedBox(height: AppSizes.md),
+                  TextFormField(
+                    controller: _passwordCtrl,
+                    obscureText: _obscurePassword,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => _submit(),
+                    decoration: InputDecoration(
+                      labelText: 'Mật khẩu',
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      suffixIcon: IconButton(
+                        icon: Icon(_obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      ),
+                    ),
+                    validator: (v) => v != null && v.length >= 6 ? null : 'Mật khẩu tối thiểu 6 ký tự',
+                  ),
+                ],
                 const SizedBox(height: AppSizes.xl),
 
-                // Login button
+                // Submit button
                 ElevatedButton(
                   onPressed: isLoading ? null : _submit,
                   child: isLoading
@@ -121,17 +149,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
-                      : const Text('Đăng nhập'),
+                      : Text(isOffline ? 'Bắt đầu ngay' : 'Đăng nhập'),
                 ),
                 const SizedBox(height: AppSizes.md),
 
-                // Register link
-                Center(
-                  child: TextButton(
-                    onPressed: () {/* TODO: navigate to register */},
-                    child: const Text('Chưa có tài khoản? Đăng ký'),
+                // Register link (Only show in online mode)
+                if (!isOffline)
+                  Center(
+                    child: TextButton(
+                      onPressed: () {/* TODO: navigate to register */},
+                      child: const Text('Chưa có tài khoản? Đăng ký'),
+                    ),
                   ),
-                ),
                 const Spacer(),
               ],
             ),

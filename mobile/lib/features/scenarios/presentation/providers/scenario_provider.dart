@@ -1,10 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/constants/app_config.dart';
+import '../../../../app/di/injection.dart';
 import '../../../../core/errors/failures.dart';
 import '../../data/repositories/scenario_repository_impl.dart';
 import '../../data/repositories/record_repository_impl.dart';
+import '../../data/repositories/local_scenario_repository_impl.dart';
+import '../../data/repositories/local_record_repository_impl.dart';
 import '../../domain/repositories/scenario_repository.dart';
 import '../../domain/repositories/record_repository.dart';
 import '../../domain/entities/scenario_query.dart';
@@ -14,11 +19,17 @@ part 'scenario_provider.g.dart';
 
 @riverpod
 ScenarioRepository scenarioRepository(Ref ref) {
+  if (AppConfig.isOffline) {
+    return LocalScenarioRepositoryImpl(getIt<SharedPreferences>());
+  }
   return ScenarioRepositoryImpl(Supabase.instance.client);
 }
 
 @riverpod
 RecordRepository recordRepository(Ref ref) {
+  if (AppConfig.isOffline) {
+    return LocalRecordRepositoryImpl(getIt<SharedPreferences>());
+  }
   return RecordRepositoryImpl(Supabase.instance.client);
 }
 

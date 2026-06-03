@@ -1,32 +1,53 @@
 {
-  "updated_at": "2026-06-03T18:11:00Z",
+  "updated_at": "2026-06-03T19:11:00Z",
   "working_on": {
-    "feature": "Documentation & Visualization",
-    "task": "Định dạng lại biểu đồ luồng Mermaid và cấu trúc lại brain data",
+    "feature": "MVP Offline & AI Integration",
+    "task": "Triển khai toàn bộ module Offline-first và tích hợp AI Settings trực tiếp trên thiết bị",
     "status": "completed",
     "files": [
-      "docs/architecture/app_flow_chart.md",
-      "CHANGELOG.md"
+      "mobile/lib/core/constants/app_config.dart",
+      "mobile/lib/app/di/injection.dart",
+      "mobile/lib/features/auth/presentation/pages/login_page.dart",
+      "mobile/lib/features/profile/presentation/pages/settings_page.dart",
+      "mobile/lib/core/services/direct_client_ai_service.dart",
+      "mobile/lib/features/scenarios/presentation/providers/ai_explanation_provider.dart"
     ],
     "blockers": [],
-    "notes": "Đã sửa xong lỗi hiển thị của biểu đồ và phân chia subgraph rõ ràng."
+    "notes": "Đã hoàn thành 100% việc chuyển đổi sang chế độ offline, lưu trữ local bằng SharedPreferences và gọi API AI trực tiếp qua HttpClient. Đã chạy build_runner thành công và pass toàn bộ unit tests."
   },
   "pending_tasks": [
     {
-      "task": "Phát triển tính năng giao diện mới hoặc tích hợp API",
-      "priority": "medium",
-      "notes": "Chờ lệnh từ User."
+      "task": "Kiểm thử ứng dụng trên thiết bị",
+      "priority": "high",
+      "notes": "Người dùng hiện đang khởi chạy thử trên Emulator-5554."
     }
   ],
   "recent_changes": [
     {
-      "timestamp": "2026-06-03T18:42:00Z",
+      "timestamp": "2026-06-03T19:04:00Z",
       "type": "feature",
-      "description": "Tạo script tự động hóa build/release bằng Node.js (build_app.js), file BAT (build.bat) cho Windows và file SH (build.sh) cho macOS/Linux",
+      "description": "Hoàn thành triển khai MVP Offline Hoàn Toàn & Định hướng Hybrid. Tạo local repositories, trang Settings AI Key và tích hợp Direct API client-side.",
       "files": [
-        "scripts/build_app.js",
-        "build.bat",
-        "build.sh"
+        "mobile/lib/core/constants/app_config.dart",
+        "mobile/lib/app/di/injection.dart",
+        "mobile/lib/features/auth/domain/repositories/auth_repository.dart",
+        "mobile/lib/features/auth/data/repositories/auth_repository_impl.dart",
+        "mobile/lib/features/auth/data/repositories/local_auth_repository_impl.dart",
+        "mobile/lib/features/auth/presentation/providers/auth_provider.dart",
+        "mobile/lib/features/auth/presentation/pages/login_page.dart",
+        "mobile/lib/features/goals/data/repositories/local_goal_repository_impl.dart",
+        "mobile/lib/features/goals/presentation/providers/goal_provider.dart",
+        "mobile/lib/features/scenarios/data/repositories/local_scenario_repository_impl.dart",
+        "mobile/lib/features/scenarios/data/repositories/local_record_repository_impl.dart",
+        "mobile/lib/features/scenarios/presentation/providers/scenario_provider.dart",
+        "mobile/lib/core/services/ai_service.dart",
+        "mobile/lib/core/services/direct_client_ai_service.dart",
+        "mobile/lib/core/services/ai_provider.dart",
+        "mobile/lib/features/profile/presentation/pages/settings_page.dart",
+        "mobile/lib/app/router/app_router.dart",
+        "mobile/lib/features/scenarios/presentation/pages/scenario_dashboard_page.dart",
+        "mobile/lib/features/scenarios/presentation/pages/what_if_page.dart",
+        "mobile/lib/features/scenarios/presentation/providers/ai_explanation_provider.dart"
       ]
     },
     {
@@ -56,27 +77,6 @@
         "docs/architecture/app_flow_chart.md",
         "CHANGELOG.md"
       ]
-    },
-    {
-      "timestamp": "2026-06-03T18:00:00Z",
-      "type": "bug_fix",
-      "description": "Nâng cấp AGP 9.0.1, sửa lỗi JNI, sửa biến tự động sinh của Riverpod 3.0",
-      "files": [
-        "android/settings.gradle.kts",
-        "android/gradle/wrapper/gradle-wrapper.properties",
-        "pubspec.yaml",
-        "lib/main.dart",
-        "lib/features/scenarios/presentation/pages/what_if_page.dart",
-        "lib/app/router/app_router.dart"
-      ]
-    },
-    {
-      "timestamp": "2026-06-03T18:02:00Z",
-      "type": "bug_fix",
-      "description": "Sửa lỗi kẹt màn hình Splash do logic điều hướng sai trong app_router.dart",
-      "files": [
-        "lib/app/router/app_router.dart"
-      ]
     }
   ],
   "errors_encountered": [
@@ -105,6 +105,10 @@
     {
       "decision": "Dùng AGP 9.0.1",
       "reason": "Bắt buộc để chạy được firebase_core và androidx.browser mới nhất"
+    },
+    {
+      "decision": "Chạy chế độ Offline-first cục bộ và AI Client-side cho MVP",
+      "reason": "Tối ưu hóa chi phí vận hành API, phát triển độc lập nhanh và bảo mật thông tin nhạy cảm của người dùng trên máy."
     }
   ]
 }

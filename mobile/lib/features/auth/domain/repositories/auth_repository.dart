@@ -30,6 +30,9 @@ abstract class AuthRepository {
   /// Sign out current user
   Future<Either<Failure, Unit>> signOut();
 
+  /// Sign in with name (Offline Mode)
+  Future<Either<Failure, AppUser>> signInWithName(String name);
+
   /// Send password reset email
   Future<Either<Failure, Unit>> sendPasswordResetEmail(String email);
 }
