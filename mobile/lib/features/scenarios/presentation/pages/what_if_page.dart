@@ -13,6 +13,8 @@ import '../../domain/entities/scenario_query.dart';
 import '../../engine/scenario_engine.dart';
 import '../../engine/scenario_input.dart';
 import '../providers/scenario_provider.dart';
+import '../providers/ai_explanation_provider.dart';
+import '../widgets/ai_explanation_card.dart';
 
 class WhatIfPage extends ConsumerStatefulWidget {
   const WhatIfPage({super.key});
@@ -69,6 +71,7 @@ class _WhatIfPageState extends ConsumerState<WhatIfPage> {
     );
 
     ref.read(scenarioQueriesNotifierProvider(goal.id).notifier).saveQuery(query);
+    ref.read(aiExplanationNotifierProvider.notifier).generateExplanationForWhatIf(query);
 
     setState(() {
       _delayMonths = delay;
@@ -142,6 +145,16 @@ class _WhatIfPageState extends ConsumerState<WhatIfPage> {
               if (_isCalculated && _lastQuery != null) ...[
                 const Gap(AppSizes.xxl),
                 _buildResultCard(),
+                const Gap(AppSizes.xl),
+                Consumer(
+                  builder: (context, ref, _) {
+                    final explanationState = ref.watch(aiExplanationNotifierProvider);
+                    return AiExplanationCard(
+                      text: explanationState.valueOrNull,
+                      isLoading: explanationState.isLoading,
+                    );
+                  },
+                ),
               ],
             ],
           ),
