@@ -249,6 +249,14 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
             context.go('/home/what-if');
           },
         ).animate().fadeIn(delay: 300.ms),
+        const Gap(AppSizes.md),
+        ElevatedButton.icon(
+          icon: const Icon(Icons.check_circle_outline),
+          label: const Text('Check-in tháng này'),
+          onPressed: () {
+            context.go('/home/monthly-checkin');
+          },
+        ).animate().fadeIn(delay: 400.ms),
       ],
     );
   }
