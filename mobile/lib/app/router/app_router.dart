@@ -11,6 +11,7 @@ import '../../features/scenarios/presentation/pages/monthly_checkin_page.dart';
 import '../../features/scenarios/presentation/pages/scenario_dashboard_page.dart';
 import '../../features/scenarios/presentation/pages/what_if_page.dart';
 import '../../features/profile/presentation/providers/profile_provider.dart';
+import '../../features/premium/presentation/pages/paywall_page.dart';
 import 'routes.dart';
 
 /// GoRouter provider — manually created (no code generation needed for router).
@@ -80,6 +81,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'monthly-checkin',
             builder: (_, __) => const MonthlyCheckinPage(),
+          ),
+          GoRoute(
+            path: 'paywall',
+            builder: (_, __) => const PaywallPage(),
           ),
         ],
       ),

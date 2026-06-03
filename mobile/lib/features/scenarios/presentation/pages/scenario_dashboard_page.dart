@@ -12,6 +12,7 @@ import '../../../profile/presentation/providers/profile_provider.dart';
 import '../../engine/scenario_engine.dart';
 import '../../engine/scenario_input.dart';
 import '../../engine/scenario_result.dart';
+import '../../../premium/presentation/providers/subscription_provider.dart';
 
 class ScenarioDashboardPage extends ConsumerStatefulWidget {
   const ScenarioDashboardPage({super.key});
@@ -75,6 +76,8 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
     
     final result = _engine.calculate(input);
 
+    final isPremium = ref.watch(isPremiumUserProvider);
+
     // 5. Build UI
     return Scaffold(
       appBar: AppBar(
@@ -87,6 +90,19 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           ],
         ),
         actions: [
+          if (!isPremium)
+            TextButton.icon(
+              icon: const Icon(Icons.diamond, color: AppColors.primary),
+              label: const Text('Nâng cấp', style: TextStyle(color: AppColors.primary)),
+              onPressed: () {
+                context.go('/home/paywall');
+              },
+            )
+          else
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Center(child: Text('PRO', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))),
+            ),
           IconButton(
             icon: const Icon(Icons.person_outline),
             onPressed: () {
