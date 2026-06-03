@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 
 import 'package:fin_goal/core/constants/app_colors.dart';
@@ -12,6 +11,8 @@ import 'package:fin_goal/features/profile/presentation/providers/profile_provide
 import 'package:fin_goal/features/scenarios/engine/scenario_engine.dart';
 import 'package:fin_goal/features/scenarios/engine/scenario_input.dart';
 import 'package:fin_goal/features/scenarios/engine/scenario_result.dart';
+import 'package:fin_goal/features/scenarios/domain/entities/monthly_record.dart';
+import 'package:fin_goal/features/scenarios/presentation/providers/scenario_provider.dart';
 import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
 import 'package:fin_goal/app/router/routes.dart';
 
@@ -19,12 +20,13 @@ class ScenarioDashboardPage extends ConsumerStatefulWidget {
   const ScenarioDashboardPage({super.key});
 
   @override
-  ConsumerState<ScenarioDashboardPage> createState() => _ScenarioDashboardPageState();
+  ConsumerState<ScenarioDashboardPage> createState() =>
+      _ScenarioDashboardPageState();
 }
 
 class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
   final _engine = const ScenarioEngine();
-  
+
   // Local state for the slider
   int? _customMonthlySaving;
 
@@ -40,7 +42,8 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
 
     // 2. Error states
     if (profileState is ProfileError) {
-      return Scaffold(body: Center(child: Text('Lỗi: ${profileState.message}')));
+      return Scaffold(
+          body: Center(child: Text('Lỗi: ${profileState.message}')));
     }
     if (goalsState is GoalsError) {
       return Scaffold(body: Center(child: Text('Lỗi: ${goalsState.message}')));
@@ -91,9 +94,25 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
       );
     }
 
-    // 4. Calculate scenario
-    final monthlySaving = _customMonthlySaving ?? profile.suggestedMonthlySaving;
-    
+    // 4. Watch Records
+    final recordsState = ref.watch(recordsProvider(primaryGoal.id));
+    final List<MonthlyRecord> records = recordsState.maybeWhen(
+      data: (data) => data,
+      orElse: () => [],
+    );
+
+    final now = DateTime.now();
+    final thisMonthRecord = records.cast<MonthlyRecord?>().firstWhere(
+          (r) =>
+              r?.recordMonth.year == now.year &&
+              r?.recordMonth.month == now.month,
+          orElse: () => null,
+        );
+
+    // 5. Calculate scenario
+    final monthlySaving =
+        _customMonthlySaving ?? profile.suggestedMonthlySaving;
+
     final input = ScenarioInput(
       currentSavings: profile.currentSavings,
       monthlySaving: monthlySaving,
@@ -103,7 +122,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
       monthsWithActualData: 0,
       averageVariance: 0.0,
     );
-    
+
     final result = _engine.calculate(input);
 
     final isPremium = ref.watch(isPremiumUserProvider);
@@ -123,7 +142,8 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           if (!isPremium)
             TextButton.icon(
               icon: const Icon(Icons.diamond, color: AppColors.primary),
-              label: const Text('Nâng cấp', style: TextStyle(color: AppColors.primary)),
+              label: const Text('Nâng cấp',
+                  style: TextStyle(color: AppColors.primary)),
               onPressed: () {
                 context.go('/home/paywall');
               },
@@ -131,7 +151,11 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           else
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Center(child: Text('PRO', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))),
+              child: Center(
+                  child: Text('PRO',
+                      style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold))),
             ),
           IconButton(
             icon: const Icon(Icons.person_outline),
@@ -152,7 +176,9 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
             const Gap(AppSizes.xl),
             _buildMonthlySavingSlider(profile.disposableIncome, monthlySaving),
             const Gap(AppSizes.xxl),
-            _buildActionButtons(context),
+            _buildActionButtons(context, thisMonthRecord),
+            const Gap(AppSizes.xxl),
+            _buildHistorySection(records),
             const Gap(AppSizes.xxl),
           ],
         ),
@@ -183,8 +209,13 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              isReached ? 'Ngay bây giờ' : 'Tháng ${expectedDate.month}/${expectedDate.year}',
-              style: Theme.of(context).textTheme.displaySmall?.copyWith(color: AppColors.primary),
+              isReached
+                  ? 'Ngay bây giờ'
+                  : 'Tháng ${expectedDate.month}/${expectedDate.year}',
+              style: Theme.of(context)
+                  .textTheme
+                  .displaySmall
+                  ?.copyWith(color: AppColors.primary),
               maxLines: 1,
             ),
           ),
@@ -194,8 +225,10 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildCaseStat('Sớm nhất', result.bestCaseMonths, AppColors.success),
-              _buildCaseStat('Chậm nhất', result.worstCaseMonths, AppColors.danger),
+              _buildCaseStat(
+                  'Sớm nhất', result.bestCaseMonths, AppColors.success),
+              _buildCaseStat(
+                  'Chậm nhất', result.worstCaseMonths, AppColors.danger),
             ],
           ),
         ],
@@ -205,17 +238,18 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
 
   Widget _buildCaseStat(String label, int months, Color color) {
     if (months == 0) return const SizedBox();
-    
+
     final now = DateTime.now();
     final date = DateTime(now.year, now.month + months);
-    
+
     return Column(
       children: [
         Text(label, style: Theme.of(context).textTheme.bodySmall),
         const Gap(4),
         Text(
           'T${date.month}/${date.year}',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: color),
+          style:
+              Theme.of(context).textTheme.titleMedium?.copyWith(color: color),
         ),
       ],
     );
@@ -234,8 +268,11 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Độ tin cậy của kế hoạch', style: Theme.of(context).textTheme.titleMedium),
-            Text('${score.toInt()}%', style: TextStyle(color: getScoreColor(score), fontWeight: FontWeight.bold)),
+            Text('Độ tin cậy của kế hoạch',
+                style: Theme.of(context).textTheme.titleMedium),
+            Text('${score.toInt()}%',
+                style: TextStyle(
+                    color: getScoreColor(score), fontWeight: FontWeight.bold)),
           ],
         ),
         const Gap(AppSizes.sm),
@@ -262,8 +299,10 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Mức tiết kiệm mỗi tháng', style: Theme.of(context).textTheme.titleMedium),
-            Text(CurrencyFormatter.format(currentSaving), style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text('Mức tiết kiệm mỗi tháng',
+                style: Theme.of(context).textTheme.titleMedium),
+            Text(CurrencyFormatter.format(currentSaving),
+                style: const TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
         const Gap(AppSizes.md),
@@ -282,14 +321,16 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('0 ₫', style: Theme.of(context).textTheme.bodySmall),
-            Text(CurrencyFormatter.format(maxDisposable), style: Theme.of(context).textTheme.bodySmall),
+            Text(CurrencyFormatter.format(maxDisposable),
+                style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(
+      BuildContext context, MonthlyRecord? thisMonthRecord) {
     return Column(
       children: [
         OutlinedButton.icon(
@@ -301,10 +342,95 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
         ),
         const Gap(AppSizes.md),
         ElevatedButton.icon(
-          icon: const Icon(Icons.check_circle_outline),
-          label: const Text('Check-in tháng này'),
+          icon: Icon(thisMonthRecord != null
+              ? Icons.edit
+              : Icons.check_circle_outline),
+          label: Text(thisMonthRecord != null
+              ? 'Sửa Check-in tháng này'
+              : 'Check-in tháng này'),
           onPressed: () {
-            context.go('/home/monthly-checkin');
+            context.go('/home/monthly-checkin', extra: thisMonthRecord);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHistorySection(List<MonthlyRecord> records) {
+    if (records.isEmpty) return const SizedBox();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Lịch sử tích luỹ', style: Theme.of(context).textTheme.titleLarge),
+        const Gap(AppSizes.md),
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: records.length,
+          separatorBuilder: (_, __) => const Gap(AppSizes.sm),
+          itemBuilder: (context, index) {
+            final record = records[index];
+            final actual = record.actualSavings ?? 0;
+            final isGood = actual >= record.plannedSavings;
+
+            return InkWell(
+              onTap: () => context.go('/home/monthly-checkin', extra: record),
+              borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+              child: Container(
+                padding: const EdgeInsets.all(AppSizes.md),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceElevatedDark,
+                  borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                  border: Border.all(color: AppColors.borderDark),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(AppSizes.sm),
+                      decoration: BoxDecoration(
+                        color: isGood
+                            ? AppColors.success.withValues(alpha: 0.1)
+                            : AppColors.warning.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        isGood ? Icons.trending_up : Icons.trending_down,
+                        color: isGood ? AppColors.success : AppColors.warning,
+                      ),
+                    ),
+                    const Gap(AppSizes.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                              'Tháng ${record.recordMonth.month}/${record.recordMonth.year}',
+                              style: Theme.of(context).textTheme.titleMedium),
+                          Text(
+                              'Mục tiêu: ${CurrencyFormatter.format(record.plannedSavings)}',
+                              style: Theme.of(context).textTheme.bodySmall),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(CurrencyFormatter.format(actual),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: isGood
+                                    ? AppColors.success
+                                    : AppColors.textPrimary)),
+                        Text(
+                            '${(record.variancePercent * 100).toStringAsFixed(1)}%',
+                            style: Theme.of(context).textTheme.bodySmall),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
           },
         ),
       ],

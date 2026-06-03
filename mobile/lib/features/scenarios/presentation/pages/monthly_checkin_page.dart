@@ -13,7 +13,9 @@ import 'package:fin_goal/features/scenarios/domain/entities/monthly_record.dart'
 import 'package:fin_goal/features/scenarios/presentation/providers/scenario_provider.dart';
 
 class MonthlyCheckinPage extends ConsumerStatefulWidget {
-  const MonthlyCheckinPage({super.key});
+  final MonthlyRecord? existingRecord;
+
+  const MonthlyCheckinPage({super.key, this.existingRecord});
 
   @override
   ConsumerState<MonthlyCheckinPage> createState() => _MonthlyCheckinPageState();
@@ -25,6 +27,14 @@ class _MonthlyCheckinPageState extends ConsumerState<MonthlyCheckinPage> {
   
   bool _isLoading = false;
   bool _isSuccess = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.existingRecord?.actualSavings != null) {
+      _actualCtrl.text = CurrencyFormatter.formatInput(widget.existingRecord!.actualSavings!);
+    }
+  }
 
   @override
   void dispose() {
@@ -49,16 +59,20 @@ class _MonthlyCheckinPageState extends ConsumerState<MonthlyCheckinPage> {
     // We just mock reliability here for MVP, the real logic should aggregate history
     final mockReliability = 50.0 + (variance < 0.1 ? 5.0 : -5.0);
 
+    final recordId = widget.existingRecord?.id ?? '';
+    final recordMonth = widget.existingRecord?.recordMonth ?? DateTime.now();
+    final createdAt = widget.existingRecord?.createdAt ?? DateTime.now();
+
     final record = MonthlyRecord(
-      id: '',
+      id: recordId,
       userId: profile.userId,
       goalId: goal.id,
-      recordMonth: DateTime.now(),
+      recordMonth: recordMonth,
       plannedSavings: planned,
       actualSavings: actual,
       variancePercent: variance,
       planReliability: mockReliability,
-      createdAt: DateTime.now(),
+      createdAt: createdAt,
     );
 
     // Save record
@@ -91,7 +105,7 @@ class _MonthlyCheckinPageState extends ConsumerState<MonthlyCheckinPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Check-in Tháng'),
+        title: Text(widget.existingRecord != null ? 'Sửa Check-in' : 'Check-in Tháng'),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),
