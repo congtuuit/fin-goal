@@ -9,6 +9,7 @@ import 'package:fin_goal/core/constants/app_sizes.dart';
 import 'package:fin_goal/core/utils/currency_formatter.dart';
 import 'package:fin_goal/features/cashflow/domain/entities/game_scenario.dart';
 import 'package:fin_goal/features/cashflow/presentation/providers/cashflow_provider.dart';
+import 'package:fin_goal/features/cashflow/presentation/widgets/rat_race_board_widget.dart';
 
 class CashflowGamePage extends ConsumerStatefulWidget {
   const CashflowGamePage({super.key});
@@ -23,12 +24,7 @@ class _CashflowGamePageState extends ConsumerState<CashflowGamePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final state = ref.read(cashflowProvider);
-      if (state is CashflowGameReady && state.currentScenario == null && !state.isGeneratingScenario) {
-        ref.read(cashflowProvider.notifier).generateNextScenario();
-      }
-    });
+    // Khởi tạo không cần tự động tung xúc xắc
   }
 
   void _onOptionSelected(GameOption option) {
@@ -111,7 +107,7 @@ class _CashflowGamePageState extends ConsumerState<CashflowGamePage> {
           children: [
             const CircularProgressIndicator(),
             const Gap(AppSizes.md),
-            const Text('AI đang tính toán sự kiện tiếp theo...').animate().fadeIn().shimmer(),
+            const Text('Đang tung xúc xắc & tính toán...').animate().fadeIn().shimmer(),
           ],
         ),
       );
@@ -119,12 +115,7 @@ class _CashflowGamePageState extends ConsumerState<CashflowGamePage> {
 
     final scenario = state.currentScenario;
     if (scenario == null) {
-      return Center(
-        child: ElevatedButton(
-          onPressed: () => ref.read(cashflowProvider.notifier).generateNextScenario(),
-          child: const Text('Tạo tình huống mới'),
-        ),
-      );
+      return _buildBoardView(context, state);
     }
 
     return SingleChildScrollView(
@@ -183,6 +174,55 @@ class _CashflowGamePageState extends ConsumerState<CashflowGamePage> {
               child: _buildOptionCard(opt),
             ).animate().slideX(begin: 0.1, delay: Duration(milliseconds: 300 + idx * 100)).fadeIn();
           }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBoardView(BuildContext context, CashflowGameReady state) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Tháng thứ \${state.state.currentMonth}',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const Gap(AppSizes.sm),
+          Text(
+            'Tiền mặt: \${CurrencyFormatter.format(state.state.cashOnHand)}',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.success),
+          ),
+          const Gap(AppSizes.xxl),
+          
+          // Vẽ vòng tròn đại diện Rat Race
+          RatRaceBoardWidget(
+            currentPosition: state.state.boardPosition,
+            size: MediaQuery.of(context).size.width - 40,
+          ),
+
+          const Gap(AppSizes.xxl),
+          if (state.state.downsizeTurns > 0)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSizes.md),
+              child: Text(
+                'Bạn đang bị thất nghiệp (Còn \${state.state.downsizeTurns} lượt)',
+                style: const TextStyle(color: AppColors.danger, fontWeight: FontWeight.bold),
+              ),
+            ),
+
+          SizedBox(
+            width: 200,
+            height: 60,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusXl)),
+              ),
+              onPressed: () => ref.read(cashflowProvider.notifier).rollDiceAndMove(),
+              child: const Text('TUNG XÚC XẮC', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
+          ).animate().slideY(begin: 0.5).fadeIn(),
         ],
       ),
     );

@@ -85,6 +85,11 @@ class CashflowState extends Equatable {
   /// Chi phí cố định tối thiểu (sinh hoạt phí)
   final int baseExpenses;
 
+  // ── Thuộc tính dành cho Board Game ──
+  final int boardPosition;
+  final int children;
+  final int downsizeTurns;
+
   final List<CashflowAsset> assets;
   final List<CashflowLiability> liabilities;
 
@@ -94,6 +99,9 @@ class CashflowState extends Equatable {
     required this.cashOnHand,
     required this.activeIncome,
     required this.baseExpenses,
+    this.boardPosition = 0,
+    this.children = 0,
+    this.downsizeTurns = 0,
     required this.assets,
     required this.liabilities,
   });
@@ -101,9 +109,12 @@ class CashflowState extends Equatable {
   /// Tổng thu nhập thụ động
   int get passiveIncome => assets.fold(0, (sum, a) => sum + a.passiveIncome);
 
-  /// Tổng chi phí (bao gồm trả nợ)
+  /// Tổng chi phí (bao gồm trả nợ và chi phí nuôi con)
+  /// Giả sử mỗi đứa con tốn 10% baseExpenses
   int get totalExpenses =>
-      baseExpenses + liabilities.fold(0, (sum, l) => sum + l.monthlyPayment);
+      baseExpenses + 
+      (children * (baseExpenses * 0.1).round()) + 
+      liabilities.fold(0, (sum, l) => sum + l.monthlyPayment);
 
   /// Tổng thu nhập
   int get totalIncome => activeIncome + passiveIncome;
@@ -123,6 +134,9 @@ class CashflowState extends Equatable {
     int? cashOnHand,
     int? activeIncome,
     int? baseExpenses,
+    int? boardPosition,
+    int? children,
+    int? downsizeTurns,
     List<CashflowAsset>? assets,
     List<CashflowLiability>? liabilities,
   }) {
@@ -132,6 +146,9 @@ class CashflowState extends Equatable {
       cashOnHand: cashOnHand ?? this.cashOnHand,
       activeIncome: activeIncome ?? this.activeIncome,
       baseExpenses: baseExpenses ?? this.baseExpenses,
+      boardPosition: boardPosition ?? this.boardPosition,
+      children: children ?? this.children,
+      downsizeTurns: downsizeTurns ?? this.downsizeTurns,
       assets: assets ?? this.assets,
       liabilities: liabilities ?? this.liabilities,
     );
@@ -144,6 +161,9 @@ class CashflowState extends Equatable {
         cashOnHand,
         activeIncome,
         baseExpenses,
+        boardPosition,
+        children,
+        downsizeTurns,
         assets,
         liabilities,
       ];
@@ -154,6 +174,9 @@ class CashflowState extends Equatable {
         'cashOnHand': cashOnHand,
         'activeIncome': activeIncome,
         'baseExpenses': baseExpenses,
+        'boardPosition': boardPosition,
+        'children': children,
+        'downsizeTurns': downsizeTurns,
         'assets': assets.map((e) => e.toJson()).toList(),
         'liabilities': liabilities.map((e) => e.toJson()).toList(),
       };
@@ -164,6 +187,9 @@ class CashflowState extends Equatable {
         cashOnHand: json['cashOnHand'] as int,
         activeIncome: json['activeIncome'] as int,
         baseExpenses: json['baseExpenses'] as int,
+        boardPosition: json['boardPosition'] as int? ?? 0,
+        children: json['children'] as int? ?? 0,
+        downsizeTurns: json['downsizeTurns'] as int? ?? 0,
         assets: (json['assets'] as List<dynamic>?)
                 ?.map((e) => CashflowAsset.fromJson(e as Map<String, dynamic>))
                 .toList() ??
