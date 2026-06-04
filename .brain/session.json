@@ -1,17 +1,19 @@
 {
-  "updated_at": "2026-06-04T16:55:00Z",
+  "updated_at": "2026-06-04T21:13:00Z",
   "working_on": {
-    "feature": "AdMob Integration",
-    "task": "Integrate Banner, Rewarded, and Interstitial ads",
+    "feature": "Fast Track Balancing & App Branding",
+    "task": "Completed Fast Track rebalance, bug fixes, and generated App Store Marketing Kit",
     "status": "completed",
     "files": [
-      "lib/core/services/ad_service.dart",
+      "lib/features/cashflow_game/engine/event_engine.dart",
+      "lib/features/cashflow_game/presentation/providers/game_provider.dart",
       "lib/features/cashflow_game/presentation/pages/board_game_page.dart",
-      "lib/features/goals/presentation/pages/goals_list_page.dart",
-      "lib/features/scenarios/presentation/pages/monthly_checkin_page.dart"
+      "android/app/src/main/res/values/strings.xml",
+      "ios/Runner/Info.plist",
+      "store_marketing_kit.md"
     ],
     "blockers": [],
-    "notes": "Integrated Test Ads for Dev mode. Ads are disabled for Premium users."
+    "notes": "Fast track base income x20, starting cash x100. Old assets bundled into Trust Fund. Banner Ad hidden for premium users."
   },
   "pending_tasks": [
     { "task": "Integrate premium features properly", "priority": "medium", "notes": "Paywall and limits" },
@@ -19,14 +21,16 @@
     { "task": "AI Coach Feature", "priority": "medium", "notes": "Implement AI Coach and integrate Rewarded Ads for extra chat tokens" }
   ],
   "recent_changes": [
-    { "timestamp": "2026-06-04T16:00:00Z", "type": "feature", "description": "AdMob integration setup and logic (AdService, isPremiumUserProvider)", "files": ["lib/core/services/ad_service.dart"] },
-    { "timestamp": "2026-06-04T16:20:00Z", "type": "feature", "description": "Rewarded and Interstitial Ads in Cashflow Game and Monthly Check-in", "files": ["lib/features/cashflow_game/presentation/pages/board_game_page.dart", "lib/features/scenarios/presentation/pages/monthly_checkin_page.dart"] }
+    { "timestamp": "2026-06-04T20:30:00Z", "type": "feature", "description": "Rebalanced Fast Track businesses (ROIs) and added massive risks (Crisis, Lawsuit)", "files": ["lib/features/cashflow_game/engine/event_engine.dart"] },
+    { "timestamp": "2026-06-04T20:45:00Z", "type": "feature", "description": "Modified Rat Race to Fast Track transition logic (Consolidate assets to Trust Fund, new multipliers)", "files": ["lib/features/cashflow_game/presentation/providers/game_provider.dart"] },
+    { "timestamp": "2026-06-04T20:55:00Z", "type": "bugfix", "description": "Fixed Banner Ad showing for premium users on BoardGamePage", "files": ["lib/features/cashflow_game/presentation/pages/board_game_page.dart"] },
+    { "timestamp": "2026-06-04T21:10:00Z", "type": "chore", "description": "Renamed App to Financial Goals in Android/iOS config and created Store Marketing Kit", "files": ["android/app/src/main/res/values/strings.xml", "ios/Runner/Info.plist"] }
   ],
   "errors_encountered": [
-    { "error": "The method 'addCash' isn't defined for the type 'CashflowGameNotifier'", "solution": "Fixed missing closing brace } in game_provider.dart before addCash definition", "resolved": true }
+    { "error": "Syntax error in board_game_page.dart missing )", "solution": "Added the missing closing parenthesis", "resolved": true }
   ],
   "decisions_made": [
-    { "decision": "Ads exclusion policy", "reason": "Strictly no ads on Home, Profile, and Settings screens to maintain UX." },
-    { "decision": "Show Interstitial Ad on 'Play Again' or 'Back to Dashboard'", "reason": "These are natural breakpoints in the user flow where ads are less intrusive." }
+    { "decision": "Fast Track Logic", "reason": "Kept upfront cash at x100 for big deals, lowered monthly income to x20 to make game challenging. Rat Race assets are bundled into a Personal Trust Fund instead of being wiped." },
+    { "decision": "App Branding", "reason": "Chose 'Financial Goals' as display name. Full name on Store: 'Financial Goals - Kiến Tạo Tương Lai'." }
   ]
 }
