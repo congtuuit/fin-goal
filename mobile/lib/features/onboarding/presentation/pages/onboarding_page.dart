@@ -22,25 +22,19 @@ class OnboardingPage extends ConsumerStatefulWidget {
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final _pageController = PageController();
   int _currentIndex = 0;
+  final int _totalPages = 6;
   bool _isLoading = false;
+
+  String _selectedGoal = '';
 
   // Form inputs
   final _ageCtrl = TextEditingController();
   final _incomeCtrl = TextEditingController();
   final _expenseCtrl = TextEditingController();
-  final _savingsCtrl = TextEditingController();
   final _salaryDateCtrl = TextEditingController();
 
   final _formKeys = List.generate(4, (_) => GlobalKey<FormState>());
   final _focusNodes = List.generate(4, (_) => FocusNode());
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(milliseconds: 400), () {
-      if (mounted) _focusNodes[0].requestFocus();
-    });
-  }
 
   @override
   void dispose() {
@@ -51,42 +45,53 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     _ageCtrl.dispose();
     _incomeCtrl.dispose();
     _expenseCtrl.dispose();
-    _savingsCtrl.dispose();
     _salaryDateCtrl.dispose();
     super.dispose();
   }
 
   void _nextPage() {
-    if (_formKeys[_currentIndex].currentState?.validate() ?? false) {
-      if (_currentIndex < 3) {
-        FocusScope.of(context).unfocus(); // Unfocus before animating
-        _pageController.nextPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        ).then((_) {
-          if (mounted) _focusNodes[_currentIndex].requestFocus();
+    bool canProceed = true;
+    if (_currentIndex >= 1 && _currentIndex <= 4) {
+      canProceed =
+          _formKeys[_currentIndex - 1].currentState?.validate() ?? false;
+    }
+
+    if (canProceed) {
+      if (_currentIndex < _totalPages - 1) {
+        FocusScope.of(context).unfocus();
+        _pageController
+            .nextPage(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOutCubic,
+        )
+            .then((_) {
+          if (mounted && _currentIndex >= 1 && _currentIndex <= 4) {
+            _focusNodes[_currentIndex - 1].requestFocus();
+          }
         });
         setState(() => _currentIndex++);
-      } else {
-        _submit();
       }
     }
   }
 
   void _prevPage() {
     if (_currentIndex > 0) {
-      FocusScope.of(context).unfocus(); // Unfocus before animating
-      _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      ).then((_) {
-        if (mounted) _focusNodes[_currentIndex].requestFocus();
+      FocusScope.of(context).unfocus();
+      _pageController
+          .previousPage(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOutCubic,
+      )
+          .then((_) {
+        if (mounted && _currentIndex >= 1 && _currentIndex <= 4) {
+          _focusNodes[_currentIndex - 1].requestFocus();
+        }
       });
       setState(() => _currentIndex--);
     }
   }
 
-  Future<void> _submit() async {
+  Future<void> _submitAndGoToGame() async {
     final userId = ref.read(currentUserProvider)?.id;
     if (userId == null) return;
 
@@ -94,30 +99,45 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
     final profile = FinancialProfile(
       userId: userId,
-      age: int.parse(_ageCtrl.text.trim()),
+      age: int.tryParse(_ageCtrl.text.trim()) ?? 25,
       monthlyIncome: CurrencyFormatter.parse(_incomeCtrl.text) ?? 0,
       fixedExpenses: CurrencyFormatter.parse(_expenseCtrl.text) ?? 0,
-      salaryDate: int.parse(_salaryDateCtrl.text.trim()),
+      salaryDate: int.tryParse(_salaryDateCtrl.text.trim()) ?? 5,
     );
 
-    final error = await ref.read(profileProvider.notifier).createProfile(profile);
+    final error =
+        await ref.read(profileProvider.notifier).createProfile(profile);
 
     if (mounted) {
       setState(() => _isLoading = false);
       if (error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.message), backgroundColor: AppColors.danger),
+          SnackBar(
+              content: Text(error.message), backgroundColor: AppColors.danger),
         );
       } else {
-        // Success — router will handle redirect based on state change
-        context.go('/home/goal-selection');
+        context.go('/home/board-game');
       }
     }
   }
 
+  int _calculateFireAge() {
+    final age = int.tryParse(_ageCtrl.text.trim()) ?? 25;
+    final income = CurrencyFormatter.parse(_incomeCtrl.text) ?? 0;
+    final expense = CurrencyFormatter.parse(_expenseCtrl.text) ?? 0;
+
+    final monthlySavings = income - expense;
+    if (monthlySavings <= 0) return 99;
+
+    final fireNumber = expense * 12 * 25;
+    final monthsToFire = fireNumber / monthlySavings;
+    final yearsToFire = (monthsToFire / 12).ceil();
+
+    return age + yearsToFire;
+  }
+
   Widget _buildCurrencyInput(
     TextEditingController controller,
-    String label,
     String hint,
     String? Function(String?) validator,
     FocusNode focusNode,
@@ -126,11 +146,12 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       controller: controller,
       focusNode: focusNode,
       keyboardType: TextInputType.number,
-      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      style: const TextStyle(
+          fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.primary),
       decoration: InputDecoration(
-        labelText: label,
         hintText: hint,
         suffixText: '₫',
+        suffixStyle: const TextStyle(fontSize: 24, color: AppColors.textMuted),
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,
@@ -138,7 +159,6 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       ),
       validator: validator,
       onChanged: (value) {
-        // Format as user types (naive formatting for UX)
         final parsed = CurrencyFormatter.parse(value);
         if (parsed != null) {
           final formatted = CurrencyFormatter.formatInput(parsed);
@@ -151,29 +171,45 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         }
       },
       onFieldSubmitted: (_) => _nextPage(),
-    ).animate().fadeIn().slideY(begin: 0.1, duration: 400.ms, curve: Curves.easeOut);
+    )
+        .animate()
+        .fadeIn()
+        .slideY(begin: 0.1, duration: 400.ms, curve: Curves.easeOut);
   }
 
   @override
   Widget build(BuildContext context) {
+    final progressWidth =
+        MediaQuery.of(context).size.width * (_currentIndex / (_totalPages - 1));
+
     return Scaffold(
       appBar: AppBar(
         leading: _currentIndex > 0
-            ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: _prevPage)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back), onPressed: _prevPage)
             : null,
-        title: Row(
-          children: List.generate(
-            4,
-            (index) => Expanded(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 2),
+        title: Text(
+          'Tạo Nhân Vật',
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(color: AppColors.textMuted),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(4),
+          child: Stack(
+            children: [
+              Container(
+                  height: 4,
+                  width: double.infinity,
+                  color: AppColors.borderDark),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
                 height: 4,
-                decoration: BoxDecoration(
-                  color: index <= _currentIndex ? AppColors.primary : AppColors.borderDark,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+                width: progressWidth,
+                color: AppColors.primary,
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -183,38 +219,42 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             Expanded(
               child: PageView(
                 controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(), // Disable swipe
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
+                  // Step 0: Hook
+                  _buildHookStep(),
+
                   // Step 1: Age
-                  _buildStep(
-                    index: 0,
-                    title: 'Chào bạn 👋\nBạn năm nay bao nhiêu tuổi?',
-                    subtitle: 'Giúp ứng dụng tính toán các mốc thời gian phù hợp.',
+                  _buildFormStep(
+                    index: 1,
+                    title: 'Độ tuổi nhân vật?',
+                    subtitle: 'Hành trình của bạn bắt đầu ở mốc thời gian nào?',
                     child: TextFormField(
                       controller: _ageCtrl,
                       focusNode: _focusNodes[0],
                       keyboardType: TextInputType.number,
-                      style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary),
                       decoration: const InputDecoration(
                         hintText: '25',
+                        suffixText: 'tuổi',
                         border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        filled: false,
                       ),
                       validator: Validators.age,
                       onFieldSubmitted: (_) => _nextPage(),
-                    ).animate().fadeIn().slideY(begin: 0.1, duration: 400.ms),
+                    ).animate().fadeIn().slideY(begin: 0.1),
                   ),
 
                   // Step 2: Income
-                  _buildStep(
-                    index: 1,
-                    title: 'Thu nhập hàng tháng của bạn?',
-                    subtitle: 'Tổng thu nhập từ lương và các nguồn cố định khác.',
+                  _buildFormStep(
+                    index: 2,
+                    title: 'Chỉ số Thu Nhập',
+                    subtitle:
+                        'Mỗi tháng nhân vật của bạn tạo ra dòng tiền dương bao nhiêu?',
                     child: _buildCurrencyInput(
                       _incomeCtrl,
-                      '',
                       '20.000.000',
                       Validators.income,
                       _focusNodes[1],
@@ -222,64 +262,68 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   ),
 
                   // Step 3: Expenses
-                  _buildStep(
-                    index: 2,
-                    title: 'Chi phí cố định mỗi tháng?',
-                    subtitle: 'Tiền thuê nhà, ăn uống cơ bản, trả góp...',
+                  _buildFormStep(
+                    index: 3,
+                    title: 'Chỉ số Sinh Tồn',
+                    subtitle:
+                        'Để tồn tại mỗi tháng, nhân vật cần tiêu thụ bao nhiêu tài nguyên?',
                     child: _buildCurrencyInput(
                       _expenseCtrl,
-                      '',
                       '10.000.000',
-                      (v) => Validators.expenses(v, income: CurrencyFormatter.parse(_incomeCtrl.text) ?? 0),
+                      (v) => Validators.expenses(v,
+                          income:
+                              CurrencyFormatter.parse(_incomeCtrl.text) ?? 0),
                       _focusNodes[2],
                     ),
                   ),
 
                   // Step 4: Salary Date
-                  _buildStep(
-                    index: 3,
-                    title: 'Ngày nhận lương hàng tháng?',
-                    subtitle: 'Để ứng dụng nhắc nhở bạn cập nhật tình hình tiết kiệm.',
+                  _buildFormStep(
+                    index: 4,
+                    title: 'Chu kỳ hồi máu (Lương)',
+                    subtitle:
+                        'Ngày nào trong tháng nhân vật sẽ nhận được tiếp viện?',
                     child: TextFormField(
                       controller: _salaryDateCtrl,
                       focusNode: _focusNodes[3],
                       keyboardType: TextInputType.number,
-                      style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary),
                       decoration: const InputDecoration(
                         hintText: '5',
                         suffixText: 'hàng tháng',
                         border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        filled: false,
                       ),
                       validator: Validators.salaryDate,
                       onFieldSubmitted: (_) => _nextPage(),
-                    ).animate().fadeIn().slideY(begin: 0.1, duration: 400.ms),
+                    ).animate().fadeIn().slideY(begin: 0.1),
                   ),
+
+                  // Step 5: The Shock Effect
+                  _buildShockStep(),
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(AppSizes.pageHorizontalPadding),
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _nextPage,
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                      )
-                    : Text(_currentIndex == 3 ? 'Hoàn tất' : 'Tiếp tục'),
+            if (_currentIndex > 0 && _currentIndex < _totalPages - 1)
+              Padding(
+                padding: const EdgeInsets.all(AppSizes.pageHorizontalPadding),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _nextPage,
+                    child: const Text('Tiếp tục'),
+                  ),
+                ),
               ),
-            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStep({
+  Widget _buildFormStep({
     required int index,
     required String title,
     required String subtitle,
@@ -288,25 +332,194 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     return Padding(
       padding: const EdgeInsets.all(AppSizes.pageHorizontalPadding),
       child: Form(
-        key: _formKeys[index],
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Gap(AppSizes.xl),
-            Text(title, style: Theme.of(context).textTheme.headlineMedium)
-                .animate()
-                .fadeIn(duration: 400.ms)
-                .slideX(begin: -0.05),
-            const Gap(AppSizes.sm),
-            Text(subtitle, style: Theme.of(context).textTheme.bodyMedium)
-                .animate()
-                .fadeIn(delay: 100.ms, duration: 400.ms)
-                .slideX(begin: -0.05),
-            const Gap(AppSizes.xxl),
-            child,
-          ],
+        key: _formKeys[index - 1],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Gap(AppSizes.xl),
+              Text(title,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.bold))
+                  .animate()
+                  .fadeIn(duration: 400.ms)
+                  .slideX(begin: -0.05),
+              const Gap(AppSizes.sm),
+              Text(subtitle,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.copyWith(color: AppColors.textMuted))
+                  .animate()
+                  .fadeIn(delay: 100.ms, duration: 400.ms)
+                  .slideX(begin: -0.05),
+              const Gap(AppSizes.xxl),
+              child,
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Widget _buildHookStep() {
+    final goals = [
+      {'id': 'fire', 'title': 'Nghỉ hưu sớm trước 40 tuổi', 'icon': '🔥'},
+      {'id': 'debt', 'title': 'Thoát khỏi vòng xoáy nợ nần', 'icon': '⚔️'},
+      {'id': 'house', 'title': 'Mua nhà, mua xe tự do', 'icon': '🏡'},
+    ];
+
+    return Padding(
+        padding: const EdgeInsets.all(AppSizes.pageHorizontalPadding),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Gap(AppSizes.xl),
+              Text('Mục tiêu lớn nhất của bạn lúc này là gì?',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.bold))
+                  .animate()
+                  .fadeIn()
+                  .slideY(begin: -0.1),
+              const Gap(AppSizes.xxl),
+              ...goals.map((g) {
+                final isSelected = _selectedGoal == g['id'];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: AppSizes.md),
+                  child: InkWell(
+                    onTap: () {
+                      setState(() => _selectedGoal = g['id']!);
+                      Future.delayed(
+                          const Duration(milliseconds: 300), _nextPage);
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.all(AppSizes.lg),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.primary.withValues(alpha: 0.1)
+                            : AppColors.surfaceDark,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.borderDark,
+                          width: 2,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Text(g['icon']!,
+                              style: const TextStyle(fontSize: 28)),
+                          const Gap(AppSizes.md),
+                          Expanded(
+                            child: Text(
+                              g['title']!,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : AppColors.textPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(delay: (goals.indexOf(g) * 100).ms)
+                      .slideX(begin: 0.1),
+                );
+              }),
+            ],
+          ),
+        ));
+  }
+
+  Widget _buildShockStep() {
+    final fireAge = _calculateFireAge();
+    final isNever = fireAge >= 99;
+
+    return Padding(
+        padding: const EdgeInsets.all(AppSizes.pageHorizontalPadding),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Gap(AppSizes.xl),
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isNever
+                      ? AppColors.danger.withValues(alpha: 0.1)
+                      : AppColors.warning.withValues(alpha: 0.1),
+                ),
+                child: Text(
+                  isNever ? '💀' : '😱',
+                  style: const TextStyle(fontSize: 64),
+                ),
+              ).animate().scale(
+                  delay: 200.ms, duration: 500.ms, curve: Curves.elasticOut),
+              const Gap(AppSizes.xl),
+              Text(
+                'Phân Tích Dữ Liệu',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(color: AppColors.textMuted),
+              ).animate().fadeIn(delay: 600.ms),
+              const Gap(AppSizes.md),
+              Text(
+                isNever
+                    ? 'Với chỉ số hiện tại, bạn sẽ không bao giờ đạt được Tự Do Tài Chính!'
+                    : 'Dựa trên chỉ số hiện tại, nếu không có gì thay đổi, bạn sẽ Tự Do Tài Chính vào năm...',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 18),
+              ).animate().fadeIn(delay: 1000.ms),
+              if (!isNever) ...[
+                const Gap(AppSizes.lg),
+                Text(
+                  '$fireAge TUỔI',
+                  style: TextStyle(
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                    color: fireAge > 50 ? AppColors.danger : AppColors.success,
+                  ),
+                )
+                    .animate()
+                    .fadeIn(delay: 1800.ms)
+                    .scale(curve: Curves.elasticOut),
+              ],
+              const Gap(AppSizes.xxl),
+              const Gap(AppSizes.xl),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _submitAndGoToGame,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('Tìm Lối Thoát',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ).animate().fadeIn(delay: 2500.ms).slideY(begin: 0.5),
+            ],
+          ),
+        ));
   }
 }
