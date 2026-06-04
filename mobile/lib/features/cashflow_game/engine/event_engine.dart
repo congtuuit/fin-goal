@@ -85,6 +85,9 @@ class EventEngine {
     if (spaceType == BoardSpaceType.paycheck) {
       return _createPaycheckCard(state);
     }
+    if (spaceType == BoardSpaceType.fastTrackCashflowDay) {
+      return _createFastTrackCashflowDayCard(state);
+    }
     final cards = _getCardsByType(spaceType, state, positive);
     if (cards.isEmpty) return null;
     return cards[_random.nextInt(cards.length)];
@@ -99,6 +102,10 @@ class EventEngine {
       BoardSpaceType.downsize => [_downsizeCard],
       BoardSpaceType.charity => [_charityCard],
       BoardSpaceType.paycheck => [], // handled dynamically
+      BoardSpaceType.fastTrackBusiness => _fastTrackBusinessEvents,
+      BoardSpaceType.fastTrackDream => _fastTrackDreamEvents,
+      BoardSpaceType.fastTrackAudit => _fastTrackAuditEvents,
+      BoardSpaceType.fastTrackCashflowDay => [], // handled dynamically
     };
   }
 
@@ -117,6 +124,26 @@ class EventEngine {
           shortDescription: 'Đã nhận $amount',
           teachingMoment: 'Dòng tiền (Cashflow) = Tổng Thu Nhập - Tổng Chi Phí. Khi Dòng tiền lớn hơn 0, bạn sẽ ngày càng giàu có.',
           impact: const EventImpact(), // Không cộng lại tiền vì đã cộng ở Provider khi crossedPaycheck
+        ),
+      ],
+    );
+  }
+
+  // ── Thẻ bài Cashflow Day (Fast Track) ───────────────────────────────────────
+  EventCard _createFastTrackCashflowDayCard(GameState state) {
+    final amount = CurrencyFormatter.compact(state.fastTrackIncome);
+    return EventCard(
+      id: 'ft_cashflow_day',
+      title: '💸 CASHFLOW DAY!',
+      description: 'Chúc mừng! Bạn vừa đi qua ô Cashflow Day.\n\nThu nhập của bạn: $amount\n\n(Tiền đã được cộng tự động vào Tiền Mặt).',
+      type: EventType.paycheck,
+      choices: [
+        EventChoice(
+          id: 'ft_cashflow_ok',
+          label: 'Tuyệt Vời!',
+          shortDescription: 'Đã nhận $amount',
+          teachingMoment: 'Thu nhập trên Fast Track lớn hơn rất nhiều lần so với Rat Race. Tiền bây giờ tự động chảy vào túi bạn.',
+          impact: const EventImpact(), 
         ),
       ],
     );
@@ -510,6 +537,116 @@ class EventEngine {
           shortDescription: 'Cổ phiếu giảm 20%',
           teachingMoment: 'Warren Buffett nói: "Hãy tham lam khi người khác sợ hãi." Khi thị trường sụt giảm là cơ hội mua tài sản tốt với giá rẻ.',
           impact: const EventImpact(),
+        ),
+      ],
+    ),
+  ];
+
+  // ── Fast Track: Business ────────────────────────────────────────────────────
+  static final List<EventCard> _fastTrackBusinessEvents = [
+    EventCard(
+      id: 'ft_bus_software',
+      title: '🏢 Mua Công Ty Phần Mềm',
+      description: 'Một công ty phần mềm đang cần vốn để mở rộng. Mua lại với giá 150,000 USD (3 tỷ VNĐ), đem lại dòng tiền 5,000 USD/tháng (100 triệu VNĐ/tháng).',
+      type: EventType.opportunity,
+      choices: [
+        EventChoice(
+          id: 'ft_bus_software_buy',
+          label: 'Mua Công Ty',
+          shortDescription: '-3 Tỷ, +100 Triệu/tháng',
+          teachingMoment: 'Trên Fast Track, bạn dùng lượng lớn tiền mặt để mua doanh nghiệp đã có sẵn hệ thống.',
+          impact: EventImpact(
+            cashChange: -3000000000,
+            newAssetName: 'Công Ty Phần Mềm',
+            newAssetType: AssetType.business,
+            newAssetValue: 3000000000,
+            newAssetPassiveIncome: 100000000,
+          ),
+        ),
+        EventChoice(
+          id: 'ft_bus_software_skip',
+          label: 'Bỏ Qua',
+          shortDescription: 'Giữ lại tiền',
+          teachingMoment: 'Người giàu luôn cẩn thận chọn lựa doanh nghiệp phù hợp với mục tiêu của họ.',
+          impact: const EventImpact(),
+        ),
+      ],
+    ),
+    EventCard(
+      id: 'ft_bus_franchise',
+      title: '🏢 Nhượng Quyền Cà Phê',
+      description: 'Cơ hội mua chuỗi nhượng quyền cà phê nổi tiếng. Giá mua 250,000 USD (5 tỷ VNĐ), lợi nhuận 8,000 USD/tháng (160 triệu VNĐ/tháng).',
+      type: EventType.opportunity,
+      choices: [
+        EventChoice(
+          id: 'ft_bus_franchise_buy',
+          label: 'Mua Chuỗi',
+          shortDescription: '-5 Tỷ, +160 Triệu/tháng',
+          teachingMoment: 'Mô hình nhượng quyền giúp giảm thiểu rủi ro vì hệ thống đã được chứng minh hiệu quả.',
+          impact: EventImpact(
+            cashChange: -5000000000,
+            newAssetName: 'Chuỗi Cà Phê',
+            newAssetType: AssetType.business,
+            newAssetValue: 5000000000,
+            newAssetPassiveIncome: 160000000,
+          ),
+        ),
+        EventChoice(
+          id: 'ft_bus_franchise_skip',
+          label: 'Bỏ Qua',
+          shortDescription: 'Không mua',
+          teachingMoment: 'Bỏ qua cơ hội này, đợi cơ hội khác tốt hơn.',
+          impact: const EventImpact(),
+        ),
+      ],
+    ),
+  ];
+
+  // ── Fast Track: Dream ───────────────────────────────────────────────────────
+  static final List<EventCard> _fastTrackDreamEvents = [
+    EventCard(
+      id: 'ft_dream_island',
+      title: '⭐ Mua Hòn Đảo Riêng',
+      description: 'Bạn đã tìm thấy hòn đảo nhiệt đới trong mơ của mình. Giá: 1,000,000 USD (20 tỷ VNĐ). Nếu đây là ước mơ bạn đã chọn từ đầu, BẠN SẼ THẮNG TRÒ CHƠI NẾU MUA!',
+      type: EventType.opportunity,
+      choices: [
+        EventChoice(
+          id: 'ft_dream_buy',
+          label: 'Thực Hiện Ước Mơ',
+          shortDescription: '-20 Tỷ VNĐ',
+          teachingMoment: 'Tiền bạc chỉ là công cụ. Mục đích cuối cùng là thực hiện được ước mơ và sống cuộc đời bạn mong muốn.',
+          impact: EventImpact(
+            cashChange: -20000000000, // 20 billion
+            newAssetName: 'Dream: Đảo Riêng', // To trigger win condition if matches Dream ID
+            newAssetType: AssetType.other,
+            newAssetValue: 20000000000,
+          ),
+        ),
+        EventChoice(
+          id: 'ft_dream_skip',
+          label: 'Bỏ Qua',
+          shortDescription: 'Chưa đủ tiền / Không phải ước mơ',
+          teachingMoment: 'Chỉ mua nếu bạn có đủ tiền và đây đúng là mục tiêu tối thượng của bạn.',
+          impact: const EventImpact(),
+        ),
+      ],
+    ),
+  ];
+
+  // ── Fast Track: Audit ───────────────────────────────────────────────────────
+  static final List<EventCard> _fastTrackAuditEvents = [
+    EventCard(
+      id: 'ft_audit_tax',
+      title: '⚖️ Thanh Tra Thuế',
+      description: 'Cơ quan thuế tiến hành kiểm toán doanh nghiệp của bạn. Bạn phải nộp phạt và chi phí pháp lý bằng 50% số Tiền Mặt hiện có!',
+      type: EventType.doodad,
+      choices: [
+        EventChoice(
+          id: 'ft_audit_pay',
+          label: 'Nộp Phạt',
+          shortDescription: '-50% Tiền Mặt',
+          teachingMoment: 'Càng giàu có, bạn càng cần đội ngũ cố vấn tài chính và luật sư giỏi để bảo vệ tài sản hợp pháp.',
+          impact: const EventImpact(), // handled in game_provider.dart
         ),
       ],
     ),

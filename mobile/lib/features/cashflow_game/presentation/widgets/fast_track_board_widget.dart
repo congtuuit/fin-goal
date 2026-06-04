@@ -4,11 +4,11 @@ import 'package:fin_goal/core/constants/app_colors.dart';
 import 'package:fin_goal/features/cashflow_game/domain/entities/game_state.dart';
 import 'package:fin_goal/features/cashflow_game/engine/board_engine.dart';
 
-class RatRaceBoardWidget extends StatelessWidget {
+class FastTrackBoardWidget extends StatelessWidget {
   final int currentPosition;
   final double size;
 
-  const RatRaceBoardWidget({
+  const FastTrackBoardWidget({
     super.key,
     required this.currentPosition,
     this.size = 320.0,
@@ -29,20 +29,20 @@ class RatRaceBoardWidget extends StatelessWidget {
               width: size * 0.65,
               height: height * 0.55,
               decoration: BoxDecoration(
-                color: AppColors.surfaceElevatedDark.withValues(alpha: 0.4),
+                color: Colors.amber.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                    color: AppColors.borderDark.withValues(alpha: 0.5)),
+                    color: Colors.amber.withValues(alpha: 0.5)),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('🐭', style: TextStyle(fontSize: size * 0.1)),
+                  Text('🚀', style: TextStyle(fontSize: size * 0.1)),
                   const SizedBox(height: 8),
                   Text(
-                    'RAT RACE',
+                    'FAST TRACK',
                     style: TextStyle(
-                      color: Colors.white30,
+                      color: Colors.amber,
                       fontSize: size * 0.05,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 3,
@@ -54,7 +54,7 @@ class RatRaceBoardWidget extends StatelessWidget {
           ),
 
           // 24 Board spaces
-          ...List.generate(boardSize, (i) => _buildSpace(i, size, height)),
+          ...List.generate(fastTrackBoardSize, (i) => _buildSpace(i, size, height)),
 
           // Player Avatar
           _PlayerAvatar(currentPosition: currentPosition, boardWidth: size, boardHeight: height),
@@ -64,7 +64,7 @@ class RatRaceBoardWidget extends StatelessWidget {
   }
 
   Widget _buildSpace(int index, double boardWidth, double boardHeight) {
-    final space = ratRaceBoard[index];
+    final space = fastTrackBoard[index];
     final grid = _getGridCoordinate(index);
     
     final cellWidth = boardWidth / 8;
@@ -86,22 +86,22 @@ class RatRaceBoardWidget extends StatelessWidget {
         width: isCurrentPosition ? boxSize * 1.15 : boxSize,
         height: isCurrentPosition ? boxSize * 1.15 : boxSize,
         decoration: BoxDecoration(
-          color: color.withValues(alpha: isCurrentPosition ? 0.3 : 0.15),
+          color: color.withValues(alpha: isCurrentPosition ? 0.4 : 0.2),
           borderRadius: BorderRadius.circular(boxSize * 0.25),
           border: Border.all(
-            color: color.withValues(alpha: isCurrentPosition ? 1.0 : 0.5),
+            color: color.withValues(alpha: isCurrentPosition ? 1.0 : 0.6),
             width: isCurrentPosition ? 2.5 : 1.5,
           ),
           boxShadow: isCurrentPosition ? [
             BoxShadow(
-              color: color.withValues(alpha: 0.6),
-              blurRadius: 12,
-              spreadRadius: 2,
+              color: color.withValues(alpha: 0.7),
+              blurRadius: 15,
+              spreadRadius: 3,
             ),
           ] : [
             BoxShadow(
-              color: color.withValues(alpha: 0.15),
-              blurRadius: 4,
+              color: color.withValues(alpha: 0.2),
+              blurRadius: 5,
               spreadRadius: 1,
             ),
           ],
@@ -121,23 +121,19 @@ class RatRaceBoardWidget extends StatelessWidget {
   }
 
   static Color _spaceColor(BoardSpaceType type) => switch (type) {
-        BoardSpaceType.paycheck => Colors.amber,
-        BoardSpaceType.opportunity => Colors.green,
-        BoardSpaceType.doodad => Colors.red,
-        BoardSpaceType.market => Colors.blue,
-        BoardSpaceType.baby => Colors.purple,
-        BoardSpaceType.downsize => Colors.deepPurple,
+        BoardSpaceType.fastTrackCashflowDay => Colors.purpleAccent,
+        BoardSpaceType.fastTrackBusiness => Colors.amber,
+        BoardSpaceType.fastTrackDream => Colors.pinkAccent,
+        BoardSpaceType.fastTrackAudit => Colors.redAccent,
         BoardSpaceType.charity => Colors.pink,
         _ => Colors.grey,
       };
 
   static String _spaceIcon(BoardSpaceType type) => switch (type) {
-        BoardSpaceType.paycheck => '💰',
-        BoardSpaceType.opportunity => '⭐',
-        BoardSpaceType.doodad => '🛒',
-        BoardSpaceType.market => '📈',
-        BoardSpaceType.baby => '👶',
-        BoardSpaceType.downsize => '❌',
+        BoardSpaceType.fastTrackCashflowDay => '💸',
+        BoardSpaceType.fastTrackBusiness => '🏢',
+        BoardSpaceType.fastTrackDream => '⭐',
+        BoardSpaceType.fastTrackAudit => '⚖️',
         BoardSpaceType.charity => '❤️',
         _ => '❓',
       };
@@ -157,7 +153,7 @@ class _PlayerAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final grid = RatRaceBoardWidget._getGridCoordinate(currentPosition);
+    final grid = FastTrackBoardWidget._getGridCoordinate(currentPosition);
     final cellWidth = boardWidth / 8;
     final cellHeight = boardHeight / 6;
     
@@ -178,14 +174,14 @@ class _PlayerAvatar extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.white.withValues(alpha: 0.6),
-              blurRadius: 10,
-              spreadRadius: 3,
+              color: Colors.amber.withValues(alpha: 0.8),
+              blurRadius: 15,
+              spreadRadius: 4,
             ),
           ],
         ),
         child: Center(
-          child: Text('😊',
+          child: Text('😎',
               style: TextStyle(fontSize: avatarSize * 0.6)),
         ),
       ),

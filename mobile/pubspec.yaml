@@ -85,6 +85,7 @@ flutter:
   assets:
     - assets/images/goals/
     - assets/animations/
+    - assets/audio/
 
   # fonts: uncomment and add files to assets/fonts/ before enabling
   # fonts:

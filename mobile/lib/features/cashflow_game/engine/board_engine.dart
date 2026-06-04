@@ -31,6 +31,34 @@ const List<BoardSpaceType> ratRaceBoard = [
   BoardSpaceType.opportunity, // 23
 ];
 
+const int fastTrackBoardSize = 24;
+const List<BoardSpaceType> fastTrackBoard = [
+  BoardSpaceType.fastTrackCashflowDay, // 0: Start
+  BoardSpaceType.fastTrackBusiness,    // 1
+  BoardSpaceType.fastTrackBusiness,    // 2
+  BoardSpaceType.fastTrackDream,       // 3
+  BoardSpaceType.fastTrackBusiness,    // 4
+  BoardSpaceType.fastTrackBusiness,    // 5
+  BoardSpaceType.fastTrackCashflowDay, // 6
+  BoardSpaceType.fastTrackBusiness,    // 7
+  BoardSpaceType.fastTrackBusiness,    // 8
+  BoardSpaceType.fastTrackDream,       // 9
+  BoardSpaceType.charity,              // 10
+  BoardSpaceType.fastTrackBusiness,    // 11
+  BoardSpaceType.fastTrackCashflowDay, // 12
+  BoardSpaceType.fastTrackBusiness,    // 13
+  BoardSpaceType.fastTrackBusiness,    // 14
+  BoardSpaceType.fastTrackDream,       // 15
+  BoardSpaceType.fastTrackBusiness,    // 16
+  BoardSpaceType.fastTrackAudit,       // 17
+  BoardSpaceType.fastTrackCashflowDay, // 18
+  BoardSpaceType.fastTrackBusiness,    // 19
+  BoardSpaceType.fastTrackBusiness,    // 20
+  BoardSpaceType.fastTrackDream,       // 21
+  BoardSpaceType.fastTrackBusiness,    // 22
+  BoardSpaceType.fastTrackBusiness,    // 23
+];
+
 class MoveResult {
   final int newPosition;
   final int diceValue;
@@ -52,19 +80,22 @@ class BoardEngine {
 
   int rollDice() => _random.nextInt(6) + 1;
 
-  MoveResult move(int currentPosition, int steps) {
+  MoveResult move(int currentPosition, int steps, {bool isFastTrack = false}) {
     int paychecks = 0;
+    final board = isFastTrack ? fastTrackBoard : ratRaceBoard;
+    final bSize = isFastTrack ? fastTrackBoardSize : boardSize;
+    final paycheckType = isFastTrack ? BoardSpaceType.fastTrackCashflowDay : BoardSpaceType.paycheck;
 
     // Đếm số ô Paycheck đi ngang qua (không tính ô hiện tại)
     for (int i = 1; i <= steps; i++) {
-      final pos = (currentPosition + i) % boardSize;
-      if (ratRaceBoard[pos] == BoardSpaceType.paycheck) {
+      final pos = (currentPosition + i) % bSize;
+      if (board[pos] == paycheckType) {
         paychecks++;
       }
     }
 
-    final newPosition = (currentPosition + steps) % boardSize;
-    final landedSpace = ratRaceBoard[newPosition];
+    final newPosition = (currentPosition + steps) % bSize;
+    final landedSpace = board[newPosition];
 
     return MoveResult(
       newPosition: newPosition,
@@ -92,6 +123,10 @@ class BoardEngine {
       BoardSpaceType.baby => '👶 Em Bé',
       BoardSpaceType.downsize => '❌ Mất Việc',
       BoardSpaceType.charity => '❤️ Từ Thiện',
+      BoardSpaceType.fastTrackCashflowDay => '💸 Cashflow Day',
+      BoardSpaceType.fastTrackBusiness => '🏢 Doanh Nghiệp',
+      BoardSpaceType.fastTrackDream => '⭐ Ước Mơ',
+      BoardSpaceType.fastTrackAudit => '⚖️ Thanh Tra',
     };
   }
 }

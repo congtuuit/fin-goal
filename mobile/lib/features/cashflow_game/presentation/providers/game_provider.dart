@@ -10,6 +10,7 @@ import 'package:fin_goal/features/cashflow_game/data/repositories/game_repositor
 import 'package:fin_goal/features/cashflow_game/engine/board_engine.dart';
 import 'package:fin_goal/features/cashflow_game/engine/economy_engine.dart';
 import 'package:fin_goal/features/cashflow_game/engine/event_engine.dart';
+import 'package:fin_goal/core/utils/audio_player_manager.dart';
 
 part 'game_provider.g.dart';
 
@@ -72,6 +73,11 @@ class GameUiPlaying extends CashflowGameUiState {
 class GameUiFinanciallyFree extends CashflowGameUiState {
   final GameState gameState;
   const GameUiFinanciallyFree(this.gameState);
+}
+
+class GameUiWon extends CashflowGameUiState {
+  final GameState gameState;
+  const GameUiWon(this.gameState);
 }
 
 class GameUiBankrupt extends CashflowGameUiState {
@@ -157,8 +163,15 @@ class CashflowGameNotifier extends _$CashflowGameNotifier {
     await Future.delayed(const Duration(milliseconds: 600)); // animation dice
 
     final engine = ref.read(boardEngineProvider);
-    final diceValue = engine.rollDice();
-    final move = engine.move(current.gameState.boardPosition, diceValue);
+    int diceValue = engine.rollDice();
+    if (current.gameState.isFastTrack) {
+      diceValue += engine.rollDice(); // Roll 2 dice in Fast Track
+    }
+    final move = engine.move(
+      current.gameState.boardPosition, 
+      diceValue, 
+      isFastTrack: current.gameState.isFastTrack
+    );
 
     var newGs = current.gameState.copyWith(
       boardPosition: move.newPosition,
@@ -167,8 +180,10 @@ class CashflowGameNotifier extends _$CashflowGameNotifier {
 
     // Nhận lương khi đi qua ô paycheck
     if (move.crossedPaycheck) {
-      final paycheckAmount =
-          newGs.monthlyCashflow * move.paychecksReceived;
+      AudioPlayerManager().playSfx('audio/payday.wav');
+      final paycheckAmount = newGs.isFastTrack
+          ? newGs.fastTrackIncome * move.paychecksReceived
+          : newGs.monthlyCashflow * move.paychecksReceived;
       newGs = newGs.copyWith(
         cashOnHand: newGs.cashOnHand + paycheckAmount,
       );
@@ -216,8 +231,17 @@ class CashflowGameNotifier extends _$CashflowGameNotifier {
     final impact = choice.impact;
     var gs = current.gameState;
 
+    if (impact.newAssetName != null || impact.cashChange > 0) {
+      AudioPlayerManager().playSfx('audio/success.wav');
+    }
+
     // Tiền mặt
     int newCash = gs.cashOnHand + impact.cashChange;
+
+    // Fast Track Audit: Mất 50% tiền mặt
+    if (choice.id == 'ft_audit_pay') {
+      newCash = (gs.cashOnHand / 2).floor();
+    }
 
     // Charity: trừ 10% thu nhập
     if (choice.id == 'charity_yes') {
@@ -284,7 +308,11 @@ class CashflowGameNotifier extends _$CashflowGameNotifier {
     await _save(gs);
 
     // Kiểm tra win/lose
-    if (gs.isFinanciallyFree) {
+    if (gs.isFastTrackWinner) {
+      state = GameUiWon(gs);
+      return;
+    }
+    if (gs.isFinanciallyFree && !gs.isFastTrack) {
       state = GameUiFinanciallyFree(gs);
       return;
     }
@@ -345,6 +373,8 @@ class CashflowGameNotifier extends _$CashflowGameNotifier {
     final targetIdx = gs.liabilities.indexWhere((l) => l.id == liabilityId);
     if (targetIdx == -1) return;
 
+    AudioPlayerManager().playSfx('audio/success.wav');
+
     final oldLiability = gs.liabilities[targetIdx];
     final actualPayment = min(amount, oldLiability.totalOwed);
 
@@ -378,6 +408,57 @@ class CashflowGameNotifier extends _$CashflowGameNotifier {
 
   Future<void> _save(GameState gs) async {
     await ref.read(gameRepositoryProvider).saveGame(gs);
+  }
+
+  // ── Vào Fast Track ─────────────────────────────────────────────────────────
+  Future<void> enterFastTrack() async {
+    GameState? currentGs;
+    if (state is GameUiPlaying) {
+      currentGs = (state as GameUiPlaying).gameState;
+    } else if (state is GameUiFinanciallyFree) {
+      currentGs = (state as GameUiFinanciallyFree).gameState;
+    }
+
+    if (currentGs == null) return;
+
+    final newIncome = currentGs.passiveIncome * 100;
+    
+    final fastTrackGs = currentGs.copyWith(
+      isFastTrack: true,
+      fastTrackIncome: newIncome,
+      cashOnHand: newIncome,
+      boardPosition: 0,
+      assets: [],
+      liabilities: [],
+    );
+
+    await _save(fastTrackGs);
+    state = GameUiPlaying(gameState: fastTrackGs);
+  }
+
+  // ── Dev Cheat ──────────────────────────────────────────────────────────────
+  Future<void> devForceWinRatRace() async {
+    if (state is! GameUiPlaying) return;
+    final gs = (state as GameUiPlaying).gameState;
+    
+    final newAsset = Asset(
+      id: 'dev_asset',
+      name: 'DEV Cheat Asset',
+      type: AssetType.business,
+      purchasePrice: 0,
+      currentValue: 0,
+      monthlyPassiveIncome: gs.totalMonthlyExpenses + 10000,
+      downPayment: 0,
+      mortgage: 0,
+      monthlyMortgagePayment: 0,
+    );
+    
+    final newGs = gs.copyWith(
+      assets: [...gs.assets, newAsset],
+    );
+    
+    await _save(newGs);
+    state = GameUiFinanciallyFree(newGs);
   }
 
   // ── Reset Game ─────────────────────────────────────────────────────────────

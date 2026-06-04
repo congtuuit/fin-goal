@@ -25,7 +25,7 @@ class GoalsListPage extends ConsumerWidget {
         centerTitle: false,
         titleSpacing:
             16, // Use default padding for the left title since there's no custom icon on the left
-        title: const Text('Quản lý Mục tiêu'),
+        title: const Text('Mục tiêu tài chính'),
         actions: [
           if (!isPremium)
             TextButton.icon(
@@ -201,7 +201,8 @@ class GoalsListPage extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.15),
+                                color:
+                                    AppColors.primary.withValues(alpha: 0.15),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -243,10 +244,12 @@ class GoalsListPage extends ConsumerWidget {
                           ),
                           Text(
                             '${(progress * 100).toStringAsFixed(1)}%',
-                            style:
-                                Theme.of(context).textTheme.titleSmall?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                           ),
                         ],
                       ),

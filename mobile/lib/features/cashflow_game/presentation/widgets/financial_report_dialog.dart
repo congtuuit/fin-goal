@@ -273,16 +273,15 @@ class _ReportRow extends StatelessWidget {
               Text(value, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13)),
               if (onPay != null) ...[
                 const Gap(AppSizes.sm),
-                SizedBox(
-                  height: 24,
-                  child: OutlinedButton(
-                    onPressed: onPay,
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      side: BorderSide(color: color.withValues(alpha: 0.5)),
-                    ),
-                    child: Text('Trả nợ', style: TextStyle(color: color, fontSize: 10)),
+                OutlinedButton(
+                  onPressed: onPay,
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: Size.zero,
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    side: BorderSide(color: color.withValues(alpha: 0.5)),
                   ),
+                  child: Text('Trả nợ', style: TextStyle(color: color, fontSize: 10)),
                 ),
               ],
             ],

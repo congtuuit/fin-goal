@@ -13,11 +13,15 @@ import 'package:fin_goal/features/cashflow_game/presentation/providers/game_prov
 import 'package:fin_goal/features/cashflow_game/presentation/widgets/dice_widget.dart';
 import 'package:fin_goal/features/cashflow_game/presentation/widgets/event_card_widget.dart';
 import 'package:fin_goal/features/cashflow_game/presentation/widgets/rat_race_board_widget.dart';
+import 'package:fin_goal/features/cashflow_game/presentation/widgets/fast_track_board_widget.dart';
 import 'package:fin_goal/features/cashflow_game/presentation/widgets/financial_report_dialog.dart';
 import 'package:fin_goal/features/cashflow_game/presentation/widgets/game_guide_dialog.dart';
 import 'package:fin_goal/features/cashflow_game/presentation/pages/occupation_select_page.dart';
 import 'package:fin_goal/features/cashflow_game/engine/board_engine.dart';
 import 'package:fin_goal/core/utils/audio_player_manager.dart';
+import 'package:fin_goal/features/cashflow_game/presentation/providers/audio_provider.dart';
+import 'package:flutter/foundation.dart';
+import 'package:share_plus/share_plus.dart';
 
 class BoardGamePage extends ConsumerStatefulWidget {
   const BoardGamePage({super.key});
@@ -63,16 +67,23 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
   @override
   Widget build(BuildContext context) {
     final uiState = ref.watch(cashflowGameProvider);
+    final isMuted = ref.watch(audioProvider);
 
     // React to event card appearance
     ref.listen<CashflowGameUiState>(cashflowGameProvider, (prev, next) {
       if (next is GameUiPlaying && next.currentEvent != null) {
+        if (prev is! GameUiPlaying || prev.currentEvent == null) {
+          AudioPlayerManager().playSfx('audio/card_flip.wav');
+        }
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _showEventCard(next);
         });
       }
       if (next is GameUiFinanciallyFree) {
         _showWinDialog(next.gameState);
+      }
+      if (next is GameUiWon) {
+        _showUltimateWinDialog(next.gameState);
       }
       if (next is GameUiBankrupt) {
         _showLoseDialog(next.gameState);
@@ -81,12 +92,12 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
-      appBar: _buildAppBar(uiState),
+      appBar: _buildAppBar(uiState, isMuted),
       body: _buildBody(uiState),
     );
   }
 
-  PreferredSizeWidget _buildAppBar(CashflowGameUiState s) {
+  PreferredSizeWidget _buildAppBar(CashflowGameUiState s, bool isMuted) {
     String title = 'Cashflow Board Game';
     if (s is GameUiPlaying) {
       title = '${s.gameState.occupation.emoji} ${s.gameState.occupation.name}';
@@ -100,6 +111,11 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
       ),
       actions: [
         if (s is GameUiPlaying) ...[
+          IconButton(
+            icon: Icon(isMuted ? Icons.volume_off : Icons.volume_up),
+            tooltip: isMuted ? 'Bật Âm Thanh' : 'Tắt Âm Thanh',
+            onPressed: () => ref.read(audioProvider.notifier).toggleMute(),
+          ),
           IconButton(
             icon: const Icon(Icons.info_outline),
             tooltip: 'Hướng Dẫn & Thuật Ngữ',
@@ -126,6 +142,7 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
       GameUiSelectOccupation() => _buildSelectPrompt(),
       GameUiPlaying() => _buildGame(s),
       GameUiFinanciallyFree() => const SizedBox.shrink(),
+      GameUiWon() => const SizedBox.shrink(),
       GameUiBankrupt() => const SizedBox.shrink(),
       GameUiError() => Center(child: Text(s.message)),
     };
@@ -175,10 +192,15 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
                 // ── Bàn Cờ ────────────────────────────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: RatRaceBoardWidget(
-                    currentPosition: gs.boardPosition,
-                    size: screenWidth - 32,
-                  ),
+                  child: gs.isFastTrack
+                      ? FastTrackBoardWidget(
+                          currentPosition: gs.boardPosition,
+                          size: screenWidth - 32,
+                        )
+                      : RatRaceBoardWidget(
+                          currentPosition: gs.boardPosition,
+                          size: screenWidth - 32,
+                        ),
                 ),
 
                 const Gap(AppSizes.md),
@@ -251,11 +273,7 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _HudStat(
-                label: '💰 Tiền Mặt',
-                value: CurrencyFormatter.compact(gs.cashOnHand),
-                color: Colors.white,
-              ),
+              AnimatedCashStatWidget(cashOnHand: gs.cashOnHand),
               _HudStat(
                 label: '📈 Thu Thụ Động',
                 value: CurrencyFormatter.compact(gs.passiveIncome),
@@ -317,10 +335,12 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
   }
 
   Widget _buildCurrentSpaceInfo(GameState gs) {
-    final spaceType = gs.boardPosition < 24
-        ? _ratRaceBoard[gs.boardPosition]
-        : _ratRaceBoard[0];
-    final label = _spaceLabelOf(spaceType);
+    final board = gs.isFastTrack ? fastTrackBoard : ratRaceBoard;
+    final bSize = gs.isFastTrack ? fastTrackBoardSize : boardSize;
+    final spaceType = gs.boardPosition < bSize
+        ? board[gs.boardPosition]
+        : board[0];
+    final label = BoardEngine.getSpaceLabel(spaceType);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -353,6 +373,7 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
           isRolling: state.isRolling,
           onTap: () {
             AudioPlayerManager().vibrate();
+            AudioPlayerManager().playSfx('audio/dice_roll.wav');
             ref.read(cashflowGameProvider.notifier).rollDice();
           },
         ),
@@ -379,7 +400,7 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
                 : () => ref
                     .read(cashflowGameProvider.notifier)
                     .rollDice(),
-            icon: const Text('🎲', style: TextStyle(fontSize: 20)),
+            icon: Text(state.gameState.isFastTrack ? '🎲🎲' : '🎲', style: const TextStyle(fontSize: 20)),
             label: Text(
               state.isRolling ? 'Đang Tung...' : 'TUNG XÚC XẮC',
               style: const TextStyle(
@@ -387,11 +408,19 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
             ),
           ),
         ).animate().fadeIn(),
+        if (kDebugMode && !state.gameState.isFastTrack) ...[
+          const Gap(AppSizes.sm),
+          TextButton.icon(
+            icon: const Icon(Icons.bug_report, color: Colors.amber),
+            label: const Text('DEV: Cheat Thoát Rat Race', style: TextStyle(color: Colors.amber)),
+            onPressed: () {
+              ref.read(cashflowGameProvider.notifier).devForceWinRatRace();
+            },
+          ),
+        ],
       ],
     );
   }
-
-
 
   void _confirmReset() {
     showDialog(
@@ -445,12 +474,81 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
           ],
         ),
         actions: [
+          TextButton.icon(
+            icon: const Icon(Icons.assessment, color: Colors.blueAccent),
+            label: const Text('Báo Cáo'),
+            onPressed: () => FinancialReportDialog.show(context, gs),
+          ),
+          TextButton.icon(
+            icon: const Icon(Icons.share, color: Colors.greenAccent),
+            label: const Text('Chia Sẻ'),
+            onPressed: () => Share.share('Tôi đã thoát khỏi Rat Race trong game Cashflow với thu nhập thụ động ${CurrencyFormatter.compact(gs.passiveIncome)}/tháng!'),
+          ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            onPressed: () {
+              Navigator.pop(context);
+              ref.read(cashflowGameProvider.notifier).enterFastTrack();
+            },
+            child: const Text('VÀO FAST TRACK 🚀', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          TextButton(
             onPressed: () {
               Navigator.pop(context);
               ref.read(cashflowGameProvider.notifier).resetGame();
             },
-            child: const Text('Chơi Lại'),
+            child: const Text('Chơi Lại', style: TextStyle(color: Colors.grey)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showUltimateWinDialog(GameState gs) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.amber.shade900,
+        title: const Text('🏆 CHIẾN THẮNG TUYỆT ĐỐI! 🏆', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('🎆 🎆 🎆', style: TextStyle(fontSize: 40)),
+            const Gap(AppSizes.md),
+            const Text(
+              'Bạn đã đạt được Ước Mơ hoặc xây dựng được dòng tiền khổng lồ trên Fast Track!',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+            const Gap(AppSizes.lg),
+            Text(
+              'Thu nhập thụ động: ${CurrencyFormatter.compact(gs.passiveIncome)}',
+              style: const TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ],
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton.icon(
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
+            icon: const Icon(Icons.assessment),
+            label: const Text('Báo Cáo'),
+            onPressed: () => FinancialReportDialog.show(context, gs),
+          ),
+          TextButton.icon(
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
+            icon: const Icon(Icons.share),
+            label: const Text('Chia Sẻ'),
+            onPressed: () => Share.share('Tôi đã trở thành Tỷ Phú trong game Cashflow với thu nhập thụ động ${CurrencyFormatter.compact(gs.passiveIncome)}/tháng! 🏆🏆🏆'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.amber.shade900),
+            onPressed: () {
+              Navigator.pop(context);
+              ref.read(cashflowGameProvider.notifier).resetGame();
+            },
+            child: const Text('Chơi Lại Từ Đầu', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -513,16 +611,66 @@ class _HudStat extends StatelessWidget {
   }
 }
 
+class AnimatedCashStatWidget extends StatefulWidget {
+  final int cashOnHand;
 
+  const AnimatedCashStatWidget({super.key, required this.cashOnHand});
 
-final _ratRaceBoard = ratRaceBoard;
+  @override
+  State<AnimatedCashStatWidget> createState() => _AnimatedCashStatWidgetState();
+}
 
-String _spaceLabelOf(BoardSpaceType type) => switch (type) {
-      BoardSpaceType.paycheck => '💰 Nhận Lương',
-      BoardSpaceType.opportunity => '⭐ Cơ Hội Đầu Tư',
-      BoardSpaceType.doodad => '🛒 Tiêu Sản Bất Ngờ',
-      BoardSpaceType.market => '📈 Tin Thị Trường',
-      BoardSpaceType.baby => '👶 Em Bé Chào Đời',
-      BoardSpaceType.downsize => '❌ Sa Thải',
-      BoardSpaceType.charity => '❤️ Từ Thiện',
-    };
+class _AnimatedCashStatWidgetState extends State<AnimatedCashStatWidget> {
+  int _prevCash = 0;
+  int _diff = 0;
+  Key _animKey = UniqueKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _prevCash = widget.cashOnHand;
+  }
+
+  @override
+  void didUpdateWidget(covariant AnimatedCashStatWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.cashOnHand != oldWidget.cashOnHand) {
+      _diff = widget.cashOnHand - oldWidget.cashOnHand;
+      _prevCash = oldWidget.cashOnHand;
+      _animKey = UniqueKey(); // trigger animation rebuild
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.topCenter,
+      children: [
+        _HudStat(
+          label: '💰 Tiền Mặt',
+          value: CurrencyFormatter.compact(widget.cashOnHand),
+          color: Colors.white,
+        ),
+        if (_diff != 0)
+          Positioned(
+            top: -15,
+            child: Text(
+              _diff > 0 
+                  ? '+${CurrencyFormatter.compact(_diff)}' 
+                  : '-${CurrencyFormatter.compact(_diff.abs())}',
+              style: TextStyle(
+                color: _diff > 0 ? AppColors.success : AppColors.danger,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            )
+            .animate(key: _animKey)
+            .fadeIn(duration: 200.ms)
+            .moveY(begin: 0, end: -15, duration: 800.ms, curve: Curves.easeOut)
+            .fadeOut(delay: 600.ms, duration: 200.ms),
+          ),
+      ],
+    );
+  }
+}

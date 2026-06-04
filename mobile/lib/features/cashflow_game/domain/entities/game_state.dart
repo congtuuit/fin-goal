@@ -10,6 +10,12 @@ enum BoardSpaceType {
   baby,        // Sinh con (tăng chi phí)
   downsize,    // Thất nghiệp (mất lượt)
   charity,     // Từ thiện
+  
+  // Fast Track
+  fastTrackCashflowDay,
+  fastTrackBusiness,
+  fastTrackDream,
+  fastTrackAudit,
 }
 
 // ── Trạng thái kinh tế ──────────────────────────────────────────────────────
@@ -115,6 +121,11 @@ class GameState extends Equatable {
   final int xp;
   final int level;
 
+  // Fast Track
+  final bool isFastTrack;
+  final int fastTrackIncome;
+  final String? dreamId;
+
   const GameState({
     required this.playerId,
     required this.occupation,
@@ -132,6 +143,9 @@ class GameState extends Equatable {
     this.inflationRate = 0.03,
     this.xp = 0,
     this.level = 1,
+    this.isFastTrack = false,
+    this.fastTrackIncome = 0,
+    this.dreamId,
   });
 
   // ── Getters ────────────────────────────────────────────────────────────────
@@ -169,6 +183,10 @@ class GameState extends Equatable {
           : 1.0;
 
   bool get isFinanciallyFree => passiveIncome >= totalMonthlyExpenses;
+  
+  bool get isFastTrackWinner =>
+      isFastTrack && 
+      (assets.any((a) => a.name.startsWith('Dream:')) || passiveIncome >= 1000000000);
 
   bool get isBankrupt => cashOnHand < 0 && netWorth < -5000;
 
@@ -187,6 +205,9 @@ class GameState extends Equatable {
     double? inflationRate,
     int? xp,
     int? level,
+    bool? isFastTrack,
+    int? fastTrackIncome,
+    String? dreamId,
   }) {
     return GameState(
       playerId: playerId,
@@ -205,6 +226,9 @@ class GameState extends Equatable {
       inflationRate: inflationRate ?? this.inflationRate,
       xp: xp ?? this.xp,
       level: level ?? this.level,
+      isFastTrack: isFastTrack ?? this.isFastTrack,
+      fastTrackIncome: fastTrackIncome ?? this.fastTrackIncome,
+      dreamId: dreamId ?? this.dreamId,
     );
   }
 
@@ -218,6 +242,7 @@ class GameState extends Equatable {
         liabilities,
         economyState,
         xp,
+        isFastTrack,
       ];
 
   Map<String, dynamic> toJson() => {
@@ -235,6 +260,9 @@ class GameState extends Equatable {
         'inflationRate': inflationRate,
         'xp': xp,
         'level': level,
+        'isFastTrack': isFastTrack,
+        'fastTrackIncome': fastTrackIncome,
+        'dreamId': dreamId,
         'assets': assets
             .map((a) => {
                   'id': a.id,

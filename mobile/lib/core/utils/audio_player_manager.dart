@@ -17,8 +17,8 @@ class AudioPlayerManager {
     await _bgmPlayer.setReleaseMode(ReleaseMode.loop);
   }
 
-  void toggleMute() {
-    _isMuted = !_isMuted;
+  void setMuted(bool muted) {
+    _isMuted = muted;
     if (_isMuted) {
       _bgmPlayer.pause();
     } else {

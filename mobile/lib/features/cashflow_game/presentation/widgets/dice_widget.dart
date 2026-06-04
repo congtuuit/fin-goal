@@ -111,20 +111,33 @@ class _DiceWidgetState extends State<DiceWidget>
             ],
           ),
           child: Stack(
-            children: (_dotPositions[displayValue] ?? []).map((pos) {
-              return Positioned(
-                left: pos.dx * size - 5,
-                top: pos.dy * size - 5,
-                child: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: const BoxDecoration(
-                    color: Colors.black87,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              );
-            }).toList(),
+            children: displayValue <= 6
+                ? (_dotPositions[displayValue] ?? []).map((pos) {
+                    return Positioned(
+                      left: pos.dx * size - 5,
+                      top: pos.dy * size - 5,
+                      child: Container(
+                        width: 10,
+                        height: 10,
+                        decoration: const BoxDecoration(
+                          color: Colors.black87,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    );
+                  }).toList()
+                : [
+                    Center(
+                      child: Text(
+                        displayValue.toString(),
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )
+                  ],
           ),
         ).animate(target: widget.isRolling ? 1 : 0).scale(
               begin: const Offset(1.0, 1.0),
