@@ -8,6 +8,7 @@ import 'package:fin_goal/core/constants/app_sizes.dart';
 import 'package:fin_goal/core/utils/currency_formatter.dart';
 import 'package:fin_goal/features/cashflow_game/engine/event_engine.dart';
 import 'package:fin_goal/features/cashflow_game/presentation/providers/game_provider.dart';
+import 'package:fin_goal/features/cashflow_game/presentation/widgets/financial_report_dialog.dart';
 
 class EventCardWidget extends ConsumerWidget {
   final EventCard card;
@@ -82,6 +83,25 @@ class EventCardWidget extends ConsumerWidget {
                     ).animate(delay: 100.ms).fadeIn(),
 
                     const Gap(AppSizes.lg),
+
+                    // Xem Báo Cáo Tài Chính
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        final state = ref.read(cashflowGameProvider);
+                        if (state is GameUiPlaying) {
+                          FinancialReportDialog.show(context, state.gameState);
+                        }
+                      },
+                      icon: const Text('📊'),
+                      label: const Text('Xem Báo Cáo Tài Chính'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: AppColors.borderDark),
+                        padding: const EdgeInsets.symmetric(vertical: AppSizes.md),
+                      ),
+                    ).animate(delay: 150.ms).fadeIn(),
+
+                    const Gap(AppSizes.md),
 
                     // Choices
                     ...card.choices.asMap().entries.map((e) {

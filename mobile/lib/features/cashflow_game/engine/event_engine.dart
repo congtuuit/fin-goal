@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:fin_goal/core/utils/currency_formatter.dart';
 import 'package:fin_goal/features/cashflow_game/domain/entities/game_state.dart';
 
 // ── Model thẻ bài sự kiện ────────────────────────────────────────────────────
@@ -81,6 +82,9 @@ class EventEngine {
 
   /// Lấy thẻ bài phù hợp với loại ô và tình trạng tài chính
   EventCard? getEventCard(BoardSpaceType spaceType, GameState state, {bool positive = true}) {
+    if (spaceType == BoardSpaceType.paycheck) {
+      return _createPaycheckCard(state);
+    }
     final cards = _getCardsByType(spaceType, state, positive);
     if (cards.isEmpty) return null;
     return cards[_random.nextInt(cards.length)];
@@ -94,26 +98,29 @@ class EventEngine {
       BoardSpaceType.baby => [_babyCard],
       BoardSpaceType.downsize => [_downsizeCard],
       BoardSpaceType.charity => [_charityCard],
-      BoardSpaceType.paycheck => [_paycheckCard],
+      BoardSpaceType.paycheck => [], // handled dynamically
     };
   }
 
   // ── Thẻ bài Paycheck ────────────────────────────────────────────────────────
-  static final EventCard _paycheckCard = EventCard(
-    id: 'paycheck_receive',
-    title: '💰 Nhận Lương Tháng!',
-    description: 'Chúc mừng, bạn đã đi qua ô Nhận Lương. Toàn bộ dòng tiền hàng tháng được cộng vào tài khoản.',
-    type: EventType.paycheck,
-    choices: [
-      EventChoice(
-        id: 'paycheck_ok',
-        label: 'Nhận Lương',
-        shortDescription: 'Nhận dòng tiền tháng này',
-        teachingMoment: 'Dòng tiền (Cashflow) = Thu nhập - Chi phí. Đây là chìa khóa tự do tài chính.',
-        impact: const EventImpact(), // được xử lý trong provider
-      ),
-    ],
-  );
+  EventCard _createPaycheckCard(GameState state) {
+    final amount = CurrencyFormatter.compact(state.monthlyCashflow);
+    return EventCard(
+      id: 'paycheck_receive',
+      title: '💰 Nhận Lương Tháng!',
+      description: 'Bạn vừa đi qua ô Nhận Lương!\n\nDòng tiền hàng tháng của bạn: $amount\n\n(Lưu ý: Số tiền này đã được hệ thống cộng tự động vào Tiền Mặt ngay khi bạn lăn xúc xắc ngang qua ô).',
+      type: EventType.paycheck,
+      choices: [
+        EventChoice(
+          id: 'paycheck_ok',
+          label: 'Tuyệt Vời!',
+          shortDescription: 'Đã nhận $amount',
+          teachingMoment: 'Dòng tiền (Cashflow) = Tổng Thu Nhập - Tổng Chi Phí. Khi Dòng tiền lớn hơn 0, bạn sẽ ngày càng giàu có.',
+          impact: const EventImpact(), // Không cộng lại tiền vì đã cộng ở Provider khi crossedPaycheck
+        ),
+      ],
+    );
+  }
 
   // ── Thẻ bài Baby ────────────────────────────────────────────────────────────
   static final EventCard _babyCard = EventCard(
@@ -188,14 +195,14 @@ class EventEngine {
           shortDescription: 'Đặt cọc 70 triệu, vay 280 triệu',
           teachingMoment: 'Bất động sản cho thuê tạo ra thu nhập thụ động đều đặn. Chìa khóa là dòng tiền dương sau khi trừ trả góp.',
           impact: EventImpact(
-            cashChange: -7000,
+            cashChange: -70000000,
             newAssetName: 'Căn Hộ Cho Thuê',
             newAssetType: AssetType.realEstate,
-            newAssetValue: 35000,
-            newAssetPassiveIncome: 000,
-            downPayment: 7000,
-            mortgage: 28000,
-            monthlyMortgagePayment: 000,
+            newAssetValue: 350000000,
+            newAssetPassiveIncome: 2500000,
+            downPayment: 70000000,
+            mortgage: 280000000,
+            monthlyMortgagePayment: 0,
           ),
         ),
         EventChoice(
@@ -221,10 +228,10 @@ class EventEngine {
           shortDescription: 'Bỏ ra 25 triệu mua 5 chỉ',
           teachingMoment: 'Vàng là tài sản tích trữ giá trị, bảo vệ trước lạm phát. Tuy nhiên không tạo ra dòng tiền hàng tháng.',
           impact: EventImpact(
-            cashChange: -2000,
+            cashChange: -25000000,
             newAssetName: '5 Chỉ Vàng',
             newAssetType: AssetType.other,
-            newAssetValue: 2000,
+            newAssetValue: 25000000,
             newAssetPassiveIncome: 0,
           ),
         ),
@@ -251,11 +258,11 @@ class EventEngine {
           shortDescription: 'Mua 100 cổ = 18 triệu',
           teachingMoment: 'Cổ phiếu blue chip tạo ra thu nhập thụ động qua cổ tức và tăng giá trị dài hạn. Đây là cách người giàu đầu tư.',
           impact: EventImpact(
-            cashChange: -1000,
+            cashChange: -18000000,
             newAssetName: '100 Cổ Phiếu VNM',
             newAssetType: AssetType.stock,
-            newAssetValue: 1000,
-            newAssetPassiveIncome: 1200, // 1.5M/12 tháng
+            newAssetValue: 18000000,
+            newAssetPassiveIncome: 125000, // 1.5M/12 tháng
           ),
         ),
         EventChoice(
@@ -280,7 +287,7 @@ class EventEngine {
           label: 'Nhận Tiền',
           shortDescription: '+5 triệu tiền mặt',
           teachingMoment: '"Cha Nghèo" tiêu tiền ngay khi nhận được. "Cha Giàu" dùng số tiền này để mua tài sản tạo ra thêm thu nhập.',
-          impact: const EventImpact(cashChange: 000),
+          impact: const EventImpact(cashChange: 5000000),
         ),
       ],
     ),
@@ -297,7 +304,7 @@ class EventEngine {
           label: 'Nhận Dự Án',
           shortDescription: '+8 triệu tiền mặt một lần',
           teachingMoment: 'Thu nhập chủ động từ freelance tốt nhưng không ổn định. Hãy dùng để tích lũy vốn đầu tư tài sản.',
-          impact: const EventImpact(cashChange: 000),
+          impact: const EventImpact(cashChange: 8000000),
         ),
         EventChoice(
           id: 'sd_freelance_reject',
@@ -325,14 +332,14 @@ class EventEngine {
           shortDescription: 'Đặt cọc 300 triệu, vay 1.2 tỷ',
           teachingMoment: 'Nhà phố thương mại tạo ra dòng tiền cao nhất trong bất động sản. Đây là kiểu tài sản mà người giàu thường sở hữu.',
           impact: EventImpact(
-            cashChange: -30000,
+            cashChange: -300000000,
             newAssetName: 'Nhà Phố Thương Mại',
             newAssetType: AssetType.realEstate,
-            newAssetValue: 0000,
-            newAssetPassiveIncome: 1000,
-            downPayment: 30000,
-            mortgage: 0000,
-            monthlyMortgagePayment: 1000,
+            newAssetValue: 1500000000,
+            newAssetPassiveIncome: 15000000,
+            downPayment: 300000000,
+            mortgage: 1200000000,
+            monthlyMortgagePayment: 0,
           ),
         ),
         EventChoice(
@@ -358,10 +365,10 @@ class EventEngine {
           shortDescription: 'Rủi ro cao, tiềm năng x10',
           teachingMoment: 'Đầu tư startup rất rủi ro (>90% thất bại) nhưng nếu thành công có thể thay đổi cuộc đời. Chỉ đầu tư số tiền bạn chấp nhận mất.',
           impact: EventImpact(
-            cashChange: -20000,
+            cashChange: -200000000,
             newAssetName: '5% Cổ Phần Startup XYZ',
             newAssetType: AssetType.business,
-            newAssetValue: 20000,
+            newAssetValue: 200000000,
             newAssetPassiveIncome: 0,
           ),
         ),
@@ -389,7 +396,7 @@ class EventEngine {
           label: 'Sửa Xe',
           shortDescription: '-8 triệu tiền mặt',
           teachingMoment: 'Chi phí bất ngờ là thực tế của cuộc sống. Quỹ khẩn cấp (3-6 tháng chi phí) giúp bạn xử lý những tình huống này mà không bị ảnh hưởng kế hoạch đầu tư.',
-          impact: const EventImpact(cashChange: -000),
+          impact: const EventImpact(cashChange: -8000000),
         ),
       ],
     ),
@@ -405,7 +412,7 @@ class EventEngine {
           label: 'Mua Điện Thoại',
           shortDescription: '-22 triệu tiền mặt',
           teachingMoment: '"Cha Nghèo" mua những thứ họ muốn ngay lập tức. "Cha Giàu" hỏi: "Khoản mua này có tạo ra tiền không?" — Điện thoại là tiêu sản, không tạo ra dòng tiền.',
-          impact: const EventImpact(cashChange: -2000),
+          impact: const EventImpact(cashChange: -22000000),
         ),
         EventChoice(
           id: 'dd_phone_skip',
@@ -428,7 +435,7 @@ class EventEngine {
           label: 'Đi Du Lịch',
           shortDescription: '-5 triệu tiền mặt',
           teachingMoment: 'Trải nghiệm sống quan trọng, nhưng hãy ngân sách cho nó. Lập kế hoạch du lịch thay vì chi tiêu bốc đồng.',
-          impact: const EventImpact(cashChange: -000),
+          impact: const EventImpact(cashChange: -5000000),
         ),
         EventChoice(
           id: 'dd_vacation_skip',
@@ -451,7 +458,7 @@ class EventEngine {
           label: 'Sửa Ngay',
           shortDescription: '-12 triệu tiền mặt',
           teachingMoment: 'Chi phí nhà cửa là không thể tránh. Đây là lý do "Cha Giàu" không coi nhà ở là tài sản — nó tiêu tốn tiền thay vì tạo ra tiền.',
-          impact: const EventImpact(cashChange: -1000),
+          impact: const EventImpact(cashChange: -12000000),
         ),
       ],
     ),
@@ -467,7 +474,7 @@ class EventEngine {
           label: 'Chi Trả',
           shortDescription: '-15 triệu tiền mặt',
           teachingMoment: 'Sức khỏe là tài sản quý giá nhất. Bảo hiểm sức khỏe toàn diện và quỹ khẩn cấp là 2 lá chắn quan trọng nhất.',
-          impact: const EventImpact(cashChange: -1000),
+          impact: const EventImpact(cashChange: -15000000),
         ),
       ],
     ),

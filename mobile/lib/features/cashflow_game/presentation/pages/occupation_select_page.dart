@@ -192,7 +192,7 @@ class _OccupationCard extends ConsumerWidget {
                   valueColor: AppColors.danger,
                 ),
                 _StatRow(
-                  label: 'CF',
+                  label: 'Dòng Tiền',
                   value: CurrencyFormatter.compact(cashflow.abs()),
                   valueColor: cashflowColor,
                   prefix: cashflow >= 0 ? '+' : '-',

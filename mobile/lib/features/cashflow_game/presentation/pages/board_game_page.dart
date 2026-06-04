@@ -13,6 +13,8 @@ import 'package:fin_goal/features/cashflow_game/presentation/providers/game_prov
 import 'package:fin_goal/features/cashflow_game/presentation/widgets/dice_widget.dart';
 import 'package:fin_goal/features/cashflow_game/presentation/widgets/event_card_widget.dart';
 import 'package:fin_goal/features/cashflow_game/presentation/widgets/rat_race_board_widget.dart';
+import 'package:fin_goal/features/cashflow_game/presentation/widgets/financial_report_dialog.dart';
+import 'package:fin_goal/features/cashflow_game/presentation/widgets/game_guide_dialog.dart';
 import 'package:fin_goal/features/cashflow_game/presentation/pages/occupation_select_page.dart';
 import 'package:fin_goal/features/cashflow_game/engine/board_engine.dart';
 
@@ -96,12 +98,23 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
         onPressed: () => context.pop(),
       ),
       actions: [
-        if (s is GameUiPlaying)
+        if (s is GameUiPlaying) ...[
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            tooltip: 'Hướng Dẫn & Thuật Ngữ',
+            onPressed: () => GameGuideDialog.show(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.assessment_outlined),
+            tooltip: 'Báo Cáo Tài Chính',
+            onPressed: () => FinancialReportDialog.show(context, s.gameState),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'Chơi Lại',
             onPressed: () => _confirmReset(),
           ),
+        ],
       ],
     );
   }
@@ -146,41 +159,43 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
     final gs = state.gameState;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // ── HUD Tài Chính ──────────────────────────────────────────────────
-          _buildHud(gs, state),
+    return Column(
+      children: [
+        // ── HUD Tài Chính (Cố định ở trên) ──────────────────────────────────────────────────
+        _buildHud(gs, state),
 
-          const Gap(AppSizes.md),
+        // ── Phần còn lại có thể cuộn ────────────────────────────────────────────────────────
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const Gap(AppSizes.md),
 
-          // ── Bàn Cờ ────────────────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: RatRaceBoardWidget(
-              currentPosition: gs.boardPosition,
-              size: screenWidth - 32,
+                // ── Bàn Cờ ────────────────────────────────────────────────────────
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: RatRaceBoardWidget(
+                    currentPosition: gs.boardPosition,
+                    size: screenWidth - 32,
+                  ),
+                ),
+
+                const Gap(AppSizes.md),
+
+                // ── Thông tin Ô Hiện Tại ──────────────────────────────────────────
+                _buildCurrentSpaceInfo(gs),
+
+                const Gap(AppSizes.lg),
+
+                // ── Xúc Xắc & Nút Tung ───────────────────────────────────────────
+                _buildDiceSection(state),
+
+                const Gap(AppSizes.xxl),
+              ],
             ),
           ),
-
-          const Gap(AppSizes.md),
-
-          // ── Thông tin Ô Hiện Tại ──────────────────────────────────────────
-          _buildCurrentSpaceInfo(gs),
-
-          const Gap(AppSizes.lg),
-
-          // ── Xúc Xắc & Nút Tung ───────────────────────────────────────────
-          _buildDiceSection(state),
-
-          const Gap(AppSizes.xl),
-
-          // ── Bảng Tài Sản & Nợ ─────────────────────────────────────────────
-          _buildFinancialReport(gs),
-
-          const Gap(AppSizes.xxl),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -244,6 +259,11 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
                 label: '📈 Thu Thụ Động',
                 value: CurrencyFormatter.compact(gs.passiveIncome),
                 color: AppColors.success,
+              ),
+              _HudStat(
+                label: '💵 Dòng Tiền',
+                value: CurrencyFormatter.compact(gs.monthlyCashflow),
+                color: Colors.amber,
               ),
               _HudStat(
                 label: '💸 Chi Phí',
@@ -368,56 +388,7 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
     );
   }
 
-  Widget _buildFinancialReport(GameState gs) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '📊 Bảng Tài Chính',
-            style:
-                TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const Gap(AppSizes.md),
-          // Assets
-          if (gs.assets.isNotEmpty) ...[
-            const Text('✅ Tài Sản',
-                style:
-                    TextStyle(color: AppColors.success, fontWeight: FontWeight.bold)),
-            const Gap(AppSizes.xs),
-            ...gs.assets.map(
-              (a) => _ReportRow(
-                label: a.name,
-                value: CurrencyFormatter.compact(a.currentValue),
-                sub: a.monthlyPassiveIncome > 0
-                    ? '+${CurrencyFormatter.compact(a.monthlyPassiveIncome)}/tháng'
-                    : null,
-                color: AppColors.success,
-              ),
-            ),
-            const Gap(AppSizes.md),
-          ],
-          // Liabilities
-          if (gs.liabilities.isNotEmpty) ...[
-            const Text('❌ Tiêu Sản & Nợ',
-                style: TextStyle(
-                    color: AppColors.danger,
-                    fontWeight: FontWeight.bold)),
-            const Gap(AppSizes.xs),
-            ...gs.liabilities.map(
-              (l) => _ReportRow(
-                label: l.name,
-                value: CurrencyFormatter.compact(l.totalOwed),
-                sub: '-${CurrencyFormatter.compact(l.monthlyPayment)}/tháng',
-                color: AppColors.danger,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
+
 
   void _confirmReset() {
     showDialog(
@@ -539,48 +510,6 @@ class _HudStat extends StatelessWidget {
   }
 }
 
-class _ReportRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final String? sub;
-  final Color color;
-
-  const _ReportRow({
-    required this.label,
-    required this.value,
-    this.sub,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label,
-                    style: const TextStyle(color: Colors.white70, fontSize: 13)),
-                if (sub != null)
-                  Text(sub!,
-                      style: TextStyle(color: color, fontSize: 11)),
-              ],
-            ),
-          ),
-          Text(value,
-              style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13)),
-        ],
-      ),
-    );
-  }
-}
 
 
 final _ratRaceBoard = ratRaceBoard;

@@ -14,21 +14,26 @@ abstract class CurrencyFormatter {
     return '${_vndFormatter.format(amountVnd).trim()} ₫';
   }
 
-  /// Format compact for display: 1,000,000 → "1 triệu"
+  /// Format compact for display: 1,000,000 → "1 triệu", -1,000,000 -> "-1 triệu"
   static String compact(int amountVnd) {
-    if (amountVnd >= 1000000000) {
-      final billions = amountVnd / 1000000000;
-      return '${_formatDecimal(billions)} tỷ';
+    final bool isNegative = amountVnd < 0;
+    final int absValue = amountVnd.abs();
+
+    String result;
+    if (absValue >= 1000000000) {
+      final billions = absValue / 1000000000;
+      result = '${_formatDecimal(billions)} tỷ';
+    } else if (absValue >= 1000000) {
+      final millions = absValue / 1000000;
+      result = '${_formatDecimal(millions)} triệu';
+    } else if (absValue >= 1000) {
+      final thousands = absValue / 1000;
+      result = '${_formatDecimal(thousands)} nghìn';
+    } else {
+      result = '$absValue ₫';
     }
-    if (amountVnd >= 1000000) {
-      final millions = amountVnd / 1000000;
-      return '${_formatDecimal(millions)} triệu';
-    }
-    if (amountVnd >= 1000) {
-      final thousands = amountVnd / 1000;
-      return '${_formatDecimal(thousands)} nghìn';
-    }
-    return '$amountVnd ₫';
+
+    return isNegative ? '-$result' : result;
   }
 
   /// For input field display: 3000000 → "3.000.000"
