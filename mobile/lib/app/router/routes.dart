@@ -30,9 +30,6 @@ abstract class AppRoutes {
   // ── Premium ───────────────────────────────────────────────────────────────
   static const paywall = '/paywall';
 
-  // ── Cashflow (Legacy) ─────────────────────────────────────────────────────
-  static const cashflowDashboard = '/cashflow-dashboard';
-  static const cashflowGame = '/cashflow-game';
 
   // ── Cashflow Board Game (New) ─────────────────────────────────────────────
   static const cashflowBoardGame = '/cashflow-board-game';
