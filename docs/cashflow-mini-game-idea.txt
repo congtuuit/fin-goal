@@ -1,0 +1,250 @@
+Bạn là Senior Game Designer, Financial Education Expert, Game Economist và Flutter Architect.
+
+Nhiệm vụ:
+
+Thiết kế một ứng dụng Flutter chứa nhiều mini game giáo dục tài chính hoạt động hoàn toàn OFFLINE.
+
+Lấy cảm hứng từ Cashflow 101, Monopoly, Game Dev Tycoon, Capitalism và các game mô phỏng kinh doanh.
+
+Đối tượng:
+
+Học sinh
+Sinh viên
+Người đi làm
+Người muốn học tài chính cá nhân
+
+Mục tiêu:
+
+Chơi vui
+Học tài chính
+Hiểu đầu tư
+Hiểu quản lý tiền
+Hiểu rủi ro
+Không cần Internet
+Không cần Backend
+Tất cả dữ liệu lưu local
+THIẾT KẾ TỔNG THỂ
+
+Đề xuất tối thiểu 10 mini game tài chính.
+
+Ví dụ:
+
+Mini Game 1
+
+Cashflow Simulator
+
+Mô phỏng cuộc sống tài chính.
+
+Mini Game 2
+
+Stock Trader
+
+Mô phỏng mua bán cổ phiếu.
+
+Mini Game 3
+
+Real Estate Tycoon
+
+Đầu tư bất động sản.
+
+Mini Game 4
+
+Business Empire
+
+Xây dựng doanh nghiệp.
+
+Mini Game 5
+
+Debt Escape
+
+Thoát khỏi vòng xoáy nợ.
+
+Mini Game 6
+
+Financial Freedom Challenge
+
+Đạt tự do tài chính nhanh nhất.
+
+Mini Game 7
+
+Startup Simulator
+
+Khởi nghiệp.
+
+Mini Game 8
+
+Passive Income Builder
+
+Xây dựng thu nhập thụ động.
+
+Mini Game 9
+
+Investment Quiz
+
+Quiz tài chính.
+
+Mini Game 10
+
+Economic Crisis
+
+Sinh tồn qua khủng hoảng kinh tế.
+
+CHO MỖI MINI GAME
+
+Hãy mô tả:
+
+Gameplay
+Mục tiêu
+Điều kiện thắng
+Điều kiện thua
+Độ khó
+Thời gian chơi
+THUẬT TOÁN MÔ PHỎNG
+
+Thiết kế thuật toán chi tiết.
+
+Ví dụ:
+
+Thuật toán dòng tiền
+Income = Salary + PassiveIncome
+
+Expenses =
+LivingCost +
+LoanPayment +
+RandomExpense
+
+CashFlow =
+Income - Expenses
+Thuật toán giá tài sản
+AssetPrice =
+BasePrice *
+MarketFactor *
+RandomFactor
+
+Trong đó:
+
+MarketFactor
+=
+0.8 -> 1.5
+RandomFactor
+=
+0.95 -> 1.05
+Thuật toán tăng trưởng doanh nghiệp
+Revenue =
+Customers *
+AverageOrderValue
+Profit =
+Revenue -
+Cost
+Thuật toán khủng hoảng
+10% xác suất mỗi năm
+
+Nếu xảy ra:
+
+StockPrice -40%
+RealEstate -20%
+BusinessProfit -30%
+Thuật toán lạm phát
+Inflation
+=
+2% - 12%
+
+Mỗi năm:
+
+LivingCost *=
+(1 + Inflation)
+HỆ THỐNG SỰ KIỆN
+
+Tạo:
+
+200 sự kiện tích cực
+200 sự kiện tiêu cực
+
+Mỗi sự kiện cần:
+
+{
+  "id": "",
+  "title": "",
+  "description": "",
+  "probability": 0.1,
+  "effect": {}
+}
+HỆ THỐNG AI NPC
+
+Thiết kế NPC:
+
+Nhà đầu tư mạo hiểm
+Nhà đầu tư giá trị
+Người tiêu dùng
+Chủ doanh nghiệp
+Ngân hàng
+
+Mỗi NPC có:
+
+{
+  "riskTolerance": 0.5,
+  "investmentStyle": "",
+  "cash": 100000
+}
+
+Thiết kế thuật toán quyết định hành vi.
+
+HỆ THỐNG KINH TẾ
+
+Thiết kế mô hình kinh tế:
+
+Tăng trưởng
+Bình thường
+Suy thoái
+Khủng hoảng
+Phục hồi
+
+Cho xác suất chuyển trạng thái.
+
+Ví dụ:
+
+Growth
+↓ 20%
+
+Normal
+↓ 15%
+
+Recession
+↓ 10%
+
+Crisis
+↓ 50%
+
+Recovery
+
+Sử dụng Markov Chain đơn giản.
+
+HỆ THỐNG CẤP ĐỘ
+
+Thiết kế:
+
+50 Level
+XP
+Achievement
+Unlock Content
+HỆ THỐNG TIỀN TỆ
+
+Thiết kế:
+
+Cash
+Asset Value
+Net Worth
+Passive Income
+Credit Score
+
+Định nghĩa công thức.
+
+CÂN BẰNG GAME
+
+Đề xuất:
+
+Người chơi mới không phá sản quá nhanh.
+Người chơi giỏi có thể thắng trong 30–60 phút.
+Mỗi mini game có độ khó tăng dần.
+
+Giải thích thuật toán balancing.

@@ -1,19 +1,23 @@
 {
   "meta": {
     "schema_version": "1.1.0",
-    "awf_version": "3.3.0"
+    "awf_version": "4.0.2",
+    "last_updated": "2026-06-04T08:08:00+07:00"
   },
   "project": {
     "name": "fin-goal",
     "type": "Flutter Mobile App",
-    "status": "In Development"
+    "status": "In Development",
+    "description": "Ứng dụng giáo dục tài chính cá nhân, offline-first, tích hợp AI và game hóa (Cashflow Board Game)"
   },
   "tech_stack": {
     "frontend": {
       "framework": "Flutter >=3.19.0",
-      "state_management": "Riverpod 3.0",
+      "state_management": "Riverpod 3.0 (riverpod_annotation, build_runner)",
       "routing": "GoRouter 17.3.0",
-      "di": "GetIt + Injectable"
+      "di": "GetIt + Injectable",
+      "animation": "flutter_animate",
+      "storage": "SharedPreferences (local)"
     },
     "backend": {
       "baas": "Supabase (Auth, Database, Storage)",
@@ -40,9 +44,13 @@
       {
         "name": "local_records",
         "explained": "Lưu các bản ghi cập nhật tiến độ tiết kiệm hàng tháng cục bộ."
+      },
+      {
+        "name": "cashflow_game_v2_{playerId}",
+        "explained": "Lưu trạng thái trò chơi Cashflow Board Game của từng người dùng vào SharedPreferences với prefix 'cashflow_game_v2_'."
       }
     ],
-    "relationships_explained": "Tất cả các bản ghi local liên kết thông qua goalId cục bộ."
+    "relationships_explained": "Tất cả bản ghi local liên kết qua goalId cục bộ. Game state được serialize thành JSON và lưu riêng."
   },
   "api_endpoints": [
     {
@@ -57,7 +65,12 @@
   "business_rules": [
     "Offline Mode: Người dùng nhập tên để bỏ qua xác thực Supabase, vào thẳng Dashboard.",
     "Mục tiêu và kịch bản tài chính được đọc/ghi trực tiếp vào SharedPreferences của máy.",
-    "Mô phỏng What-If: Yêu cầu người dùng cấu hình API Key và Model trong phần Cài đặt trước khi gọi AI thật."
+    "Mô phỏng What-If: Yêu cầu người dùng cấu hình API Key và Model trong phần Cài đặt trước khi gọi AI thật.",
+    "Cashflow Board Game: Thu nhập thụ động (Passive Income) > Tổng chi phí hàng tháng = Thoát Rat Race (thắng). Tiền mặt < -5 triệu = Phá sản (thua).",
+    "Cashflow Board Game: Kinh tế theo Markov Chain 5 trạng thái (Growth → Normal → Recession → Crisis → Recovery). Thay đổi mỗi 6 lượt.",
+    "Cashflow Board Game: Lạm phát áp dụng mỗi 12 lượt (1 năm game). Chi phí tăng theo tỷ lệ lạm phát.",
+    "Cashflow Board Game: Player đi qua ô Paycheck nhận MonthlyCashflow (có thể âm nếu chi phí > thu nhập).",
+    "Terminology: Dùng 'Premium' (không phải 'Pro') nhất quán toàn app."
   ],
   "features": [
     "Xác thực (Auth - hỗ trợ Offline & Online)",
@@ -66,23 +79,50 @@
     "Mô phỏng tài chính (Dashboard, Monthly Check-in, What-If)",
     "Cấu hình API Key AI (Gemini / OpenAI)",
     "Gói trả phí (Premium)",
-    "Hồ sơ & Cài đặt (Profile/Settings)"
+    "Hồ sơ & Cài đặt (Profile/Settings)",
+    "Cashflow Board Game (FEATURE MỚI): Rat Race board game 24 ô, 12 nghề nghiệp, Markov Chain kinh tế, thẻ bài sự kiện giáo dục tài chính, XP + Level system, lưu game local"
   ],
   "knowledge_items": {
     "patterns": [
       "Kiến trúc Repository Pattern + DI: Định nghĩa interface, viết LocalRepository & RemoteRepository tương ứng để cắm/rút offline/online dễ dàng.",
-      "Riverpod 3.0 không tự thêm chữ 'Notifier' vào tên Provider khi sinh code tự động (VD: GoalsNotifier -> goalsProvider)."
+      "Riverpod 3.0: Khi @riverpod annotate class 'XNotifier', generated provider tên là 'xProvider' (KHÔNG phải 'xNotifierProvider'). VD: CashflowGameNotifier → cashflowGameProvider.",
+      "Digit separators (8_000_000) CHƯA được support trong Dart version cũ hơn 3.6. Dùng số thường (8000000) thay thế để tránh lỗi build_runner.",
+      "Import phải đặt ở ĐẦU file (trước tất cả declarations). Dart báo lỗi 'Directives must appear before any declarations' nếu import ở giữa hoặc cuối file.",
+      "Game Engine Markov Chain: Xác suất chuyển trạng thái cần tổng = 1.0 cho mỗi state. Board 24 ô theo hình tròn dùng modulo (pos % 24)."
     ],
     "gotchas": [
       "Gọi AI trực tiếp từ thiết bị: Sử dụng HttpClient core của dart:io giúp tránh lỗi CORS và không cần cài thêm các package API Generative ngoài.",
       "Android SDK hiện đại (như thư viện androidx.browser của Firebase) yêu cầu tối thiểu AGP 8.9.1.",
       "AGP 9.0.1 loại bỏ Kotlin Gradle Plugin (KGP). Nếu có plugin cũ (như app_links) đòi KGP, phải khai báo android.builtInKotlin=false trong gradle.properties để vượt rào.",
       "sentry_flutter (JNI) có lỗi Cannot query provider với các bản AGP hiện đại. Hiện tại đã tháo gỡ khỏi dự án.",
-      "Lỗi treo app do Riverpod autoDispose: Khi Notifier thực hiện các tác vụ async dài (như gọi API, DB), nếu màn hình hiện tại không lắng nghe (watch), provider sẽ tự động bị huỷ. Khi async chạy xong, nó cố gắng cập nhật `state` nhưng object đã bị giải phóng, gây lỗi `Ref._throwIfInvalidUsage`. Khắc phục bằng `@Riverpod(keepAlive: true)`."
+      "Lỗi treo app do Riverpod autoDispose: Khi Notifier thực hiện các tác vụ async dài (như gọi API, DB), nếu màn hình hiện tại không lắng nghe (watch), provider sẽ tự động bị huỷ. Khi async chạy xong, nó cố gắng cập nhật `state` nhưng object đã bị giải phóng, gây lỗi `Ref._throwIfInvalidUsage`. Khắc phục bằng `@Riverpod(keepAlive: true)`.",
+      "build_runner --delete-conflicting-outputs bị xoá trong bản mới. Dùng 'flutter pub run build_runner build' thay thế.",
+      "powershell -replace để xoá digit separators chỉ thay một cặp (\\d_\\d) mỗi lần. Với số như 8_000_000 (có 2 dấu _) cần chạy lệnh 2 lần hoặc dùng số thường ngay từ đầu."
     ],
     "conventions": [
       "Kiến trúc Clean Architecture kết hợp Feature-first folder (gom theo tính năng thay vì phân lớp).",
-      "Repository và Notifier chứa logic async phức tạp cần sử dụng `@Riverpod(keepAlive: true)` để tránh lỗi huỷ giữa chừng."
+      "Repository và Notifier chứa logic async phức tạp cần sử dụng `@Riverpod(keepAlive: true)` để tránh lỗi huỷ giữa chừng.",
+      "Cashflow Game module nằm trong 'lib/features/cashflow_game/' (TÁCH BIỆT với 'lib/features/cashflow/' là module cũ).",
+      "Game engines nằm trong 'lib/features/cashflow_game/engine/' (economy_engine, board_engine, event_engine).",
+      "Tất cả số tiền trong game tính bằng VND (int). Dùng CurrencyFormatter.compact() để hiển thị."
     ]
+  },
+  "cashflow_game": {
+    "architecture": {
+      "board": "24 ô hình tròn: 4x Paycheck, 10x Opportunity, 5x Doodad, 2x Market, 1x Baby, 1x Downsize, 1x Charity",
+      "economy": "Markov Chain 5 trạng thái: growth→normal→recession→crisis→recovery. Thay đổi mỗi 6 lượt",
+      "win_condition": "passiveIncome >= totalMonthlyExpenses",
+      "lose_condition": "cashOnHand < -5,000,000 VND",
+      "xp_system": "500 XP per level. Mua tài sản +50 XP, từ chối tiêu sản +40 XP, từ thiện +30 XP"
+    },
+    "occupations": "12 nghề: Nhân viên bán hàng, Y tá, Giáo viên, Thư ký, Kỹ sư phần mềm, Bác sĩ, Luật sư, Kiến trúc sư, Giám đốc kinh doanh, Chuyên gia đầu tư, Phi công, Giám đốc điều hành",
+    "files": {
+      "entity": "mobile/lib/features/cashflow_game/domain/entities/",
+      "data": "mobile/lib/features/cashflow_game/data/",
+      "engine": "mobile/lib/features/cashflow_game/engine/",
+      "provider": "mobile/lib/features/cashflow_game/presentation/providers/game_provider.dart",
+      "ui": "mobile/lib/features/cashflow_game/presentation/pages/"
+    },
+    "entry_point": "Profile page → Banner 'Chơi Game Cashflow' → /cashflow-board-game route → BoardGamePage"
   }
 }

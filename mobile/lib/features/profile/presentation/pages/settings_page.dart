@@ -48,13 +48,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
       final savedModel = _prefs.getString(DirectClientAiService.keyModel) ?? '';
       if (_selectedProvider == 'gemini') {
-        _modelCtrl.text = savedModel.isNotEmpty
-            ? savedModel
-            : _geminiModels.first;
+        _modelCtrl.text =
+            savedModel.isNotEmpty ? savedModel : _geminiModels.first;
       } else {
-        _modelCtrl.text = savedModel.isNotEmpty
-            ? savedModel
-            : _openaiModels.first;
+        _modelCtrl.text =
+            savedModel.isNotEmpty ? savedModel : _openaiModels.first;
       }
 
       _isLoading = false;
@@ -68,7 +66,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           DirectClientAiService.keyProvider, _selectedProvider);
       await _prefs.setString(
           DirectClientAiService.keyApiKey, _apiKeyCtrl.text.trim());
-      await _prefs.setString(DirectClientAiService.keyModel, _modelCtrl.text.trim());
+      await _prefs.setString(
+          DirectClientAiService.keyModel, _modelCtrl.text.trim());
 
       if (!mounted) return;
 
@@ -203,20 +202,25 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       padding: const EdgeInsets.all(AppSizes.xl),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: isPremium 
-              ? [const Color(0xFF1F0C3B), const Color(0xFF5F2C82)] // Premium deep purple
+          colors: isPremium
+              ? [
+                  const Color(0xFF1F0C3B),
+                  const Color(0xFF5F2C82)
+                ] // Premium deep purple
               : [AppColors.surfaceElevatedDark, AppColors.surfaceElevatedDark],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppSizes.radiusXl),
-        boxShadow: isPremium ? [
-          BoxShadow(
-            color: const Color(0xFF5F2C82).withValues(alpha: 0.4),
-            blurRadius: 20,
-            spreadRadius: 2,
-          )
-        ] : null,
+        boxShadow: isPremium
+            ? [
+                BoxShadow(
+                  color: const Color(0xFF5F2C82).withValues(alpha: 0.4),
+                  blurRadius: 20,
+                  spreadRadius: 2,
+                )
+              ]
+            : null,
       ),
       child: Row(
         children: [
@@ -257,11 +261,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    isPremium ? '★ THÀNH VIÊN PREMIUM' : 'Gói Miễn Phí',
+                    isPremium ? '★ PREMIUM' : 'Miễn Phí',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: isPremium ? const Color(0xFFFFD700) : AppColors.textMuted,
+                      color: isPremium
+                          ? const Color(0xFFFFD700)
+                          : AppColors.textMuted,
                     ),
                   ),
                 ),
@@ -316,7 +322,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Widget _buildCashflowBanner() {
     return InkWell(
-      onTap: () => context.push(AppRoutes.cashflowDashboard),
+      onTap: () => context.push(AppRoutes.cashflowBoardGame),
       borderRadius: BorderRadius.circular(AppSizes.radiusLg),
       child: Container(
         padding: const EdgeInsets.all(AppSizes.lg),
