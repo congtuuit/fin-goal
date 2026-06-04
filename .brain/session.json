@@ -1,32 +1,32 @@
 {
-  "updated_at": "2026-06-04T08:59:00Z",
+  "updated_at": "2026-06-04T16:55:00Z",
   "working_on": {
-    "feature": "Navigation & Goals Management",
-    "task": "Refactor home screen to use GoalsListPage as main and ScenarioDashboardPage as detail",
+    "feature": "AdMob Integration",
+    "task": "Integrate Banner, Rewarded, and Interstitial ads",
     "status": "completed",
     "files": [
-      "lib/app/router/routes.dart",
-      "lib/app/router/app_router.dart",
+      "lib/core/services/ad_service.dart",
+      "lib/features/cashflow_game/presentation/pages/board_game_page.dart",
       "lib/features/goals/presentation/pages/goals_list_page.dart",
-      "lib/features/scenarios/presentation/pages/scenario_dashboard_page.dart"
+      "lib/features/scenarios/presentation/pages/monthly_checkin_page.dart"
     ],
     "blockers": [],
-    "notes": "Used go_router push to handle automatic back button"
+    "notes": "Integrated Test Ads for Dev mode. Ads are disabled for Premium users."
   },
   "pending_tasks": [
     { "task": "Integrate premium features properly", "priority": "medium", "notes": "Paywall and limits" },
-    { "task": "Add deleting goals", "priority": "low", "notes": "Swipe to delete on GoalsListPage" }
+    { "task": "Add deleting goals", "priority": "low", "notes": "Swipe to delete on GoalsListPage" },
+    { "task": "AI Coach Feature", "priority": "medium", "notes": "Implement AI Coach and integrate Rewarded Ads for extra chat tokens" }
   ],
   "recent_changes": [
-    { "timestamp": "2026-06-04T01:50:00Z", "type": "feature", "description": "GoalsListPage layout and navigation", "files": ["lib/features/goals/presentation/pages/goals_list_page.dart"] },
-    { "timestamp": "2026-06-04T01:52:00Z", "type": "bugfix", "description": "Fix AppBar title spacing in ScenarioDashboardPage", "files": ["lib/features/scenarios/presentation/pages/scenario_dashboard_page.dart"] }
+    { "timestamp": "2026-06-04T16:00:00Z", "type": "feature", "description": "AdMob integration setup and logic (AdService, isPremiumUserProvider)", "files": ["lib/core/services/ad_service.dart"] },
+    { "timestamp": "2026-06-04T16:20:00Z", "type": "feature", "description": "Rewarded and Interstitial Ads in Cashflow Game and Monthly Check-in", "files": ["lib/features/cashflow_game/presentation/pages/board_game_page.dart", "lib/features/scenarios/presentation/pages/monthly_checkin_page.dart"] }
   ],
   "errors_encountered": [
-    { "error": "RenderFlex overflowed by X pixels on the bottom", "solution": "Wrap Column with SingleChildScrollView or use isScrollControlled: true with ConstrainedBox for BottomSheets", "resolved": true },
-    { "error": "AppBar title squished by leading and actions", "solution": "Set centerTitle: false, titleSpacing: 0", "resolved": true }
+    { "error": "The method 'addCash' isn't defined for the type 'CashflowGameNotifier'", "solution": "Fixed missing closing brace } in game_provider.dart before addCash definition", "resolved": true }
   ],
   "decisions_made": [
-    { "decision": "GoalsListPage is the new root route (/home)", "reason": "Better overview for users with multiple goals" },
-    { "decision": "ScenarioDashboardPage retains its bottom sheet", "reason": "Allows quick switching between goals while in the detailed view without going back to the main list" }
+    { "decision": "Ads exclusion policy", "reason": "Strictly no ads on Home, Profile, and Settings screens to maintain UX." },
+    { "decision": "Show Interstitial Ad on 'Play Again' or 'Back to Dashboard'", "reason": "These are natural breakpoints in the user flow where ads are less intrusive." }
   ]
 }

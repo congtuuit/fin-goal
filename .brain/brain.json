@@ -2,7 +2,7 @@
   "meta": { "schema_version": "1.1.0", "awf_version": "3.3.0" },
   "project": { "name": "Fin Goal", "type": "Flutter Mobile App", "status": "active" },
   "tech_stack": { 
-    "frontend": {"framework": "Flutter", "architecture": "Clean Architecture", "state_management": "Riverpod", "routing": "go_router"}, 
+    "frontend": {"framework": "Flutter", "architecture": "Clean Architecture", "state_management": "Riverpod", "routing": "go_router", "ads": "google_mobile_ads"}, 
     "backend": {"service": "Supabase"}, 
     "database": {"service": "Supabase PostgreSQL / Local SharedPreferences"} 
   },
@@ -14,11 +14,12 @@
     "Monthly Check-in",
     "Cashflow Board Game",
     "Premium Paywall",
-    "Goals List Management"
+    "Goals List Management",
+    "AdMob Integration (Banner, Interstitial, Rewarded)"
   ],
   "knowledge_items": { 
     "patterns": ["Repository pattern with Riverpod", "Clean Architecture with Presentation/Domain/Data layers"], 
     "gotchas": ["RenderFlex overflow with BottomSheet needs isScrollControlled: true & ConstrainedBox/SingleChildScrollView", "AppBar title constraints need centerTitle: false, titleSpacing: 0 when both leading and actions are present"], 
-    "conventions": ["Use CurrencyFormatter for money", "AppColors and AppSizes for UI constraints"] 
+    "conventions": ["Use CurrencyFormatter for money", "AppColors and AppSizes for UI constraints", "Strictly NO ADS on Home, Profile, and Settings screens. Ads must check isPremiumUserProvider before showing."] 
   }
 }

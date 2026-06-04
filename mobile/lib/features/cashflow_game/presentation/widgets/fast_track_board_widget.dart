@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:fin_goal/core/constants/app_colors.dart';
 import 'package:fin_goal/features/cashflow_game/domain/entities/game_state.dart';
 import 'package:fin_goal/features/cashflow_game/engine/board_engine.dart';
 

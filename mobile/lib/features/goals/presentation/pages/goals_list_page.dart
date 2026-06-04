@@ -11,6 +11,7 @@ import 'package:fin_goal/core/utils/currency_formatter.dart';
 import 'package:fin_goal/features/goals/domain/entities/goal.dart';
 import 'package:fin_goal/features/goals/presentation/providers/goal_provider.dart';
 import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
+import 'package:fin_goal/core/presentation/widgets/banner_ad_widget.dart';
 
 class GoalsListPage extends ConsumerWidget {
   const GoalsListPage({super.key});
@@ -70,6 +71,7 @@ class GoalsListPage extends ConsumerWidget {
         },
         child: const Icon(Icons.add),
       ),
+      bottomNavigationBar: const BannerAdWidget(),
     );
   }
 

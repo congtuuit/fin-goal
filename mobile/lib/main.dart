@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fin_goal/app/app.dart';
 import 'package:fin_goal/app/di/injection.dart';
 import 'package:fin_goal/core/constants/app_config.dart';
+import 'package:fin_goal/core/services/ad_service.dart';
 
 Future<void> main() async {
   await bootstrap(AppFlavor.production);
@@ -20,6 +21,9 @@ Future<void> bootstrap(AppFlavor flavor) async {
     url: AppConfig.supabaseUrl,
     anonKey: AppConfig.supabaseAnonKey,
   );
+
+  // AdMob
+  await AdService.initialize();
 
   // Dependency Injection
   await configureDependencies(flavor);

@@ -11,6 +11,8 @@ import 'package:fin_goal/features/goals/presentation/providers/goal_provider.dar
 import 'package:fin_goal/features/profile/presentation/providers/profile_provider.dart';
 import 'package:fin_goal/features/scenarios/domain/entities/monthly_record.dart';
 import 'package:fin_goal/features/scenarios/presentation/providers/scenario_provider.dart';
+import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
+import 'package:fin_goal/core/services/ad_service.dart';
 
 class MonthlyCheckinPage extends ConsumerStatefulWidget {
   final MonthlyRecord? existingRecord;
@@ -220,7 +222,15 @@ class _MonthlyCheckinPageState extends ConsumerState<MonthlyCheckinPage> {
         ).animate().fadeIn(delay: 600.ms),
         const Gap(AppSizes.xxl),
         ElevatedButton(
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (!ref.read(isPremiumUserProvider)) {
+              AdService.showInterstitialAd(onAdClosed: () {
+                if (mounted) context.pop();
+              });
+            } else {
+              context.pop();
+            }
+          },
           child: const Text('Quay lại Dashboard'),
         ).animate().fadeIn(delay: 800.ms),
       ],

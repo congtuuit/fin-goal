@@ -545,7 +545,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
           if (confirm == true) {
             await ref.read(authProvider.notifier).signOut();
-            if (context.mounted) context.go(AppRoutes.login);
+            if (mounted) context.go(AppRoutes.login);
           }
         },
       ),

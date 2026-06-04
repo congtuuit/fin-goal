@@ -468,4 +468,15 @@ class CashflowGameNotifier extends _$CashflowGameNotifier {
     await ref.read(gameRepositoryProvider).deleteGame(playerId);
     state = const GameUiSelectOccupation();
   }
+
+  // Helper cho Rewarded Ads / Dev
+  Future<void> addCash(int amount) async {
+    if (state is! GameUiPlaying) return;
+    final current = state as GameUiPlaying;
+    final newGs = current.gameState.copyWith(
+      cashOnHand: current.gameState.cashOnHand + amount,
+    );
+    await _save(newGs);
+    state = current.copyWith(gameState: newGs);
+  }
 }

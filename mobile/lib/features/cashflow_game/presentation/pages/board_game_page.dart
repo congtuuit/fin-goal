@@ -20,8 +20,11 @@ import 'package:fin_goal/features/cashflow_game/presentation/pages/occupation_se
 import 'package:fin_goal/features/cashflow_game/engine/board_engine.dart';
 import 'package:fin_goal/core/utils/audio_player_manager.dart';
 import 'package:fin_goal/features/cashflow_game/presentation/providers/audio_provider.dart';
+import 'package:fin_goal/core/presentation/widgets/banner_ad_widget.dart';
+import 'package:fin_goal/core/services/ad_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
 
 class BoardGamePage extends ConsumerStatefulWidget {
   const BoardGamePage({super.key});
@@ -218,6 +221,7 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
             ),
           ),
         ),
+        const BannerAdWidget(),
       ],
     );
   }
@@ -291,6 +295,40 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
               ),
             ],
           ),
+
+          if (!ref.watch(isPremiumUserProvider)) ...[
+            const Gap(AppSizes.md),
+            InkWell(
+              onTap: () {
+                AdService.showRewardedAd(context, () {
+                  ref.read(cashflowGameProvider.notifier).addCash(1000);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Đã nhận \$1,000 từ nhà tài trợ!'),
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
+                });
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.ondemand_video, size: 16, color: Colors.amber),
+                    Gap(6),
+                    Text('Xem video nhận \$1,000', style: TextStyle(color: Colors.amber, fontSize: 12, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ),
+            ),
+          ],
 
           const Gap(AppSizes.md),
 
@@ -546,7 +584,13 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.amber.shade900),
             onPressed: () {
               Navigator.pop(context);
-              ref.read(cashflowGameProvider.notifier).resetGame();
+              if (!ref.read(isPremiumUserProvider)) {
+                AdService.showInterstitialAd(onAdClosed: () {
+                  ref.read(cashflowGameProvider.notifier).resetGame();
+                });
+              } else {
+                ref.read(cashflowGameProvider.notifier).resetGame();
+              }
             },
             child: const Text('Chơi Lại Từ Đầu', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
@@ -572,7 +616,13 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () {
               Navigator.pop(context);
-              ref.read(cashflowGameProvider.notifier).resetGame();
+              if (!ref.read(isPremiumUserProvider)) {
+                AdService.showInterstitialAd(onAdClosed: () {
+                  ref.read(cashflowGameProvider.notifier).resetGame();
+                });
+              } else {
+                ref.read(cashflowGameProvider.notifier).resetGame();
+              }
             },
             child: const Text('Thử Lại'),
           ),
@@ -621,22 +671,14 @@ class AnimatedCashStatWidget extends StatefulWidget {
 }
 
 class _AnimatedCashStatWidgetState extends State<AnimatedCashStatWidget> {
-  int _prevCash = 0;
   int _diff = 0;
   Key _animKey = UniqueKey();
-
-  @override
-  void initState() {
-    super.initState();
-    _prevCash = widget.cashOnHand;
-  }
 
   @override
   void didUpdateWidget(covariant AnimatedCashStatWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.cashOnHand != oldWidget.cashOnHand) {
       _diff = widget.cashOnHand - oldWidget.cashOnHand;
-      _prevCash = oldWidget.cashOnHand;
       _animKey = UniqueKey(); // trigger animation rebuild
     }
   }
