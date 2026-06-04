@@ -72,8 +72,20 @@ class Liability extends Equatable {
     required this.monthlyPayment,
   });
 
+  Liability copyWith({
+    int? totalOwed,
+    int? monthlyPayment,
+  }) {
+    return Liability(
+      id: id,
+      name: name,
+      totalOwed: totalOwed ?? this.totalOwed,
+      monthlyPayment: monthlyPayment ?? this.monthlyPayment,
+    );
+  }
+
   @override
-  List<Object?> get props => [id];
+  List<Object?> get props => [id, totalOwed, monthlyPayment];
 }
 
 // ── Game State chính ─────────────────────────────────────────────────────────

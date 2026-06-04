@@ -17,6 +17,7 @@ import 'package:fin_goal/features/cashflow_game/presentation/widgets/financial_r
 import 'package:fin_goal/features/cashflow_game/presentation/widgets/game_guide_dialog.dart';
 import 'package:fin_goal/features/cashflow_game/presentation/pages/occupation_select_page.dart';
 import 'package:fin_goal/features/cashflow_game/engine/board_engine.dart';
+import 'package:fin_goal/core/utils/audio_player_manager.dart';
 
 class BoardGamePage extends ConsumerStatefulWidget {
   const BoardGamePage({super.key});
@@ -350,8 +351,10 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
         DiceWidget(
           value: state.lastDiceValue,
           isRolling: state.isRolling,
-          onTap: () =>
-              ref.read(cashflowGameProvider.notifier).rollDice(),
+          onTap: () {
+            AudioPlayerManager().vibrate();
+            ref.read(cashflowGameProvider.notifier).rollDice();
+          },
         ),
         const Gap(AppSizes.md),
         if (state.gameState.downsizeTurns > 0)

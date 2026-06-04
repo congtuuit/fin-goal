@@ -23,6 +23,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   late SharedPreferences _prefs;
   bool _isLoading = true;
   bool _obscureApiKey = true;
+  bool _isTesting = false;
 
   // Form State
   String _selectedProvider = 'gemini';
@@ -89,6 +90,35 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
   }
 
+  Future<void> _testConnection() async {
+    setState(() => _isTesting = true);
+    try {
+      final service = DirectClientAiService(_prefs);
+      await service.testConnection(
+        _selectedProvider,
+        _apiKeyCtrl.text.trim(),
+        _modelCtrl.text.trim(),
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Kết nối AI thành công!'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lỗi kết nối: $e'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isTesting = false);
+    }
+  }
+
   @override
   void dispose() {
     _apiKeyCtrl.dispose();
@@ -126,6 +156,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     const Gap(AppSizes.xl),
                   ],
 
+                  // Cashflow Game Banner
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, bottom: 8),
+                    child: Text(
+                      'GIÁO DỤC TÀI CHÍNH',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textMuted,
+                            letterSpacing: 1.2,
+                          ),
+                    ),
+                  ),
+                  _buildCashflowBanner(),
+
+                  const Gap(AppSizes.xxl),
+
                   // 3. AI Settings Panel
                   Padding(
                     padding: const EdgeInsets.only(left: 8, bottom: 8),
@@ -142,38 +188,34 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
                   const Gap(AppSizes.md),
 
-                  // Nút Lưu nằm riêng rẽ dưới thẻ
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(100)),
+                  // Các nút thao tác
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          icon: _isTesting
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2))
+                              : const Icon(Icons.wifi_tethering, size: 20),
+                          label: const Text('Kiểm tra'),
+                          onPressed:
+                              _isTesting || _isLoading ? null : _testConnection,
+                        ),
                       ),
-                      icon: const Icon(Icons.check, size: 20),
-                      label: const Text('Lưu cấu hình'),
-                      onPressed: _saveSettings,
-                    ),
+                      const Gap(AppSizes.md),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.check, size: 20),
+                          label: const Text('Lưu'),
+                          onPressed:
+                              _isTesting || _isLoading ? null : _saveSettings,
+                        ),
+                      ),
+                    ],
                   ),
-
-                  const Gap(AppSizes.xxl),
-
-                  // Cashflow Game Banner
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8, bottom: 8),
-                    child: Text(
-                      'GIÁO DỤC TÀI CHÍNH',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textMuted,
-                            letterSpacing: 1.2,
-                          ),
-                    ),
-                  ),
-                  _buildCashflowBanner(),
 
                   const Gap(AppSizes.xxl),
 

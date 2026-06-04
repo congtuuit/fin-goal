@@ -334,6 +334,48 @@ class CashflowGameNotifier extends _$CashflowGameNotifier {
         ],
       );
 
+  // ── Trả nợ (Phase 3) ────────────────────────────────────────────────────────
+  Future<void> payDebt(String liabilityId, int amount) async {
+    if (state is! GameUiPlaying) return;
+    final current = state as GameUiPlaying;
+    final gs = current.gameState;
+
+    if (gs.cashOnHand < amount) return;
+
+    final targetIdx = gs.liabilities.indexWhere((l) => l.id == liabilityId);
+    if (targetIdx == -1) return;
+
+    final oldLiability = gs.liabilities[targetIdx];
+    final actualPayment = min(amount, oldLiability.totalOwed);
+
+    final newOwed = oldLiability.totalOwed - actualPayment;
+    var newLiabilities = List<Liability>.from(gs.liabilities);
+
+    if (newOwed <= 0) {
+      newLiabilities.removeAt(targetIdx);
+    } else {
+      final ratio = newOwed / oldLiability.totalOwed;
+      final newMonthly = (oldLiability.monthlyPayment * ratio).round();
+      newLiabilities[targetIdx] = oldLiability.copyWith(
+        totalOwed: newOwed,
+        monthlyPayment: newMonthly,
+      );
+    }
+
+    final newGs = gs.copyWith(
+      cashOnHand: gs.cashOnHand - actualPayment,
+      liabilities: newLiabilities,
+    );
+
+    await _save(newGs);
+
+    if (newGs.isFinanciallyFree && !gs.isFinanciallyFree) {
+      state = GameUiFinanciallyFree(newGs);
+    } else {
+      state = current.copyWith(gameState: newGs);
+    }
+  }
+
   Future<void> _save(GameState gs) async {
     await ref.read(gameRepositoryProvider).saveGame(gs);
   }

@@ -34,6 +34,28 @@ class DirectClientAiService implements AiService {
     }
   }
 
+  Future<bool> testConnection(String provider, String apiKey, String model) async {
+    const prompt = "Hello";
+    if (apiKey.trim().isEmpty) {
+      throw const HttpException('API Key chưa được cấu hình. Vui lòng điền API Key.');
+    }
+    
+    try {
+      if (provider == 'gemini') {
+        if (model.isEmpty) model = 'gemini-1.5-flash'; // fallback default
+        await _callGemini(prompt, apiKey, model);
+      } else if (provider == 'openai') {
+        if (model.isEmpty) model = 'gpt-4o-mini'; // fallback default
+        await _callOpenAI(prompt, apiKey, model);
+      } else {
+        throw const HttpException('Nhà cung cấp AI không được hỗ trợ.');
+      }
+      return true;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<String> _callGemini(String prompt, String apiKey, String model) async {
     final url = Uri.parse(
       'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey'
