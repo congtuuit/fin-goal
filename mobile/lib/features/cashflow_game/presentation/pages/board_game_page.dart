@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -298,35 +299,19 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
 
           if (!ref.watch(isPremiumUserProvider)) ...[
             const Gap(AppSizes.md),
-            InkWell(
-              onTap: () {
+            _CooldownRewardedAdButton(
+              lastWatchedTime: state is GameUiPlaying ? state.lastAdWatchedTime : null,
+              onWatch: () {
                 AdService.showRewardedAd(context, () {
-                  ref.read(cashflowGameProvider.notifier).addCash(1000);
+                  ref.read(cashflowGameProvider.notifier).addCash(500000);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Đã nhận \$1,000 từ nhà tài trợ!'),
+                      content: Text('Đã nhận 500K từ nhà tài trợ!'),
                       backgroundColor: AppColors.success,
                     ),
                   );
                 });
               },
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(Icons.ondemand_video, size: 16, color: Colors.amber),
-                    Gap(6),
-                    Text('Xem video nhận \$1,000', style: TextStyle(color: Colors.amber, fontSize: 12, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
             ),
           ],
 
@@ -404,16 +389,34 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
 
   Widget _buildDiceSection(GameUiPlaying state) {
     final isDisabled = state.isRolling || state.currentEvent != null;
+    final diceValues = state.lastDiceValues ?? [1];
+
+    void handleRoll() {
+      if (isDisabled) return;
+      AudioPlayerManager().vibrate();
+      AudioPlayerManager().playSfx('audio/dice_roll.wav');
+      ref.read(cashflowGameProvider.notifier).rollDice();
+    }
+
     return Column(
       children: [
-        DiceWidget(
-          value: state.lastDiceValue,
-          isRolling: state.isRolling,
-          onTap: () {
-            AudioPlayerManager().vibrate();
-            AudioPlayerManager().playSfx('audio/dice_roll.wav');
-            ref.read(cashflowGameProvider.notifier).rollDice();
-          },
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            DiceWidget(
+              value: diceValues.isNotEmpty ? diceValues[0] : 1,
+              isRolling: state.isRolling,
+              onTap: handleRoll,
+            ),
+            if (state.gameState.isFastTrack) ...[
+              const Gap(AppSizes.md),
+              DiceWidget(
+                value: diceValues.length > 1 ? diceValues[1] : 1,
+                isRolling: state.isRolling,
+                onTap: handleRoll,
+              ),
+            ],
+          ],
         ),
         const Gap(AppSizes.md),
         if (state.gameState.downsizeTurns > 0)
@@ -421,31 +424,6 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
             '❌ Đang thất nghiệp (còn ${state.gameState.downsizeTurns} lượt)',
             style: const TextStyle(color: AppColors.danger, fontSize: 13),
           ).animate().shake(),
-        const Gap(AppSizes.sm),
-        SizedBox(
-          width: 220,
-          height: 56,
-          child: ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDisabled
-                  ? Colors.grey.shade700
-                  : AppColors.primary,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSizes.radiusXl)),
-            ),
-            onPressed: isDisabled
-                ? null
-                : () => ref
-                    .read(cashflowGameProvider.notifier)
-                    .rollDice(),
-            icon: Text(state.gameState.isFastTrack ? '🎲🎲' : '🎲', style: const TextStyle(fontSize: 20)),
-            label: Text(
-              state.isRolling ? 'Đang Tung...' : 'TUNG XÚC XẮC',
-              style: const TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ).animate().fadeIn(),
         if (kDebugMode && !state.gameState.isFastTrack) ...[
           const Gap(AppSizes.sm),
           TextButton.icon(
@@ -713,6 +691,106 @@ class _AnimatedCashStatWidgetState extends State<AnimatedCashStatWidget> {
             .fadeOut(delay: 600.ms, duration: 200.ms),
           ),
       ],
+    );
+  }
+}
+
+class _CooldownRewardedAdButton extends StatefulWidget {
+  final DateTime? lastWatchedTime;
+  final VoidCallback onWatch;
+
+  const _CooldownRewardedAdButton({
+    required this.lastWatchedTime,
+    required this.onWatch,
+  });
+
+  @override
+  State<_CooldownRewardedAdButton> createState() => _CooldownRewardedAdButtonState();
+}
+
+class _CooldownRewardedAdButtonState extends State<_CooldownRewardedAdButton> {
+  Timer? _timer;
+  int _remainingSeconds = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _updateCooldown();
+  }
+
+  @override
+  void didUpdateWidget(covariant _CooldownRewardedAdButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.lastWatchedTime != oldWidget.lastWatchedTime) {
+      _updateCooldown();
+    }
+  }
+
+  void _updateCooldown() {
+    _timer?.cancel();
+    if (widget.lastWatchedTime == null) {
+      setState(() => _remainingSeconds = 0);
+      return;
+    }
+    
+    final diff = DateTime.now().difference(widget.lastWatchedTime!).inSeconds;
+    if (diff < 10) {
+      _remainingSeconds = 10 - diff;
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (!mounted) {
+          timer.cancel();
+          return;
+        }
+        final newDiff = DateTime.now().difference(widget.lastWatchedTime!).inSeconds;
+        if (newDiff >= 10) {
+          setState(() => _remainingSeconds = 0);
+          timer.cancel();
+        } else {
+          setState(() => _remainingSeconds = 10 - newDiff);
+        }
+      });
+    } else {
+      setState(() => _remainingSeconds = 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDisabled = _remainingSeconds > 0;
+    
+    return InkWell(
+      onTap: isDisabled ? null : widget.onWatch,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isDisabled ? Colors.grey.withValues(alpha: 0.2) : Colors.amber.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+              color: isDisabled ? Colors.grey.withValues(alpha: 0.3) : Colors.amber.withValues(alpha: 0.5)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.ondemand_video, size: 16, color: isDisabled ? Colors.grey : Colors.amber),
+            const Gap(6),
+            Text(
+              isDisabled ? 'Chờ 00:${_remainingSeconds.toString().padLeft(2, '0')}' : 'Xem video nhận 500K',
+              style: TextStyle(
+                color: isDisabled ? Colors.grey : Colors.amber, 
+                fontSize: 12, 
+                fontWeight: FontWeight.bold
+              )
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

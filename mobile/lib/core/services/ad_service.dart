@@ -55,16 +55,20 @@ class AdService {
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
+          bool earnedReward = false;
           ad.fullScreenContentCallback = FullScreenContentCallback(
             onAdDismissedFullScreenContent: (ad) {
               ad.dispose();
+              if (earnedReward) {
+                onReward();
+              }
             },
             onAdFailedToShowFullScreenContent: (ad, error) {
               ad.dispose();
             },
           );
           ad.show(onUserEarnedReward: (ad, reward) {
-            onReward();
+            earnedReward = true;
           });
         },
         onAdFailedToLoad: (error) {

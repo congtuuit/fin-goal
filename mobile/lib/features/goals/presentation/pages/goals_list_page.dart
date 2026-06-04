@@ -71,7 +71,6 @@ class GoalsListPage extends ConsumerWidget {
         },
         child: const Icon(Icons.add),
       ),
-      bottomNavigationBar: const BannerAdWidget(),
     );
   }
 

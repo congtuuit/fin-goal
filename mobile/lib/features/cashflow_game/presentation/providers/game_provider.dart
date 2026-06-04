@@ -46,13 +46,15 @@ class GameUiPlaying extends CashflowGameUiState {
   final GameState gameState;
   final EventCard? currentEvent;
   final bool isRolling;
-  final int? lastDiceValue;
+  final List<int>? lastDiceValues;
+  final DateTime? lastAdWatchedTime;
 
   const GameUiPlaying({
     required this.gameState,
     this.currentEvent,
     this.isRolling = false,
-    this.lastDiceValue,
+    this.lastDiceValues,
+    this.lastAdWatchedTime,
   });
 
   GameUiPlaying copyWith({
@@ -60,13 +62,15 @@ class GameUiPlaying extends CashflowGameUiState {
     EventCard? currentEvent,
     bool clearEvent = false,
     bool? isRolling,
-    int? lastDiceValue,
+    List<int>? lastDiceValues,
+    DateTime? lastAdWatchedTime,
   }) =>
       GameUiPlaying(
         gameState: gameState ?? this.gameState,
         currentEvent: clearEvent ? null : (currentEvent ?? this.currentEvent),
         isRolling: isRolling ?? this.isRolling,
-        lastDiceValue: lastDiceValue ?? this.lastDiceValue,
+        lastDiceValues: lastDiceValues ?? this.lastDiceValues,
+        lastAdWatchedTime: lastAdWatchedTime ?? this.lastAdWatchedTime,
       );
 }
 
@@ -163,13 +167,16 @@ class CashflowGameNotifier extends _$CashflowGameNotifier {
     await Future.delayed(const Duration(milliseconds: 600)); // animation dice
 
     final engine = ref.read(boardEngineProvider);
-    int diceValue = engine.rollDice();
+    int dice1 = engine.rollDice();
+    int dice2 = 0;
     if (current.gameState.isFastTrack) {
-      diceValue += engine.rollDice(); // Roll 2 dice in Fast Track
+      dice2 = engine.rollDice(); // Roll 2 dice in Fast Track
     }
+    int totalDice = dice1 + dice2;
+    
     final move = engine.move(
       current.gameState.boardPosition, 
-      diceValue, 
+      totalDice, 
       isFastTrack: current.gameState.isFastTrack
     );
 
@@ -220,7 +227,7 @@ class CashflowGameNotifier extends _$CashflowGameNotifier {
       gameState: newGs,
       currentEvent: eventCard,
       isRolling: false,
-      lastDiceValue: diceValue,
+      lastDiceValues: current.gameState.isFastTrack ? [dice1, dice2] : [dice1],
     );
   }
 
@@ -477,6 +484,9 @@ class CashflowGameNotifier extends _$CashflowGameNotifier {
       cashOnHand: current.gameState.cashOnHand + amount,
     );
     await _save(newGs);
-    state = current.copyWith(gameState: newGs);
+    state = current.copyWith(
+      gameState: newGs,
+      lastAdWatchedTime: DateTime.now(),
+    );
   }
 }
