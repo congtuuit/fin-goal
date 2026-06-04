@@ -222,7 +222,7 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
             ),
           ),
         ),
-        const BannerAdWidget(),
+        if (!ref.watch(isPremiumUserProvider)) const BannerAdWidget(),
       ],
     );
   }

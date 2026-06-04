@@ -428,14 +428,29 @@ class CashflowGameNotifier extends _$CashflowGameNotifier {
 
     if (currentGs == null) return;
 
-    final newIncome = currentGs.passiveIncome * 100;
+    final basePassive = currentGs.passiveIncome;
+    final startingCash = basePassive * 100;
+    final fastTrackIncome = basePassive * 20;
     
+    // Gộp tài sản cũ thành Quỹ Tín Thác Cá Nhân
+    final trustFund = Asset(
+      id: 'trust_fund_${DateTime.now().millisecondsSinceEpoch}',
+      name: 'Quỹ Tín Thác Cá Nhân',
+      type: AssetType.other,
+      purchasePrice: currentGs.netWorth > 0 ? currentGs.netWorth : 0,
+      currentValue: currentGs.netWorth > 0 ? currentGs.netWorth : 0,
+      monthlyPassiveIncome: basePassive,
+      downPayment: 0,
+      mortgage: 0,
+      monthlyMortgagePayment: 0,
+    );
+
     final fastTrackGs = currentGs.copyWith(
       isFastTrack: true,
-      fastTrackIncome: newIncome,
-      cashOnHand: newIncome,
+      fastTrackIncome: fastTrackIncome,
+      cashOnHand: currentGs.cashOnHand + startingCash,
       boardPosition: 0,
-      assets: [],
+      assets: [trustFund],
       liabilities: [],
     );
 
