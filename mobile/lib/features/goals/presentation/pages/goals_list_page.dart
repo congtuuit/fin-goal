@@ -114,133 +114,171 @@ class GoalsListPage extends ConsumerWidget {
         ? (goal.currentSavings / goal.targetAmount).clamp(0.0, 1.0)
         : 0.0;
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: AppSizes.lg),
-      color: goal.isPrimary
-          ? AppColors.surfaceElevatedDark
-          : AppColors.surfaceDark,
-      shape: RoundedRectangleBorder(
+      decoration: BoxDecoration(
+        color: goal.isPrimary
+            ? AppColors.surfaceElevatedDark
+            : AppColors.surfaceDark,
         borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-        side: BorderSide(
-          color: goal.isPrimary ? AppColors.primary : AppColors.borderDark,
-          width: goal.isPrimary ? 2 : 1,
+        border: Border.all(
+          color: goal.isPrimary
+              ? AppColors.primary.withValues(alpha: 0.5)
+              : AppColors.borderDark,
+          width: goal.isPrimary ? 1.5 : 1,
         ),
+        boxShadow: goal.isPrimary
+            ? [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                )
+              ]
+            : null,
       ),
-      child: InkWell(
-        onTap: () {
-          if (!goal.isPrimary) {
-            ref.read(goalsProvider.notifier).setPrimaryGoal(goal.id);
-          }
-          context.push(AppRoutes.dashboard);
-        },
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSizes.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(AppSizes.sm),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceElevatedDark,
-                      borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                    ),
-                    child: Text(goal.emoji ?? '🎯',
-                        style: const TextStyle(fontSize: 28)),
-                  ),
-                  const Gap(AppSizes.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          goal.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (goal.isPrimary)
-                          Container(
-                            margin: const EdgeInsets.only(top: 4),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Text(
-                              'Mục tiêu chính',
-                              style: TextStyle(
-                                  color: AppColors.primary,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
+        child: Stack(
+          children: [
+            // Watermark background
+            Positioned(
+              right: -20,
+              bottom: -10,
+              child: Opacity(
+                opacity: 0.08,
+                child: Text(
+                  goal.emoji ?? '🎯',
+                  style: const TextStyle(fontSize: 120),
+                ),
               ),
-              const Gap(AppSizes.xl),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
+            ),
+            // Card Content
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  if (!goal.isPrimary) {
+                    ref.read(goalsProvider.notifier).setPrimaryGoal(goal.id);
+                  }
+                  context.push(AppRoutes.dashboard);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSizes.md,
+                    vertical: AppSizes.sm,
+                  ),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Đã tích lũy',
-                          style: Theme.of(context).textTheme.bodySmall),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(AppSizes.sm),
+                            decoration: BoxDecoration(
+                              color: goal.isPrimary
+                                  ? AppColors.primary.withValues(alpha: 0.1)
+                                  : AppColors.surfaceElevatedDark,
+                              borderRadius:
+                                  BorderRadius.circular(AppSizes.radiusMd),
+                            ),
+                            child: Text(goal.emoji ?? '🎯',
+                                style: const TextStyle(fontSize: 24)),
+                          ),
+                          const Gap(AppSizes.md),
+                          Expanded(
+                            child: Text(
+                              goal.name,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (goal.isPrimary)
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.star_rounded,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
+                            ),
+                        ],
+                      ),
+                      const Gap(AppSizes.sm),
+                      Text(
+                        'Đã tích lũy',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                      ),
                       const Gap(2),
                       Text(
                         CurrencyFormatter.format(goal.currentSavings),
                         style: Theme.of(context)
                             .textTheme
-                            .titleMedium
-                            ?.copyWith(color: AppColors.success),
+                            .headlineMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.success,
+                            ),
+                      ),
+                      const Gap(AppSizes.sm),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Mục tiêu: ${CurrencyFormatter.format(goal.targetAmount)}',
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                          ),
+                          Text(
+                            '${(progress * 100).toStringAsFixed(1)}%',
+                            style:
+                                Theme.of(context).textTheme.titleSmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                          ),
+                        ],
+                      ),
+                      const Gap(4),
+                      Container(
+                        height: 8,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: AppColors.backgroundDark,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return Align(
+                              alignment: Alignment.centerLeft,
+                              child: Container(
+                                width: constraints.maxWidth * progress,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4),
+                                  gradient: AppColors.gradientPrimary,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text('Mục tiêu',
-                          style: Theme.of(context).textTheme.bodySmall),
-                      const Gap(2),
-                      Text(
-                        CurrencyFormatter.format(goal.targetAmount),
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const Gap(AppSizes.md),
-              LinearProgressIndicator(
-                value: progress,
-                backgroundColor: AppColors.surfaceElevatedDark,
-                color: AppColors.success,
-                minHeight: 8,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              const Gap(AppSizes.xs),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  '${(progress * 100).toStringAsFixed(1)}%',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
-              const Gap(AppSizes.md),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
