@@ -64,7 +64,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           actions: [
             IconButton(
               icon: const Icon(Icons.person_outline),
-              onPressed: () => context.go(AppRoutes.profile),
+              onPressed: () => context.push(AppRoutes.profile),
             ),
           ],
         ),
@@ -84,7 +84,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
                   minimumSize: const Size(0, AppSizes.buttonHeight),
                   padding: const EdgeInsets.symmetric(horizontal: AppSizes.xxl),
                 ),
-                onPressed: () => context.go('/home/goal-selection'),
+                onPressed: () => context.push('/home/goal-selection'),
                 icon: const Icon(Icons.add),
                 label: const Text('Tạo mục tiêu ngay'),
               ),
@@ -161,7 +161,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
               label: const Text('Nâng cấp',
                   style: TextStyle(color: AppColors.primary)),
               onPressed: () {
-                context.go('/home/paywall');
+                context.push('/home/paywall');
               },
             )
           else
@@ -176,7 +176,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           IconButton(
             icon: const Icon(Icons.person_outline),
             onPressed: () {
-              context.go(AppRoutes.profile);
+              context.push(AppRoutes.profile);
             },
           ),
         ],
@@ -262,9 +262,9 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
                   Navigator.pop(ctx);
                   if (!isPremium && goalsState.goals.isNotEmpty) {
                     // Limit free users to 1 goal
-                    context.go('/home/paywall');
+                    context.push('/home/paywall');
                   } else {
-                    context.go('/home/goal-selection');
+                    context.push('/home/goal-selection');
                   }
                 },
               ),
@@ -427,7 +427,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           icon: const Icon(Icons.help_outline),
           label: const Text('Thử kịch bản "What-if"?'),
           onPressed: () {
-            context.go('/home/what-if');
+            context.push('/home/what-if');
           },
         ),
         const Gap(AppSizes.md),
@@ -439,7 +439,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
               ? 'Sửa Check-in tháng này'
               : 'Check-in tháng này'),
           onPressed: () {
-            context.go('/home/monthly-checkin', extra: thisMonthRecord);
+            context.push('/home/monthly-checkin', extra: thisMonthRecord);
           },
         ),
       ],
@@ -465,7 +465,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
             final isGood = actual >= record.plannedSavings;
 
             return InkWell(
-              onTap: () => context.go('/home/monthly-checkin', extra: record),
+              onTap: () => context.push('/home/monthly-checkin', extra: record),
               borderRadius: BorderRadius.circular(AppSizes.radiusLg),
               child: Container(
                 padding: const EdgeInsets.all(AppSizes.md),
