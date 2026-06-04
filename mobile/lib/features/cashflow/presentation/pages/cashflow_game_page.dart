@@ -33,12 +33,18 @@ class _CashflowGamePageState extends ConsumerState<CashflowGamePage> {
     // Hiện popup giải thích AI, sau đó apply và quay về dashboard
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       isDismissible: false,
       backgroundColor: AppColors.surfaceElevatedDark,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl)),
       ),
-      builder: (ctx) => _buildAiFeedback(ctx, option),
+      builder: (ctx) => ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
+        child: SingleChildScrollView(
+          child: _buildAiFeedback(ctx, option),
+        ),
+      ),
     );
   }
 

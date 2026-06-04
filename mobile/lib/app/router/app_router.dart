@@ -6,6 +6,7 @@ import 'package:fin_goal/features/auth/presentation/pages/login_page.dart';
 import 'package:fin_goal/features/auth/presentation/pages/splash_page.dart';
 import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
 import 'package:fin_goal/features/goals/presentation/pages/goal_selection_page.dart';
+import 'package:fin_goal/features/goals/presentation/pages/goals_list_page.dart';
 import 'package:fin_goal/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:fin_goal/features/scenarios/presentation/pages/monthly_checkin_page.dart';
 import 'package:fin_goal/features/scenarios/presentation/pages/scenario_dashboard_page.dart';
@@ -90,8 +91,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.home,
-        builder: (_, __) => const ScenarioDashboardPage(),
+        builder: (_, __) => const GoalsListPage(),
         routes: [
+          GoRoute(
+            path: 'dashboard',
+            builder: (_, __) => const ScenarioDashboardPage(),
+          ),
           GoRoute(
             path: 'goal-selection',
             builder: (_, __) => const GoalSelectionPage(),

@@ -9,6 +9,7 @@ abstract class AppRoutes {
 
   // ── Main shell ────────────────────────────────────────────────────────────
   static const home = '/home';
+  static const dashboard = '/home/dashboard';
 
   // ── Goals ─────────────────────────────────────────────────────────────────
   static const goalSelection = '/goal-selection';

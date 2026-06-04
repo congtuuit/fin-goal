@@ -130,16 +130,18 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
     // 5. Build UI
     return Scaffold(
       appBar: AppBar(
+        centerTitle: false,
+        titleSpacing: 0,
         title: InkWell(
-          onTap: () => _showSwitchGoalSheet(context, goalsState as GoalsLoaded, isPremium),
+          onTap: () => _showSwitchGoalSheet(context, goalsState, isPremium),
           borderRadius: BorderRadius.circular(AppSizes.radiusMd),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(primaryGoal.emoji ?? '🎯'),
-                const Gap(AppSizes.sm),
+                const Gap(AppSizes.xs),
                 Flexible(
                   child: Text(
                     primaryGoal.name,
@@ -199,6 +201,8 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
       ),
     );
   }
+
+
 
   void _showSwitchGoalSheet(BuildContext context, GoalsLoaded goalsState, bool isPremium) {
     showModalBottomSheet(

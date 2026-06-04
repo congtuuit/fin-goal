@@ -1,131 +1,32 @@
 {
-  "updated_at": "2026-06-03T19:11:00Z",
+  "updated_at": "2026-06-04T08:59:00Z",
   "working_on": {
-    "feature": "MVP Offline & AI Integration",
-    "task": "Triển khai toàn bộ module Offline-first và tích hợp AI Settings trực tiếp trên thiết bị",
+    "feature": "Navigation & Goals Management",
+    "task": "Refactor home screen to use GoalsListPage as main and ScenarioDashboardPage as detail",
     "status": "completed",
     "files": [
-      "mobile/lib/core/constants/app_config.dart",
-      "mobile/lib/app/di/injection.dart",
-      "mobile/lib/features/auth/presentation/pages/login_page.dart",
-      "mobile/lib/features/profile/presentation/pages/settings_page.dart",
-      "mobile/lib/core/services/direct_client_ai_service.dart",
-      "mobile/lib/features/scenarios/presentation/providers/ai_explanation_provider.dart"
+      "lib/app/router/routes.dart",
+      "lib/app/router/app_router.dart",
+      "lib/features/goals/presentation/pages/goals_list_page.dart",
+      "lib/features/scenarios/presentation/pages/scenario_dashboard_page.dart"
     ],
     "blockers": [],
-    "notes": "Đã hoàn thành 100% việc chuyển đổi sang chế độ offline, lưu trữ local bằng SharedPreferences và gọi API AI trực tiếp qua HttpClient. Đã chạy build_runner thành công và pass toàn bộ unit tests."
+    "notes": "Used go_router push to handle automatic back button"
   },
   "pending_tasks": [
-    {
-      "task": "Nghiên cứu tính năng Thêm nhiều mục tiêu",
-      "priority": "medium",
-      "notes": "Người dùng thắc mắc làm sao để tạo nhiều mục tiêu."
-    }
+    { "task": "Integrate premium features properly", "priority": "medium", "notes": "Paywall and limits" },
+    { "task": "Add deleting goals", "priority": "low", "notes": "Swipe to delete on GoalsListPage" }
   ],
   "recent_changes": [
-    {
-      "timestamp": "2026-06-03T21:50:00Z",
-      "type": "feature",
-      "description": "Fix loạt bug trải nghiệm (Splash kẹt, UI giật cục, văng app do Riverpod autoDispose) và làm xong tính năng Lịch sử Check-in (xem và sửa lịch sử).",
-      "files": [
-        "mobile/lib/features/scenarios/presentation/pages/scenario_dashboard_page.dart",
-        "mobile/lib/features/scenarios/presentation/pages/monthly_checkin_page.dart",
-        "mobile/lib/app/router/app_router.dart",
-        "mobile/lib/features/scenarios/presentation/providers/scenario_provider.dart",
-        "mobile/lib/features/profile/presentation/providers/profile_provider.dart"
-      ]
-    },
-    {
-      "timestamp": "2026-06-03T19:04:00Z",
-      "type": "feature",
-      "description": "Hoàn thành triển khai MVP Offline Hoàn Toàn & Định hướng Hybrid. Tạo local repositories, trang Settings AI Key và tích hợp Direct API client-side.",
-      "files": [
-        "mobile/lib/core/constants/app_config.dart",
-        "mobile/lib/app/di/injection.dart",
-        "mobile/lib/features/auth/domain/repositories/auth_repository.dart",
-        "mobile/lib/features/auth/data/repositories/auth_repository_impl.dart",
-        "mobile/lib/features/auth/data/repositories/local_auth_repository_impl.dart",
-        "mobile/lib/features/auth/presentation/providers/auth_provider.dart",
-        "mobile/lib/features/auth/presentation/pages/login_page.dart",
-        "mobile/lib/features/goals/data/repositories/local_goal_repository_impl.dart",
-        "mobile/lib/features/goals/presentation/providers/goal_provider.dart",
-        "mobile/lib/features/scenarios/data/repositories/local_scenario_repository_impl.dart",
-        "mobile/lib/features/scenarios/data/repositories/local_record_repository_impl.dart",
-        "mobile/lib/features/scenarios/presentation/providers/scenario_provider.dart",
-        "mobile/lib/core/services/ai_service.dart",
-        "mobile/lib/core/services/direct_client_ai_service.dart",
-        "mobile/lib/core/services/ai_provider.dart",
-        "mobile/lib/features/profile/presentation/pages/settings_page.dart",
-        "mobile/lib/app/router/app_router.dart",
-        "mobile/lib/features/scenarios/presentation/pages/scenario_dashboard_page.dart",
-        "mobile/lib/features/scenarios/presentation/pages/what_if_page.dart",
-        "mobile/lib/features/scenarios/presentation/providers/ai_explanation_provider.dart"
-      ]
-    },
-    {
-      "timestamp": "2026-06-03T18:41:00Z",
-      "type": "documentation",
-      "description": "Tạo tài liệu hướng dẫn cấu hình môi trường docs/environment_setup.md và cập nhật liên kết trong các file .env.example",
-      "files": [
-        "docs/environment_setup.md",
-        ".env.example",
-        "mobile/.env.example"
-      ]
-    },
-    {
-      "timestamp": "2026-06-03T18:26:00Z",
-      "type": "documentation",
-      "description": "Tạo file cấu hình môi trường .env.example ở thư mục gốc và thư mục mobile",
-      "files": [
-        ".env.example",
-        "mobile/.env.example"
-      ]
-    },
-    {
-      "timestamp": "2026-06-03T18:11:00Z",
-      "type": "documentation",
-      "description": "Định dạng lại biểu đồ luồng Mermaid trong app_flow_chart.md và khởi tạo CHANGELOG.md",
-      "files": [
-        "docs/architecture/app_flow_chart.md",
-        "CHANGELOG.md"
-      ]
-    }
+    { "timestamp": "2026-06-04T01:50:00Z", "type": "feature", "description": "GoalsListPage layout and navigation", "files": ["lib/features/goals/presentation/pages/goals_list_page.dart"] },
+    { "timestamp": "2026-06-04T01:52:00Z", "type": "bugfix", "description": "Fix AppBar title spacing in ScenarioDashboardPage", "files": ["lib/features/scenarios/presentation/pages/scenario_dashboard_page.dart"] }
   ],
   "errors_encountered": [
-    {
-      "error": "Lỗi KGP với AGP 9.0",
-      "solution": "Thêm android.builtInKotlin=false vào gradle.properties",
-      "resolved": true
-    },
-    {
-      "error": "Lỗi provider của JNI trong sentry_flutter",
-      "solution": "Tạm tháo bỏ sentry_flutter",
-      "resolved": true
-    },
-    {
-      "error": "Lỗi Riverpod 3.0 bỏ hậu tố NotifierProvider",
-      "solution": "Đổi tên hàng loạt trên toàn bộ UI và chạy lại build_runner",
-      "resolved": true
-    },
-    {
-      "error": "Kẹt màn hình Splash",
-      "solution": "Bỏ điều kiện && !isSplash trong logic check auth của GoRouter",
-      "resolved": true
-    },
-    {
-      "error": "Treo Async do Riverpod autoDispose",
-      "solution": "Dùng @Riverpod(keepAlive: true) trên repository và notifier",
-      "resolved": true
-    }
+    { "error": "RenderFlex overflowed by X pixels on the bottom", "solution": "Wrap Column with SingleChildScrollView or use isScrollControlled: true with ConstrainedBox for BottomSheets", "resolved": true },
+    { "error": "AppBar title squished by leading and actions", "solution": "Set centerTitle: false, titleSpacing: 0", "resolved": true }
   ],
   "decisions_made": [
-    {
-      "decision": "Dùng AGP 9.0.1",
-      "reason": "Bắt buộc để chạy được firebase_core và androidx.browser mới nhất"
-    },
-    {
-      "decision": "Chạy chế độ Offline-first cục bộ và AI Client-side cho MVP",
-      "reason": "Tối ưu hóa chi phí vận hành API, phát triển độc lập nhanh và bảo mật thông tin nhạy cảm của người dùng trên máy."
-    }
+    { "decision": "GoalsListPage is the new root route (/home)", "reason": "Better overview for users with multiple goals" },
+    { "decision": "ScenarioDashboardPage retains its bottom sheet", "reason": "Allows quick switching between goals while in the detailed view without going back to the main list" }
   ]
 }
