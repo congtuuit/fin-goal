@@ -76,9 +76,11 @@ class _FinancialReportDialogState extends ConsumerState<FinancialReportDialog> {
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surfaceElevatedDark,
         title: Text('Thanh toán nợ: $name', style: const TextStyle(fontSize: 16)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        content: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Bạn đang nợ: ${CurrencyFormatter.compact(totalOwed)}', style: const TextStyle(color: Colors.white70)),
             Text('Tiền mặt hiện có: ${CurrencyFormatter.compact(widget.gs.cashOnHand)}', style: const TextStyle(color: AppColors.success)),
@@ -92,6 +94,7 @@ class _FinancialReportDialogState extends ConsumerState<FinancialReportDialog> {
               ),
             ),
           ],
+        ),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Hủy')),
@@ -126,9 +129,11 @@ class _FinancialReportDialogState extends ConsumerState<FinancialReportDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  '📊 Báo Cáo Tài Chính',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                const Expanded(
+                  child: Text(
+                    '📊 Báo Cáo Tài Chính',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,

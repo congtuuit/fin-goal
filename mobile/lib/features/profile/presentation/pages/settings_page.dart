@@ -413,11 +413,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Widget _buildAiSettingsCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceElevatedDark,
-        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-      ),
+    return Material(
+      color: AppColors.surfaceElevatedDark,
+      borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
           // Provider Choice
@@ -513,11 +512,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Widget _buildDangerZone() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceElevatedDark,
-        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-      ),
+    return Material(
+      color: AppColors.surfaceElevatedDark,
+      borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+      clipBehavior: Clip.antiAlias,
       child: ListTile(
         leading: const Icon(Icons.logout_rounded, color: AppColors.danger),
         title:

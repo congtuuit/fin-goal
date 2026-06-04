@@ -16,6 +16,17 @@ subprojects {
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 subprojects {
+    if (project.name != "app") {
+        afterEvaluate {
+            val androidExt = project.extensions.findByName("android")
+            if (androidExt != null) {
+                try {
+                    val setCompileSdk = androidExt.javaClass.getMethod("setCompileSdkVersion", Int::class.java)
+                    setCompileSdk.invoke(androidExt, 36)
+                } catch (e: Exception) {}
+            }
+        }
+    }
     project.evaluationDependsOn(":app")
 }
 
