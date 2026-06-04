@@ -69,9 +69,10 @@ class _GoalSelectionPageState extends ConsumerState<GoalSelectionPage> {
           ),
           child: Form(
             key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
@@ -183,7 +184,7 @@ class _GoalSelectionPageState extends ConsumerState<GoalSelectionPage> {
                 const Gap(AppSizes.xl),
               ],
             ),
-          ),
+          )),
         );
       },
     );

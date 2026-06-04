@@ -140,7 +140,12 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
               children: [
                 Text(primaryGoal.emoji ?? '🎯'),
                 const Gap(AppSizes.sm),
-                Text(primaryGoal.name),
+                Flexible(
+                  child: Text(
+                    primaryGoal.name,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
                 const Gap(AppSizes.xs),
                 const Icon(Icons.arrow_drop_down),
               ],
@@ -198,16 +203,21 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
   void _showSwitchGoalSheet(BuildContext context, GoalsLoaded goalsState, bool isPremium) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: AppColors.surfaceElevatedDark,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl)),
       ),
       builder: (ctx) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Gap(AppSizes.md),
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Gap(AppSizes.md),
               Container(
                 width: 40,
                 height: 4,
@@ -257,7 +267,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
               const Gap(AppSizes.md),
             ],
           ),
-        );
+        ));
       },
     );
   }

@@ -242,7 +242,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     subtitle: 'Để ứng dụng nhắc nhở bạn cập nhật tình hình tiết kiệm.',
                     child: TextFormField(
                       controller: _salaryDateCtrl,
-                      focusNode: _focusNodes[4],
+                      focusNode: _focusNodes[3],
                       keyboardType: TextInputType.number,
                       style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                       decoration: const InputDecoration(
