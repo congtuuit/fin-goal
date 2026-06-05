@@ -1,36 +1,34 @@
 {
-  "updated_at": "2026-06-04T21:13:00Z",
+  "updated_at": "2026-06-05T11:34:00Z",
   "working_on": {
-    "feature": "Fast Track Balancing & App Branding",
-    "task": "Completed Fast Track rebalance, bug fixes, and generated App Store Marketing Kit",
+    "feature": "Ads Management",
+    "task": "Commented out all Ad-related code and disabled Google Mobile Ads",
     "status": "completed",
     "files": [
-      "lib/features/cashflow_game/engine/event_engine.dart",
-      "lib/features/cashflow_game/presentation/providers/game_provider.dart",
-      "lib/features/cashflow_game/presentation/pages/board_game_page.dart",
-      "android/app/src/main/res/values/strings.xml",
-      "ios/Runner/Info.plist",
-      "store_marketing_kit.md"
+      "mobile/pubspec.yaml",
+      "mobile/lib/main.dart",
+      "mobile/lib/core/services/ad_service.dart",
+      "mobile/lib/core/presentation/widgets/banner_ad_widget.dart",
+      "mobile/lib/features/scenarios/presentation/pages/monthly_checkin_page.dart",
+      "mobile/lib/features/cashflow_game/presentation/pages/board_game_page.dart",
+      "mobile/lib/features/goals/presentation/pages/goals_list_page.dart",
+      "disabled_ads_files.txt"
     ],
     "blockers": [],
-    "notes": "Fast track base income x20, starting cash x100. Old assets bundled into Trust Fund. Banner Ad hidden for premium users."
+    "notes": "Temporarily disabled AdMob to test the app without ads."
   },
   "pending_tasks": [
     { "task": "Integrate premium features properly", "priority": "medium", "notes": "Paywall and limits" },
     { "task": "Add deleting goals", "priority": "low", "notes": "Swipe to delete on GoalsListPage" },
-    { "task": "AI Coach Feature", "priority": "medium", "notes": "Implement AI Coach and integrate Rewarded Ads for extra chat tokens" }
+    { "task": "AI Coach Feature", "priority": "medium", "notes": "Implement AI Coach" }
   ],
   "recent_changes": [
-    { "timestamp": "2026-06-04T20:30:00Z", "type": "feature", "description": "Rebalanced Fast Track businesses (ROIs) and added massive risks (Crisis, Lawsuit)", "files": ["lib/features/cashflow_game/engine/event_engine.dart"] },
-    { "timestamp": "2026-06-04T20:45:00Z", "type": "feature", "description": "Modified Rat Race to Fast Track transition logic (Consolidate assets to Trust Fund, new multipliers)", "files": ["lib/features/cashflow_game/presentation/providers/game_provider.dart"] },
-    { "timestamp": "2026-06-04T20:55:00Z", "type": "bugfix", "description": "Fixed Banner Ad showing for premium users on BoardGamePage", "files": ["lib/features/cashflow_game/presentation/pages/board_game_page.dart"] },
-    { "timestamp": "2026-06-04T21:10:00Z", "type": "chore", "description": "Renamed App to Financial Goals in Android/iOS config and created Store Marketing Kit", "files": ["android/app/src/main/res/values/strings.xml", "ios/Runner/Info.plist"] }
+    { "timestamp": "2026-06-05T11:30:00Z", "type": "chore", "description": "Commented out all AdMob usages and removed google_mobile_ads dependency", "files": ["mobile/pubspec.yaml", "mobile/lib/main.dart", "mobile/lib/core/services/ad_service.dart", "mobile/lib/core/presentation/widgets/banner_ad_widget.dart"] },
+    { "timestamp": "2026-06-04T20:30:00Z", "type": "feature", "description": "Rebalanced Fast Track businesses (ROIs) and added massive risks (Crisis, Lawsuit)", "files": ["lib/features/cashflow_game/engine/event_engine.dart"] }
   ],
-  "errors_encountered": [
-    { "error": "Syntax error in board_game_page.dart missing )", "solution": "Added the missing closing parenthesis", "resolved": true }
-  ],
+  "errors_encountered": [],
   "decisions_made": [
-    { "decision": "Fast Track Logic", "reason": "Kept upfront cash at x100 for big deals, lowered monthly income to x20 to make game challenging. Rat Race assets are bundled into a Personal Trust Fund instead of being wiped." },
-    { "decision": "App Branding", "reason": "Chose 'Financial Goals' as display name. Full name on Store: 'Financial Goals - Kiến Tạo Tương Lai'." }
+    { "decision": "Disable Ads", "reason": "User requested to temporarily comment out all ad-related code. A list of modified files was created at disabled_ads_files.txt." },
+    { "decision": "Fast Track Logic", "reason": "Kept upfront cash at x100 for big deals, lowered monthly income to x20 to make game challenging. Rat Race assets are bundled into a Personal Trust Fund instead of being wiped." }
   ]
 }

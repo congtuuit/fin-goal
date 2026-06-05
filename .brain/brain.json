@@ -2,7 +2,7 @@
   "meta": { "schema_version": "1.1.0", "awf_version": "3.3.0" },
   "project": { "name": "Fin Goal", "type": "Flutter Mobile App", "status": "active" },
   "tech_stack": { 
-    "frontend": {"framework": "Flutter", "architecture": "Clean Architecture", "state_management": "Riverpod", "routing": "go_router", "ads": "google_mobile_ads"}, 
+    "frontend": {"framework": "Flutter", "architecture": "Clean Architecture", "state_management": "Riverpod", "routing": "go_router"}, 
     "backend": {"service": "Supabase"}, 
     "database": {"service": "Supabase PostgreSQL / Local SharedPreferences"} 
   },
@@ -15,7 +15,7 @@
     "Cashflow Board Game",
     "Premium Paywall",
     "Goals List Management",
-    "AdMob Integration (Banner, Interstitial, Rewarded)"
+    "AdMob Integration (Temporarily Disabled)"
   ],
   "knowledge_items": { 
     "patterns": ["Repository pattern with Riverpod", "Clean Architecture with Presentation/Domain/Data layers"], 
