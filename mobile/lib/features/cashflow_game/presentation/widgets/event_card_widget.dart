@@ -24,101 +24,116 @@ class EventCardWidget extends ConsumerWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: AppSizes.md),
         padding: const EdgeInsets.fromLTRB(
-            AppSizes.xl, AppSizes.md, AppSizes.xl, AppSizes.xl),
+            AppSizes.lg, AppSizes.md, AppSizes.lg, AppSizes.lg),
         decoration: BoxDecoration(
           color: AppColors.surfaceElevatedDark,
           borderRadius: const BorderRadius.vertical(
               top: Radius.circular(AppSizes.radiusXl)),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
           children: [
-            // Drag handle
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Drag handle
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const Gap(AppSizes.md),
-            // Scrollable content
-            Flexible(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Card title
-                    Text(
-                      card.title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ).animate().slideY(begin: 0.1).fadeIn(),
-
-                    const Gap(AppSizes.md),
-
-                    // Description
-                    Container(
-                      padding: const EdgeInsets.all(AppSizes.md),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                        border: Border.all(color: AppColors.borderDark),
-                      ),
-                      child: Text(
-                        card.description,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 13,
-                          height: 1.4,
+                const Gap(AppSizes.md),
+                
+                // Scrollable content
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Card title
+                        Padding(
+                          padding: const EdgeInsets.only(right: 80.0), // make room for button
+                          child: Text(
+                            card.title,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.left,
+                          ).animate().slideY(begin: 0.1).fadeIn(),
                         ),
-                      ),
-                    ).animate(delay: 100.ms).fadeIn(),
 
-                    const Gap(AppSizes.lg),
+                        const Gap(AppSizes.md),
 
-                    // Xem Báo Cáo Tài Chính
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        final state = ref.read(cashflowGameProvider);
-                        if (state is GameUiPlaying) {
-                          FinancialReportDialog.show(context, state.gameState);
-                        }
-                      },
-                      icon: const Text('📊'),
-                      label: const Text('Xem Báo Cáo Tài Chính'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: AppColors.borderDark),
-                        padding: const EdgeInsets.symmetric(vertical: AppSizes.md),
-                      ),
-                    ).animate(delay: 150.ms).fadeIn(),
-
-                    const Gap(AppSizes.md),
-
-                    // Choices
-                    ...card.choices.asMap().entries.map((e) {
-                      final idx = e.key;
-                      final choice = e.value;
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: AppSizes.md),
-                        child: _ChoiceButton(choice: choice, isPrimary: idx == 0),
-                      )
-                          .animate(
-                              delay: Duration(milliseconds: 150 + idx * 80))
-                          .fadeIn()
-                          .slideY(begin: 0.05);
-                    }),
-                  ],
+                        // Description
+                        Container(
+                          padding: const EdgeInsets.all(AppSizes.md),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                            border: Border.all(color: AppColors.borderDark),
+                          ),
+                          child: Text(
+                            card.description,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                              height: 1.4,
+                            ),
+                          ),
+                        ).animate(delay: 100.ms).fadeIn(),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                
+                const Gap(AppSizes.lg),
+
+                // Pinned Choices at bottom
+                ...card.choices.asMap().entries.map((e) {
+                  final idx = e.key;
+                  final choice = e.value;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: AppSizes.md),
+                    child: _ChoiceButton(choice: choice, isPrimary: idx == 0),
+                  )
+                      .animate(
+                          delay: Duration(milliseconds: 150 + idx * 80))
+                      .fadeIn()
+                      .slideY(begin: 0.05);
+                }),
+              ],
+            ),
+
+            // Pinned Xem báo cáo button at top right
+            Positioned(
+              top: 0,
+              right: 0,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  final state = ref.read(cashflowGameProvider);
+                  if (state is GameUiPlaying) {
+                    FinancialReportDialog.show(context, state.gameState);
+                  }
+                },
+                icon: const Text('📊', style: TextStyle(fontSize: 12)),
+                label: const Text('Báo cáo'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  side: const BorderSide(color: AppColors.borderDark),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 2, horizontal: 8),
+                  minimumSize: const Size(0, 28),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  textStyle: const TextStyle(fontSize: 11),
+                ),
+              ).animate(delay: 150.ms).fadeIn(),
             ),
           ],
         ),
