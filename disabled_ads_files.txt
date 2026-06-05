@@ -1,0 +1,7 @@
+mobile/pubspec.yaml
+mobile/lib/main.dart
+mobile/lib/core/services/ad_service.dart
+mobile/lib/core/presentation/widgets/banner_ad_widget.dart
+mobile/lib/features/scenarios/presentation/pages/monthly_checkin_page.dart
+mobile/lib/features/cashflow_game/presentation/pages/board_game_page.dart
+mobile/lib/features/goals/presentation/pages/goals_list_page.dart

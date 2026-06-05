@@ -21,8 +21,8 @@ import 'package:fin_goal/features/cashflow_game/presentation/pages/occupation_se
 import 'package:fin_goal/features/cashflow_game/engine/board_engine.dart';
 import 'package:fin_goal/core/utils/audio_player_manager.dart';
 import 'package:fin_goal/features/cashflow_game/presentation/providers/audio_provider.dart';
-import 'package:fin_goal/core/presentation/widgets/banner_ad_widget.dart';
-import 'package:fin_goal/core/services/ad_service.dart';
+// import 'package:fin_goal/core/presentation/widgets/banner_ad_widget.dart';
+// import 'package:fin_goal/core/services/ad_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
@@ -222,7 +222,7 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
             ),
           ),
         ),
-        if (!ref.watch(isPremiumUserProvider)) const BannerAdWidget(),
+        // if (!ref.watch(isPremiumUserProvider)) const BannerAdWidget(),
       ],
     );
   }
@@ -297,23 +297,23 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
             ],
           ),
 
-          if (!ref.watch(isPremiumUserProvider)) ...[
-            const Gap(AppSizes.md),
-            _CooldownRewardedAdButton(
-              lastWatchedTime: state is GameUiPlaying ? state.lastAdWatchedTime : null,
-              onWatch: () {
-                AdService.showRewardedAd(context, () {
-                  ref.read(cashflowGameProvider.notifier).addCash(500000);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Đã nhận 500K từ nhà tài trợ!'),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
-                });
-              },
-            ),
-          ],
+          // if (!ref.watch(isPremiumUserProvider)) ...[
+          //   const Gap(AppSizes.md),
+          //   _CooldownRewardedAdButton(
+          //     lastWatchedTime: state is GameUiPlaying ? state.lastAdWatchedTime : null,
+          //     onWatch: () {
+          //       AdService.showRewardedAd(context, () {
+          //         ref.read(cashflowGameProvider.notifier).addCash(500000);
+          //         ScaffoldMessenger.of(context).showSnackBar(
+          //           const SnackBar(
+          //             content: Text('Đã nhận 500K từ nhà tài trợ!'),
+          //             backgroundColor: AppColors.success,
+          //           ),
+          //         );
+          //       });
+          //     },
+          //   ),
+          // ],
 
           const Gap(AppSizes.md),
 
@@ -562,13 +562,14 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.amber.shade900),
             onPressed: () {
               Navigator.pop(context);
-              if (!ref.read(isPremiumUserProvider)) {
-                AdService.showInterstitialAd(onAdClosed: () {
-                  ref.read(cashflowGameProvider.notifier).resetGame();
-                });
-              } else {
-                ref.read(cashflowGameProvider.notifier).resetGame();
-              }
+              // if (!ref.read(isPremiumUserProvider)) {
+              //   AdService.showInterstitialAd(onAdClosed: () {
+              //     ref.read(cashflowGameProvider.notifier).resetGame();
+              //   });
+              // } else {
+              //   ref.read(cashflowGameProvider.notifier).resetGame();
+              // }
+              ref.read(cashflowGameProvider.notifier).resetGame();
             },
             child: const Text('Chơi Lại Từ Đầu', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
@@ -594,13 +595,14 @@ class _BoardGamePageState extends ConsumerState<BoardGamePage> {
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () {
               Navigator.pop(context);
-              if (!ref.read(isPremiumUserProvider)) {
-                AdService.showInterstitialAd(onAdClosed: () {
-                  ref.read(cashflowGameProvider.notifier).resetGame();
-                });
-              } else {
-                ref.read(cashflowGameProvider.notifier).resetGame();
-              }
+              // if (!ref.read(isPremiumUserProvider)) {
+              //   AdService.showInterstitialAd(onAdClosed: () {
+              //     ref.read(cashflowGameProvider.notifier).resetGame();
+              //   });
+              // } else {
+              //   ref.read(cashflowGameProvider.notifier).resetGame();
+              // }
+              ref.read(cashflowGameProvider.notifier).resetGame();
             },
             child: const Text('Thử Lại'),
           ),

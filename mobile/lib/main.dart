@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fin_goal/app/app.dart';
 import 'package:fin_goal/app/di/injection.dart';
 import 'package:fin_goal/core/constants/app_config.dart';
-import 'package:fin_goal/core/services/ad_service.dart';
+// import 'package:fin_goal/core/services/ad_service.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 Future<void> main() async {
@@ -25,7 +25,7 @@ Future<void> bootstrap(AppFlavor flavor) async {
   );
 
   // AdMob
-  await AdService.initialize();
+  // await AdService.initialize();
 
   // Dependency Injection
   await configureDependencies(flavor);
