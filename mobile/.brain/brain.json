@@ -1,0 +1,14 @@
+{
+  "meta": { "schema_version": "1.1.0", "awf_version": "3.3.0" },
+  "project": { "name": "fin-goal", "type": "flutter", "status": "active" },
+  "tech_stack": { "frontend": {"framework": "Flutter", "state_management": "Riverpod"}, "backend": {"service": "Supabase"} },
+  "features": [
+    "Goal Management (Free: 2 goals, Premium: 4 goals, Max: 10 via purchase)",
+    "Scenario Engine & Cashflow Game",
+    "Cashflow Game Event Cards"
+  ],
+  "knowledge_items": { 
+    "patterns": ["Riverpod provider architecture for goals", "Dialogs for editing inline"], 
+    "conventions": ["Use CurrencyFormatter for money display", "Compact UI for widgets"]
+  }
+}

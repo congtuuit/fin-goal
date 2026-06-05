@@ -1,0 +1,42 @@
+{
+  "updated_at": "2026-06-05T23:22:00Z",
+  "working_on": {
+    "feature": "Cashflow Game & Goal Details",
+    "task": "Completed UI Refactoring",
+    "status": "completed",
+    "files": ["lib/features/cashflow_game/presentation/widgets/event_card_widget.dart", "lib/features/scenarios/presentation/pages/scenario_dashboard_page.dart"],
+    "blockers": [],
+    "notes": "Done fixing UI scroll and dialog issues."
+  },
+  "recent_changes": [
+    {
+      "timestamp": "2026-06-05",
+      "type": "feature",
+      "description": "Moved Goal Edit logic to ScenarioDashboardPage via a dialog",
+      "files": ["lib/features/scenarios/presentation/pages/scenario_dashboard_page.dart", "lib/features/goals/presentation/pages/goals_list_page.dart", "lib/app/router/app_router.dart"]
+    },
+    {
+      "timestamp": "2026-06-05",
+      "type": "ui",
+      "description": "Redesigned Cashflow Game EventCardWidget: pinned choices to bottom, pinned Xem Bao Cao to top-right, aligned title left.",
+      "files": ["lib/features/cashflow_game/presentation/widgets/event_card_widget.dart"]
+    }
+  ],
+  "errors_encountered": [
+    {
+      "error": "CurrencyFormatter.formatVND was removed",
+      "solution": "Replaced with CurrencyFormatter.format",
+      "resolved": true
+    }
+  ],
+  "decisions_made": [
+    {
+      "decision": "Use inline Edit Dialog instead of separate Detail Page for Goal Editing",
+      "reason": "Simpler UX, directly from Scenario Dashboard."
+    },
+    {
+      "decision": "Pin EventCard choices to bottom",
+      "reason": "Ensures players always see their options without having to scroll."
+    }
+  ]
+}
