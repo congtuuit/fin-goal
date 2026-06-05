@@ -1,3 +1,4 @@
+import 'package:fin_goal/features/goals/domain/entities/goal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -27,8 +28,157 @@ class ScenarioDashboardPage extends ConsumerStatefulWidget {
 class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
   final _engine = const ScenarioEngine();
 
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _nameController;
+  late TextEditingController _targetAmountController;
+  late TextEditingController _currentSavingsController;
+  late TextEditingController _monthlySavingController;
+
   // Local state for the slider
   int? _customMonthlySaving;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _targetAmountController = TextEditingController();
+    _currentSavingsController = TextEditingController();
+    _monthlySavingController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _targetAmountController.dispose();
+    _currentSavingsController.dispose();
+    _monthlySavingController.dispose();
+    super.dispose();
+  }
+
+  void _showEditDialog(Goal goal) {
+    _nameController.text = goal.name;
+    _targetAmountController.text = goal.targetAmount.toString();
+    _currentSavingsController.text = goal.currentSavings.toString();
+    _monthlySavingController.text = goal.monthlySaving.toString();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Chỉnh sửa mục tiêu'),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Tên mục tiêu',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty)
+                        return 'Vui lòng nhập tên';
+                      return null;
+                    },
+                  ),
+                  const Gap(AppSizes.md),
+                  TextFormField(
+                    controller: _targetAmountController,
+                    decoration: const InputDecoration(
+                      labelText: 'Số tiền mục tiêu (VND)',
+                      prefixText: '₫ ',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty)
+                        return 'Vui lòng nhập số tiền';
+                      if (int.tryParse(value) == null) return 'Số không hợp lệ';
+                      return null;
+                    },
+                  ),
+                  const Gap(AppSizes.md),
+                  TextFormField(
+                    controller: _currentSavingsController,
+                    decoration: const InputDecoration(
+                      labelText: 'Số tiền đã có (VND)',
+                      prefixText: '₫ ',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty)
+                        return 'Vui lòng nhập số tiền';
+                      if (int.tryParse(value) == null) return 'Số không hợp lệ';
+                      return null;
+                    },
+                  ),
+                  const Gap(AppSizes.md),
+                  TextFormField(
+                    controller: _monthlySavingController,
+                    decoration: const InputDecoration(
+                      labelText: 'Mức tiết kiệm (VND/tháng)',
+                      prefixText: '₫ ',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty)
+                        return 'Vui lòng nhập số tiền';
+                      if (int.tryParse(value) == null) return 'Số không hợp lệ';
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  final updatedGoal = goal.copyWith(
+                    name: _nameController.text.trim(),
+                    targetAmount:
+                        int.parse(_targetAmountController.text.trim()),
+                    currentSavings:
+                        int.parse(_currentSavingsController.text.trim()),
+                    monthlySaving:
+                        int.parse(_monthlySavingController.text.trim()),
+                    updatedAt: DateTime.now(),
+                  );
+                  ref.read(goalsProvider.notifier).updateGoal(updatedGoal);
+
+                  // Reset custom saving if it was set
+                  if (_customMonthlySaving != null) {
+                    setState(() {
+                      _customMonthlySaving = null;
+                    });
+                  }
+
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Đã cập nhật mục tiêu thành công!'),
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Lưu'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,8 +260,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
         );
 
     // 5. Calculate scenario
-    final monthlySaving =
-        _customMonthlySaving ?? primaryGoal.monthlySaving;
+    final monthlySaving = _customMonthlySaving ?? primaryGoal.monthlySaving;
 
     final input = ScenarioInput(
       currentSavings: primaryGoal.currentSavings,
@@ -174,6 +323,10 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
                           fontWeight: FontWeight.bold))),
             ),
           IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () => _showEditDialog(primaryGoal),
+          ),
+          IconButton(
             icon: const Icon(Icons.person_outline),
             onPressed: () {
               context.push(AppRoutes.profile);
@@ -202,76 +355,94 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
     );
   }
 
-
-
-  void _showSwitchGoalSheet(BuildContext context, GoalsLoaded goalsState, bool isPremium) {
+  void _showSwitchGoalSheet(
+      BuildContext context, GoalsLoaded goalsState, bool isPremium) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.surfaceElevatedDark,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl)),
       ),
       builder: (ctx) {
         return ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.85,
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Gap(AppSizes.md),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const Gap(AppSizes.lg),
-              Text('Mục tiêu của bạn', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-              const Gap(AppSizes.md),
-              Flexible(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: goalsState.goals.length,
-                  itemBuilder: (context, index) {
-                    final goal = goalsState.goals[index];
-                    final isCurrent = goal.id == goalsState.primaryGoal?.id;
-                    return ListTile(
-                      leading: Text(goal.emoji ?? '🎯', style: const TextStyle(fontSize: 24)),
-                      title: Text(goal.name, style: TextStyle(fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal)),
-                      trailing: isCurrent ? const Icon(Icons.check_circle, color: AppColors.primary) : null,
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        if (!isCurrent) {
-                          ref.read(goalsProvider.notifier).setPrimaryGoal(goal.id);
-                        }
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.85,
+            ),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Gap(AppSizes.md),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const Gap(AppSizes.lg),
+                  Text('Mục tiêu của bạn',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  const Gap(AppSizes.md),
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: goalsState.goals.length,
+                      itemBuilder: (context, index) {
+                        final goal = goalsState.goals[index];
+                        final isCurrent = goal.id == goalsState.primaryGoal?.id;
+                        return ListTile(
+                          leading: Text(goal.emoji ?? '🎯',
+                              style: const TextStyle(fontSize: 24)),
+                          title: Text(goal.name,
+                              style: TextStyle(
+                                  fontWeight: isCurrent
+                                      ? FontWeight.bold
+                                      : FontWeight.normal)),
+                          trailing: isCurrent
+                              ? const Icon(Icons.check_circle,
+                                  color: AppColors.primary)
+                              : null,
+                          onTap: () {
+                            Navigator.pop(ctx);
+                            if (!isCurrent) {
+                              ref
+                                  .read(goalsProvider.notifier)
+                                  .setPrimaryGoal(goal.id);
+                            }
+                          },
+                        );
                       },
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                  const Divider(color: AppColors.borderDark),
+                  ListTile(
+                    leading: const Icon(Icons.add_circle_outline,
+                        color: AppColors.primary, size: 28),
+                    title: const Text('Tạo mục tiêu mới',
+                        style: TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold)),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      if (!isPremium && goalsState.goals.isNotEmpty) {
+                        // Limit free users to 1 goal
+                        context.push('/home/paywall');
+                      } else {
+                        context.push('/home/goal-selection');
+                      }
+                    },
+                  ),
+                  const Gap(AppSizes.md),
+                ],
               ),
-              const Divider(color: AppColors.borderDark),
-              ListTile(
-                leading: const Icon(Icons.add_circle_outline, color: AppColors.primary, size: 28),
-                title: const Text('Tạo mục tiêu mới', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  if (!isPremium && goalsState.goals.isNotEmpty) {
-                    // Limit free users to 1 goal
-                    context.push('/home/paywall');
-                  } else {
-                    context.push('/home/goal-selection');
-                  }
-                },
-              ),
-              const Gap(AppSizes.md),
-            ],
-          ),
-        ));
+            ));
       },
     );
   }

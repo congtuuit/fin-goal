@@ -15,6 +15,8 @@ class GoalModel {
   final String? emoji;
   final bool isActive;
   final bool isPrimary;
+  final bool isPinned;
+  final String status;
   final int sortOrder;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -30,6 +32,8 @@ class GoalModel {
     this.emoji,
     this.isActive = true,
     this.isPrimary = false,
+    this.isPinned = false,
+    this.status = 'active',
     this.sortOrder = 0,
     this.createdAt,
     this.updatedAt,
@@ -63,6 +67,8 @@ class GoalModel {
       emoji: entity.emoji,
       isActive: entity.isActive,
       isPrimary: entity.isPrimary,
+      isPinned: entity.isPinned,
+      status: entity.status,
       sortOrder: entity.sortOrder,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
@@ -84,6 +90,8 @@ class GoalModel {
       emoji: emoji,
       isActive: isActive,
       isPrimary: isPrimary,
+      isPinned: isPinned,
+      status: status,
       sortOrder: sortOrder,
       createdAt: createdAt ?? DateTime.now(),
       updatedAt: updatedAt ?? DateTime.now(),

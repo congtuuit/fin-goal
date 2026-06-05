@@ -8,11 +8,21 @@ import 'package:fin_goal/core/constants/app_colors.dart';
 import 'package:fin_goal/core/constants/app_sizes.dart';
 import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
 
+import 'package:fin_goal/features/goals/presentation/providers/goal_provider.dart';
+
 class PaywallPage extends ConsumerWidget {
   const PaywallPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final goalsState = ref.watch(goalsProvider);
+    int currentActive = 0;
+    if (goalsState is GoalsLoaded) {
+      currentActive = goalsState.goals.where((g) => g.status != 'archived').length;
+    }
+    final singleSlotPrice = ref.watch(getGoalSlotPriceProvider(currentActive));
+    final singlePriceStr = '${singleSlotPrice ~/ 1000}.000₫';
+
     return Scaffold(
       body: Stack(
         children: [
@@ -73,6 +83,7 @@ class PaywallPage extends ConsumerWidget {
                             context, 'AI phân tích chuyên sâu mỗi tháng'),
                         _buildFeatureRow(
                             context, 'Tạo nhiều mục tiêu cùng lúc'),
+                        _buildFeatureRow(context, 'Tắt toàn bộ quảng cáo'),
                         _buildFeatureRow(context, 'Hỗ trợ ưu tiên 24/7'),
 
                         const Gap(AppSizes.xxl),
@@ -80,22 +91,33 @@ class PaywallPage extends ConsumerWidget {
                         // Pricing Cards
                         _buildPricingCard(
                           context,
-                          title: 'Gói Năm',
-                          price: '599.000₫',
-                          subtitle: 'Giảm 50% • chỉ 49.000₫ / tháng',
-                          isPopular: true,
-                          onTap: () => _purchase(context, 'Gói Năm', '599.000₫'),
+                          title: 'Mua thêm 1 Mục tiêu',
+                          price: singlePriceStr,
+                          subtitle: 'Thời hạn 1 năm',
+                          isPopular: false,
+                          onTap: () => _purchase(context, 'Mục tiêu lẻ', singlePriceStr),
+                        ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1),
+
+                        const Gap(AppSizes.md),
+
+                        _buildPricingCard(
+                          context,
+                          title: 'Premium (Gói 6 Tháng)',
+                          price: '199.000₫',
+                          subtitle: 'Mở khóa mọi tính năng',
+                          isPopular: false,
+                          onTap: () => _purchase(context, 'Premium 6 Tháng', '199.000₫'),
                         ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
 
                         const Gap(AppSizes.md),
 
                         _buildPricingCard(
                           context,
-                          title: 'Gói Tháng',
-                          price: '99.000₫',
-                          subtitle: 'thanh toán mỗi tháng',
-                          isPopular: false,
-                          onTap: () => _purchase(context, 'Gói Tháng', '99.000₫'),
+                          title: 'Premium (Gói 1 Năm)',
+                          price: '399.000₫',
+                          subtitle: 'Tiết kiệm nhất',
+                          isPopular: true,
+                          onTap: () => _purchase(context, 'Premium 1 Năm', '399.000₫'),
                         ).animate().fadeIn(delay: 700.ms).slideY(begin: 0.1),
                       ],
                     ),

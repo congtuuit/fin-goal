@@ -7,6 +7,7 @@ import 'package:gap/gap.dart';
 import 'package:fin_goal/core/constants/app_colors.dart';
 import 'package:fin_goal/core/constants/app_sizes.dart';
 import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
+import 'package:fin_goal/features/profile/presentation/providers/profile_provider.dart';
 
 class PaymentPage extends ConsumerStatefulWidget {
   final String title;
@@ -33,14 +34,32 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
     
     if (!mounted) return;
     
-    ref.read(subscriptionProvider.notifier).upgradeToPremium();
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Thanh toán thành công! Tài khoản đã lên Premium.'),
-        backgroundColor: AppColors.success,
-      ),
-    );
+    if (widget.title == 'Mục tiêu lẻ') {
+      final profileState = ref.read(profileProvider);
+      if (profileState is ProfileLoaded && profileState.profile != null) {
+        final currentSlots = List<DateTime>.from(profileState.profile!.purchasedGoalSlots);
+        currentSlots.add(DateTime.now().add(const Duration(days: 365)));
+        final updatedProfile = profileState.profile!.copyWith(purchasedGoalSlots: currentSlots);
+        await ref.read(profileProvider.notifier).updateProfile(updatedProfile);
+        
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Thanh toán thành công! Bạn đã có thêm 1 mục tiêu.'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    } else {
+      ref.read(subscriptionProvider.notifier).upgradeToPremium();
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Thanh toán thành công! Tài khoản đã lên Premium.'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
     
     // Đóng trang Payment và trang Paywall để về Dashboard
     context.go('/home');

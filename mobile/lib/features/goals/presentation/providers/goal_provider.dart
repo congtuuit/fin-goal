@@ -122,4 +122,22 @@ class GoalsNotifier extends _$GoalsNotifier {
       },
     );
   }
+
+  Future<Failure?> deleteGoal(String goalId) async {
+    final oldState = state;
+    
+    final result = await ref.read(goalRepositoryProvider).deleteGoal(goalId);
+    return result.fold(
+      (failure) {
+        return failure;
+      },
+      (_) {
+        if (oldState is GoalsLoaded) {
+          final updatedGoals = oldState.goals.where((g) => g.id != goalId).toList();
+          state = GoalsLoaded(updatedGoals);
+        }
+        return null;
+      },
+    );
+  }
 }

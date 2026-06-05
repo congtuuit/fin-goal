@@ -11,6 +11,7 @@ import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart
 import 'package:fin_goal/features/goals/domain/entities/goal.dart';
 import 'package:fin_goal/features/goals/presentation/providers/goal_provider.dart';
 import 'package:fin_goal/features/profile/presentation/providers/profile_provider.dart';
+import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
 
 class GoalSelectionPage extends ConsumerStatefulWidget {
   const GoalSelectionPage({super.key});
@@ -34,6 +35,18 @@ class _GoalSelectionPageState extends ConsumerState<GoalSelectionPage> {
   ];
 
   void _onSelectPreset(_GoalPreset preset) {
+    final goalsState = ref.read(goalsProvider);
+    int currentActive = 0;
+    if (goalsState is GoalsLoaded) {
+      currentActive = goalsState.goals.where((g) => g.status != 'archived').length;
+    }
+    
+    final canCreate = ref.read(canCreateNewGoalProvider(currentActive));
+    if (!canCreate) {
+      context.push('/home/paywall');
+      return;
+    }
+
     setState(() => _selectedType = preset.type);
     _showGoalConfigSheet(preset);
   }

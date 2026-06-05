@@ -23,6 +23,8 @@ class Goal extends Equatable {
   final String? emoji;
   final bool isActive;
   final bool isPrimary;
+  final bool isPinned;
+  final String status;
   final int sortOrder;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -38,6 +40,8 @@ class Goal extends Equatable {
     this.emoji,
     this.isActive = true,
     this.isPrimary = false,
+    this.isPinned = false,
+    this.status = 'active',
     this.sortOrder = 0,
     required this.createdAt,
     required this.updatedAt,
@@ -54,6 +58,8 @@ class Goal extends Equatable {
     String? emoji,
     bool? isActive,
     bool? isPrimary,
+    bool? isPinned,
+    String? status,
     int? sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -69,6 +75,8 @@ class Goal extends Equatable {
       emoji: emoji ?? this.emoji,
       isActive: isActive ?? this.isActive,
       isPrimary: isPrimary ?? this.isPrimary,
+      isPinned: isPinned ?? this.isPinned,
+      status: status ?? this.status,
       sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -87,6 +95,8 @@ class Goal extends Equatable {
         emoji,
         isActive,
         isPrimary,
+        isPinned,
+        status,
         sortOrder,
         createdAt,
         updatedAt,

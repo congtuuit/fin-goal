@@ -10,6 +10,7 @@ class FinancialProfileModel {
   final int monthlyIncome;
   final int fixedExpenses;
   final int salaryDate;
+  final List<DateTime> purchasedGoalSlots;
 
   const FinancialProfileModel({
     required this.userId,
@@ -17,6 +18,7 @@ class FinancialProfileModel {
     required this.monthlyIncome,
     required this.fixedExpenses,
     required this.salaryDate,
+    this.purchasedGoalSlots = const [],
   });
 
   factory FinancialProfileModel.fromJson(Map<String, dynamic> json) => 
@@ -31,6 +33,7 @@ class FinancialProfileModel {
       monthlyIncome: entity.monthlyIncome,
       fixedExpenses: entity.fixedExpenses,
       salaryDate: entity.salaryDate,
+      purchasedGoalSlots: entity.purchasedGoalSlots,
     );
   }
 
@@ -41,6 +44,7 @@ class FinancialProfileModel {
       monthlyIncome: monthlyIncome,
       fixedExpenses: fixedExpenses,
       salaryDate: salaryDate,
+      purchasedGoalSlots: purchasedGoalSlots,
     );
   }
 }

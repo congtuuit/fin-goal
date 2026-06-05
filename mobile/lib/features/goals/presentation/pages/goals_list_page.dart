@@ -11,6 +11,7 @@ import 'package:fin_goal/core/utils/currency_formatter.dart';
 import 'package:fin_goal/features/goals/domain/entities/goal.dart';
 import 'package:fin_goal/features/goals/presentation/providers/goal_provider.dart';
 import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
+import 'package:fin_goal/features/profile/presentation/providers/profile_provider.dart';
 // import 'package:fin_goal/core/presentation/widgets/banner_ad_widget.dart';
 
 class GoalsListPage extends ConsumerWidget {
@@ -20,6 +21,19 @@ class GoalsListPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final goalsState = ref.watch(goalsProvider);
     final isPremium = ref.watch(isPremiumUserProvider);
+    final profileState = ref.watch(profileProvider);
+    
+    int currentActive = 0;
+    if (goalsState is GoalsLoaded) {
+      currentActive = goalsState.goals.where((g) => g.status != 'archived').length;
+    }
+
+    List<DateTime> purchasedSlots = [];
+    if (profileState is ProfileLoaded && profileState.profile != null) {
+      purchasedSlots = profileState.profile!.purchasedGoalSlots
+          .where((expiry) => expiry.isAfter(DateTime.now()))
+          .toList();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -59,11 +73,12 @@ class GoalsListPage extends ConsumerWidget {
           : goalsState is GoalsError
               ? Center(child: Text('Lỗi: ${goalsState.message}'))
               : _buildGoalsList(
-                  context, ref, (goalsState as GoalsLoaded).goals, isPremium),
-      floatingActionButton: FloatingActionButton(
+                  context, ref, (goalsState as GoalsLoaded).goals, isPremium, ref.watch(totalAllowedGoalsProvider), purchasedSlots),
+      floatingActionButton: currentActive >= 10 ? null : FloatingActionButton(
         onPressed: () {
-          if (!isPremium &&
-              (goalsState is GoalsLoaded && goalsState.goals.isNotEmpty)) {
+          final canCreate = ref.read(canCreateNewGoalProvider(currentActive));
+          
+          if (!canCreate) {
             context.push('/home/paywall');
           } else {
             context.push('/home/goal-selection');
@@ -75,7 +90,14 @@ class GoalsListPage extends ConsumerWidget {
   }
 
   Widget _buildGoalsList(
-      BuildContext context, WidgetRef ref, List<Goal> goals, bool isPremium) {
+      BuildContext context, WidgetRef ref, List<Goal> rawGoals, bool isPremium, int totalAllowed, List<DateTime> purchasedSlots) {
+    final goals = rawGoals.where((g) => g.status != 'archived').toList();
+    goals.sort((a, b) {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return b.updatedAt.compareTo(a.updatedAt);
+    });
+
     if (goals.isEmpty) {
       return Center(
         child: Column(
@@ -87,6 +109,22 @@ class GoalsListPage extends ConsumerWidget {
             ),
             const Gap(AppSizes.md),
             const Text('Hãy tạo một mục tiêu để bắt đầu.'),
+            const Gap(AppSizes.xl),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceElevatedDark,
+                borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                border: Border.all(color: AppColors.borderDark),
+              ),
+              child: Text(
+                '0 / $totalAllowed mục tiêu khả dụng',
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ],
         ),
       );
@@ -99,18 +137,76 @@ class GoalsListPage extends ConsumerWidget {
         top: AppSizes.lg,
         bottom: 100, // For FAB
       ),
-      itemCount: goals.length,
+      itemCount: goals.length + 1,
       itemBuilder: (context, index) {
-        final goal = goals[index];
-        return _buildGoalCard(context, ref, goal)
-            .animate()
-            .fadeIn(delay: Duration(milliseconds: 100 * index))
-            .slideY(begin: 0.1);
+        if (index == 0) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: AppSizes.lg),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Danh sách mục tiêu',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceElevatedDark,
+                    borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                    border: Border.all(color: AppColors.borderDark),
+                  ),
+                  child: Text(
+                    '${goals.length} / $totalAllowed',
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        
+        final goal = goals[index - 1];
+        
+        DateTime? expiryDate;
+        int baseLimit = isPremium ? 4 : 2;
+        int slotIndex = (index - 1) - baseLimit;
+        if (slotIndex >= 0 && slotIndex < purchasedSlots.length) {
+          expiryDate = purchasedSlots[slotIndex];
+        }
+        
+        return Dismissible(
+          key: Key(goal.id),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            color: AppColors.danger,
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.only(right: 20),
+            child: const Icon(Icons.delete, color: Colors.white),
+          ),
+          onDismissed: (direction) {
+            // currentSavings > 0 is used as proxy for "has check-ins"
+            if (goal.currentSavings > 0) {
+              ref.read(goalsProvider.notifier).updateGoal(goal.copyWith(status: 'archived'));
+            } else {
+              ref.read(goalsProvider.notifier).deleteGoal(goal.id);
+            }
+          },
+          child: _buildGoalCard(context, ref, goal, expiryDate)
+              .animate()
+              .fadeIn(delay: Duration(milliseconds: 100 * index))
+              .slideY(begin: 0.1),
+        );
       },
     );
   }
 
-  Widget _buildGoalCard(BuildContext context, WidgetRef ref, Goal goal) {
+  Widget _buildGoalCard(BuildContext context, WidgetRef ref, Goal goal, DateTime? expiryDate) {
     final progress = goal.targetAmount > 0
         ? (goal.currentSavings / goal.targetAmount).clamp(0.0, 1.0)
         : 0.0;
@@ -188,30 +284,48 @@ class GoalsListPage extends ConsumerWidget {
                           ),
                           const Gap(AppSizes.md),
                           Expanded(
-                            child: Text(
-                              goal.name,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  goal.name,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                if (expiryDate != null) ...[
+                                  const Gap(4),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      'Hết hạn: ${expiryDate.day.toString().padLeft(2, '0')}/${expiryDate.month.toString().padLeft(2, '0')}/${expiryDate.year}',
+                                      style: const TextStyle(fontSize: 10, color: AppColors.primary),
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
-                          if (goal.isPrimary)
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color:
-                                    AppColors.primary.withValues(alpha: 0.15),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.star_rounded,
-                                color: AppColors.primary,
-                                size: 20,
-                              ),
+                          // Removed isPrimary star as requested to avoid duplicate stars
+                          IconButton(
+                            icon: Icon(
+                              goal.isPinned ? Icons.star_rounded : Icons.star_outline_rounded,
+                              color: goal.isPinned ? AppColors.primary : AppColors.textMuted,
+                              size: 20,
                             ),
+                            onPressed: () {
+                              ref.read(goalsProvider.notifier).updateGoal(
+                                goal.copyWith(isPinned: !goal.isPinned),
+                              );
+                            },
+                          ),
                         ],
                       ),
                       const Gap(AppSizes.sm),

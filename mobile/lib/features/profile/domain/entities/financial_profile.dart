@@ -16,12 +16,16 @@ class FinancialProfile extends Equatable {
   /// Day of month salary is received (1-31)
   final int salaryDate;
 
+  /// Expiry dates of purchased extra goal slots
+  final List<DateTime> purchasedGoalSlots;
+
   const FinancialProfile({
     required this.userId,
     required this.age,
     required this.monthlyIncome,
     required this.fixedExpenses,
     required this.salaryDate,
+    this.purchasedGoalSlots = const [],
   });
 
   /// Disposable income after fixed expenses (how much CAN be saved/spent)
@@ -42,6 +46,7 @@ class FinancialProfile extends Equatable {
     int? monthlyIncome,
     int? fixedExpenses,
     int? salaryDate,
+    List<DateTime>? purchasedGoalSlots,
   }) {
     return FinancialProfile(
       userId: userId ?? this.userId,
@@ -49,9 +54,10 @@ class FinancialProfile extends Equatable {
       monthlyIncome: monthlyIncome ?? this.monthlyIncome,
       fixedExpenses: fixedExpenses ?? this.fixedExpenses,
       salaryDate: salaryDate ?? this.salaryDate,
+      purchasedGoalSlots: purchasedGoalSlots ?? this.purchasedGoalSlots,
     );
   }
 
   @override
-  List<Object?> get props => [userId, age, monthlyIncome, fixedExpenses, salaryDate];
+  List<Object?> get props => [userId, age, monthlyIncome, fixedExpenses, salaryDate, purchasedGoalSlots];
 }
