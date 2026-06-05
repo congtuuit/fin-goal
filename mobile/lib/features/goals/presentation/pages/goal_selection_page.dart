@@ -69,6 +69,7 @@ class _GoalSelectionPageState extends ConsumerState<GoalSelectionPage> {
           ),
           child: Form(
             key: formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,

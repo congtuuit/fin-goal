@@ -264,9 +264,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   // Step 3: Expenses
                   _buildFormStep(
                     index: 3,
-                    title: 'Chỉ số Sinh Tồn',
+                    title: 'Chi Phí Sinh Hoạt',
                     subtitle:
-                        'Để tồn tại mỗi tháng, nhân vật cần tiêu thụ bao nhiêu tài nguyên?',
+                        'Mỗi tháng bạn cần chi tiêu tối thiểu bao nhiêu để duy trì cuộc sống?',
                     child: _buildCurrencyInput(
                       _expenseCtrl,
                       '10.000.000',

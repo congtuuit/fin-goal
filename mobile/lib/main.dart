@@ -7,6 +7,7 @@ import 'package:fin_goal/app/app.dart';
 import 'package:fin_goal/app/di/injection.dart';
 import 'package:fin_goal/core/constants/app_config.dart';
 import 'package:fin_goal/core/services/ad_service.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 Future<void> main() async {
   await bootstrap(AppFlavor.production);
@@ -14,7 +15,8 @@ Future<void> main() async {
 
 /// Public bootstrap — reused by main_dev.dart and main_staging.dart
 Future<void> bootstrap(AppFlavor flavor) async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   // Supabase
   await Supabase.initialize(
@@ -42,4 +44,9 @@ Future<void> bootstrap(AppFlavor flavor) async {
   } else {
     runApp(const ProviderScope(child: App()));
   }
+
+  // Remove splash screen after 2 seconds to allow user to read it
+  Future.delayed(const Duration(seconds: 2), () {
+    FlutterNativeSplash.remove();
+  });
 }
