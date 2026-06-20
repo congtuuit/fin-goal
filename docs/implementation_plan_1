@@ -1,0 +1,67 @@
+# 🚀 Kế hoạch Hoàn thiện PRODUCTION cho Fin Goal
+
+Sau khi rà soát toàn bộ source code hiện tại trong thư mục `mobile/lib/` và các cấu hình liên quan, em xin gửi bản đánh giá hiện trạng và kế hoạch nâng cấp ứng dụng đạt chuẩn PRODUCTION (sẵn sàng đưa lên App Store / Google Play).
+
+## 🔍 ĐÁNH GIÁ HIỆN TRẠNG SOURCE CODE
+
+**Những gì đã có (Nền tảng rất tốt):**
+- **Kiến trúc:** Clean Architecture chuẩn xác, chia feature rõ ràng (`auth`, `cashflow_game`, `goals`, `scenarios`, `profile`...). Dùng `Riverpod` + `go_router` rất hiện đại.
+- **Backend:** Đã cài sẵn Supabase SDK.
+- **Monetization:** Đã có `purchases_flutter` (RevenueCat) cho Paywall và `google_mobile_ads` (đang tạm tắt).
+- **Core Features:** Các luồng cốt lõi như Board game mô phỏng tiền bạc, What-if scenarios đã được code phần lõi.
+
+**Những gì CẦN BỔ SUNG để ra mắt Production:**
+1. **Auth & Security (Chưa hoàn thiện):**
+   - Nút Register/Quên mật khẩu chưa hoạt động (Tìm thấy `/* TODO: navigate to register */` trong code).
+   - Chưa có Đăng nhập bằng Google/Apple (Bắt buộc với iOS nếu có đăng nhập tài khoản bên thứ 3).
+   - **Xóa tài khoản:** App Store/Google Play bắt buộc phải có tính năng xóa tài khoản trong app.
+2. **Premium Limits & Paywall (Bắt buộc cho Freemium):**
+   - Chưa giới hạn tính năng cho tài khoản Free (VD: Free chỉ được tạo tối đa 3 mục tiêu). Cần chèn logic check `isPremium` vào các hành động `Add Goal`.
+3. **Quản lý Ads thông minh:**
+   - AdMob đang bị comment tắt toàn bộ. Cần bật lại nhưng chỉ hiển thị cho tài khoản Free, tài khoản Premium phải được ẩn toàn bộ Ads.
+   - Cần thay thế Test Ad IDs bằng Production IDs.
+4. **Cloud Sync (Đồng bộ dữ liệu):**
+   - Đảm bảo dữ liệu tạo ở Local (`SharedPreferences`) được đồng bộ an toàn lên Supabase. Xử lý trường hợp mất mạng.
+5. **Trải nghiệm người dùng (UI/UX Polish):**
+   - Thiếu "Empty States" (Màn hình trống khi chưa có mục tiêu nào) sinh động.
+   - Tính năng **Xóa mục tiêu** (Swipe to delete) hiện vẫn đang nằm trong danh sách pending.
+   - Thiếu trang Privacy Policy & Terms of Service (Store review sẽ đánh rớt nếu không có link này).
+
+---
+
+## 🗺️ LỘ TRÌNH 5 GIAI ĐOẠN (PRODUCTION ROADMAP)
+
+### Phase 1: Core Flow & UX Polish (Hoàn thiện luồng cơ bản)
+- [ ] Implement màn hình Đăng ký & Quên mật khẩu.
+- [ ] Thêm tính năng "Swipe to Delete" cho danh sách Mục tiêu.
+- [ ] Thiết kế Empty States (Lottie animations) cho danh sách Mục tiêu trống.
+- [ ] Cải thiện xử lý lỗi UI (Toasts / Snackbars) cho toàn bộ app.
+
+### Phase 2: Freemium Business Logic (Giới hạn tài khoản)
+- [ ] Cấu hình RevenueCat Products (Gói tháng / Gói năm / Trọn đời).
+- [ ] Viết logic giới hạn: Free account chỉ được tạo 3 mục tiêu. Bấm thêm mục tiêu thứ 4 sẽ mở màn hình Paywall.
+- [ ] Viết logic giới hạn Kịch bản Mô phỏng (What-if): Chỉ Premium mới xem được dự báo chi tiết > 5 năm.
+
+### Phase 3: Ads & Cloud Sync (Quảng cáo & Lưu trữ)
+- [ ] Cấu hình Supabase Database schema, viết Trigger đồng bộ dữ liệu.
+- [ ] Khôi phục AdMob: Hiển thị Banner Ad ở cuối danh sách mục tiêu và Interstitial Ad khi hoàn thành 1 check-in (Chỉ hiện cho user Free).
+- [ ] Thêm production IDs cho AdMob (Ẩn trong `.env`).
+
+### Phase 4: App Store Guidelines Compliance (Tuân thủ Policy)
+- [ ] Thêm tính năng Xóa tài khoản (Xóa data trên Supabase).
+- [ ] Thêm trang hiển thị Privacy Policy & Terms of Service.
+- [ ] Tích hợp Social Login (Google & Apple Sign-in).
+- [ ] Bật prompt yêu cầu quyền theo dõi quảng cáo (App Tracking Transparency) cho iOS.
+
+### Phase 5: Testing & Release (Kiểm thử & Ra mắt)
+- [ ] Tích hợp Firebase Crashlytics & PostHog Analytics để track các luồng bị rơi (drop-off).
+- [ ] Fix toàn bộ Lint errors / Skipped tests.
+- [ ] Build file `.aab` (Android) và `.ipa` (iOS) để nộp lên store.
+- [ ] Chụp Screenshots chuẩn bị cho Store Listing.
+
+> [!IMPORTANT]
+> **Quyết định của anh:**
+> 1. Lộ trình này đã phù hợp với định hướng ra mắt của anh chưa?
+> 2. Anh muốn bắt đầu xử lý **Phase 1 (Hoàn thiện Luồng Cơ bản & UX)** ngay bây giờ không?
+> 
+> *(Sau khi anh xác nhận, em sẽ tạo `task.md` để checklist tiến độ và bắt tay vào code Phase 1)*
