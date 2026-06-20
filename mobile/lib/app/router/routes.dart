@@ -3,6 +3,7 @@ abstract class AppRoutes {
   // ── Auth ──────────────────────────────────────────────────────────────────
   static const splash = '/';
   static const login = '/login';
+  static const register = '/register';
 
   // ── Onboarding ────────────────────────────────────────────────────────────
   static const onboarding = '/onboarding';
@@ -26,6 +27,7 @@ abstract class AppRoutes {
   // ── Profile ───────────────────────────────────────────────────────────────
   static const profile = '/profile';
   static const editProfile = '/profile/edit';
+  static const legal = '/legal';
 
   // ── Premium ───────────────────────────────────────────────────────────────
   static const paywall = '/paywall';

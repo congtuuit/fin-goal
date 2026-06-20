@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-// import 'package:sentry_flutter/sentry_flutter.dart';
-
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:fin_goal/app/app.dart';
 import 'package:fin_goal/app/di/injection.dart';
 import 'package:fin_goal/core/constants/app_config.dart';
@@ -30,17 +30,23 @@ Future<void> bootstrap(AppFlavor flavor) async {
   // Dependency Injection
   await configureDependencies(flavor);
 
+  // PostHog Tracking (if configured)
+  if (AppConfig.postHogApiKey.isNotEmpty) {
+    // Note: If posthog requires native setup, you also configure it in AndroidManifest.xml
+    // But we capture screen views globally inside the app router.
+  }
+
   // Sentry (production only)
-  if (flavor == AppFlavor.production) {
-    // await SentryFlutter.init(
-    //   (options) {
-    //     options.dsn = AppConfig.sentryDsn;
-    //   },
-    //   appRunner: () => runApp(
-    //     const ProviderScope(child: App()),
-    //   ),
-    // );
-    runApp(const ProviderScope(child: App()));
+  if (flavor == AppFlavor.production && AppConfig.sentryDsn.isNotEmpty) {
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = AppConfig.sentryDsn;
+        options.tracesSampleRate = 1.0;
+      },
+      appRunner: () => runApp(
+        const ProviderScope(child: App()),
+      ),
+    );
   } else {
     runApp(const ProviderScope(child: App()));
   }

@@ -156,21 +156,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     const Gap(AppSizes.xl),
                   ],
 
-                  // Cashflow Game Banner
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8, bottom: 8),
-                    child: Text(
-                      'GIÁO DỤC TÀI CHÍNH',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textMuted,
-                            letterSpacing: 1.2,
-                          ),
-                    ),
-                  ),
-                  _buildCashflowBanner(),
 
-                  const Gap(AppSizes.xxl),
 
                   // 3. AI Settings Panel
                   Padding(
@@ -219,7 +205,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
                   const Gap(AppSizes.xxl),
 
-                  // 4. Khác
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, bottom: 8),
+                    child: Text(
+                      'PHÁP LÝ',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textMuted,
+                            letterSpacing: 1.2,
+                          ),
+                    ),
+                  ),
+                  _buildLegalZone(),
+
+                  const Gap(AppSizes.xxl),
+
+                  // 5. Khác
                   Padding(
                     padding: const EdgeInsets.only(left: 8, bottom: 8),
                     child: Text(
@@ -362,55 +363,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  Widget _buildCashflowBanner() {
-    return InkWell(
-      onTap: () => context.push(AppRoutes.cashflowBoardGame),
-      borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-      child: Container(
-        padding: const EdgeInsets.all(AppSizes.lg),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF2E8B57), Color(0xFF3CB371)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF2E8B57).withValues(alpha: 0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            )
-          ],
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.casino, color: Colors.white, size: 36),
-            const Gap(AppSizes.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Chơi Game Cashflow',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 16)),
-                  const Gap(4),
-                  Text('Thoát khỏi Rat Race cùng AI Cha Giàu',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.white70)),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: Colors.white),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildAiSettingsCard() {
     return Material(
@@ -511,43 +463,103 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
+  Widget _buildLegalZone() {
+    return Material(
+      color: AppColors.surfaceElevatedDark,
+      borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.privacy_tip_outlined, color: AppColors.textPrimary),
+            title: const Text('Chính sách & Điều khoản'),
+            trailing: const Icon(Icons.chevron_right, color: AppColors.textMuted),
+            onTap: () => context.push(AppRoutes.legal),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDangerZone() {
     return Material(
       color: AppColors.surfaceElevatedDark,
       borderRadius: BorderRadius.circular(AppSizes.radiusLg),
       clipBehavior: Clip.antiAlias,
-      child: ListTile(
-        leading: const Icon(Icons.logout_rounded, color: AppColors.danger),
-        title:
-            const Text('Đăng xuất', style: TextStyle(color: AppColors.danger)),
-        onTap: () async {
-          final confirm = await showDialog<bool>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              backgroundColor: AppColors.surfaceElevatedDark,
-              title: const Text('Xác nhận đăng xuất'),
-              content: const Text(
-                'Bạn sẽ đăng xuất khỏi phiên làm việc offline này. Dữ liệu kịch bản vẫn được giữ lại trên máy.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('Hủy'),
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.logout_rounded, color: AppColors.textPrimary),
+            title: const Text('Đăng xuất'),
+            onTap: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  backgroundColor: AppColors.surfaceElevatedDark,
+                  title: const Text('Xác nhận đăng xuất'),
+                  content: const Text(
+                    'Bạn sẽ đăng xuất khỏi phiên làm việc này. Dữ liệu của bạn vẫn được lưu trên hệ thống.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text('Hủy'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('Đăng xuất'),
+                    ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text('Đăng xuất',
-                      style: TextStyle(color: AppColors.danger)),
-                ),
-              ],
-            ),
-          );
+              );
 
-          if (confirm == true) {
-            await ref.read(authProvider.notifier).signOut();
-            if (mounted) context.go(AppRoutes.login);
-          }
-        },
+              if (confirm == true) {
+                await ref.read(authProvider.notifier).signOut();
+                if (mounted) context.go(AppRoutes.login);
+              }
+            },
+          ),
+          const Divider(height: 1, color: AppColors.borderDark, indent: 56),
+          ListTile(
+            leading: const Icon(Icons.delete_forever, color: AppColors.danger),
+            title: const Text('Xóa tài khoản', style: TextStyle(color: AppColors.danger)),
+            onTap: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  backgroundColor: AppColors.surfaceElevatedDark,
+                  title: const Text('Xóa tài khoản vĩnh viễn'),
+                  content: const Text(
+                    'Hành động này không thể hoàn tác. Toàn bộ dữ liệu mục tiêu và quá trình tích lũy của bạn sẽ bị xóa vĩnh viễn. Bạn có chắc chắn muốn xóa không?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text('Hủy'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('Xóa vĩnh viễn', style: TextStyle(color: AppColors.danger)),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirm == true) {
+                final error = await ref.read(authProvider.notifier).deleteAccount();
+                if (mounted) {
+                  if (error != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Lỗi: $error'), backgroundColor: AppColors.danger),
+                    );
+                  } else {
+                    context.go(AppRoutes.login);
+                  }
+                }
+              }
+            },
+          ),
+        ],
       ),
     );
   }

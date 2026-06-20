@@ -24,8 +24,23 @@ class GoalsListPage extends ConsumerWidget {
     final profileState = ref.watch(profileProvider);
     
     int currentActive = 0;
+    List<Goal> activeGoals = [];
+    List<Goal> archivedGoals = [];
     if (goalsState is GoalsLoaded) {
-      currentActive = goalsState.goals.where((g) => g.status != 'archived').length;
+      activeGoals = goalsState.goals.where((g) => g.status != 'archived').toList();
+      archivedGoals = goalsState.goals.where((g) => g.status == 'archived').toList();
+      currentActive = activeGoals.length;
+      
+      final now = DateTime.now();
+      final toDelete = archivedGoals.where((g) => now.difference(g.updatedAt).inDays >= 7).toList();
+      if (toDelete.isNotEmpty) {
+        archivedGoals.removeWhere((g) => toDelete.contains(g));
+        Future.microtask(() {
+          for (final goal in toDelete) {
+            ref.read(goalsProvider.notifier).deleteGoal(goal.id);
+          }
+        });
+      }
     }
 
     List<DateTime> purchasedSlots = [];
@@ -35,63 +50,76 @@ class GoalsListPage extends ConsumerWidget {
           .toList();
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        titleSpacing:
-            16, // Use default padding for the left title since there's no custom icon on the left
-        title: const Text('Mục tiêu tài chính'),
-        actions: [
-          if (!isPremium)
-            TextButton.icon(
-              icon: const Icon(Icons.diamond, color: AppColors.primary),
-              label: const Text('Nâng cấp',
-                  style: TextStyle(color: AppColors.primary)),
-              onPressed: () {
-                context.push('/home/paywall');
-              },
-            )
-          else
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Center(
-                  child: Text('Premium',
-                      style: TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold))),
-            ),
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () {
-              context.push(AppRoutes.profile);
-            },
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          titleSpacing: 16,
+          title: const Text('Mục tiêu tài chính'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Đang thực hiện'),
+              Tab(text: 'Đã xóa'),
+            ],
+            indicatorColor: AppColors.primary,
+            labelColor: AppColors.primary,
           ),
-        ],
-      ),
-      body: goalsState is GoalsLoading
-          ? const Center(child: CircularProgressIndicator())
-          : goalsState is GoalsError
-              ? Center(child: Text('Lỗi: ${goalsState.message}'))
-              : _buildGoalsList(
-                  context, ref, (goalsState as GoalsLoaded).goals, isPremium, ref.watch(totalAllowedGoalsProvider), purchasedSlots),
-      floatingActionButton: currentActive >= 10 ? null : FloatingActionButton(
-        onPressed: () {
-          final canCreate = ref.read(canCreateNewGoalProvider(currentActive));
-          
-          if (!canCreate) {
-            context.push('/home/paywall');
-          } else {
-            context.push('/home/goal-selection');
-          }
-        },
-        child: const Icon(Icons.add),
+          actions: [
+            if (!isPremium)
+              TextButton.icon(
+                icon: const Icon(Icons.diamond, color: AppColors.primary),
+                label: const Text('Nâng cấp',
+                    style: TextStyle(color: AppColors.primary)),
+                onPressed: () {
+                  context.push('/home/paywall');
+                },
+              )
+            else
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Center(
+                    child: Text('Premium',
+                        style: TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold))),
+              ),
+            IconButton(
+              icon: const Icon(Icons.person_outline),
+              onPressed: () {
+                context.push(AppRoutes.profile);
+              },
+            ),
+          ],
+        ),
+        body: goalsState is GoalsLoading
+            ? const Center(child: CircularProgressIndicator())
+            : goalsState is GoalsError
+                ? Center(child: Text('Lỗi: ${goalsState.message}'))
+                : TabBarView(
+                    children: [
+                      _buildActiveGoalsTab(context, ref, activeGoals, isPremium, ref.watch(totalAllowedGoalsProvider), purchasedSlots),
+                      _buildArchivedGoalsTab(context, ref, archivedGoals),
+                    ],
+                  ),
+        floatingActionButton: currentActive >= 10 ? null : FloatingActionButton(
+          onPressed: () {
+            final canCreate = ref.read(canCreateNewGoalProvider(currentActive));
+            
+            if (!canCreate) {
+              context.push('/home/paywall');
+            } else {
+              context.push('/home/goal-selection');
+            }
+          },
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }
 
-  Widget _buildGoalsList(
-      BuildContext context, WidgetRef ref, List<Goal> rawGoals, bool isPremium, int totalAllowed, List<DateTime> purchasedSlots) {
-    final goals = rawGoals.where((g) => g.status != 'archived').toList();
+  Widget _buildActiveGoalsTab(
+      BuildContext context, WidgetRef ref, List<Goal> goals, bool isPremium, int totalAllowed, List<DateTime> purchasedSlots) {
     goals.sort((a, b) {
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
@@ -100,32 +128,44 @@ class GoalsListPage extends ConsumerWidget {
 
     if (goals.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Bạn chưa có mục tiêu nào 🎯',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const Gap(AppSizes.md),
-            const Text('Hãy tạo một mục tiêu để bắt đầu.'),
-            const Gap(AppSizes.xl),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceElevatedDark,
-                borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-                border: Border.all(color: AppColors.borderDark),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: AppSizes.pageHorizontalPadding),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Gap(AppSizes.xxl),
+              const Text('🎯', style: TextStyle(fontSize: 80)),
+              const Gap(AppSizes.lg),
+              const Text(
+                'Bạn chưa có mục tiêu nào',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-              child: Text(
-                '0 / $totalAllowed mục tiêu khả dụng',
-                style: const TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
+              const Gap(AppSizes.md),
+              Text(
+                'Hãy tạo một mục tiêu để AI giúp bạn lập kế hoạch.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+              const Gap(AppSizes.xl),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceElevatedDark,
+                  borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                  border: Border.all(color: AppColors.borderDark),
+                ),
+                child: Text(
+                  '0 / $totalAllowed mục tiêu khả dụng',
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-          ],
+              const Gap(AppSizes.xxl),
+              _buildTrainingCampCard(context, isPremium),
+            ],
+          ),
         ),
       );
     }
@@ -137,7 +177,7 @@ class GoalsListPage extends ConsumerWidget {
         top: AppSizes.lg,
         bottom: 100, // For FAB
       ),
-      itemCount: goals.length + 1,
+      itemCount: goals.length + 2,
       itemBuilder: (context, index) {
         if (index == 0) {
           return Padding(
@@ -170,15 +210,21 @@ class GoalsListPage extends ConsumerWidget {
             ),
           );
         }
+
+        if (index == goals.length + 1) {
+          return _buildTrainingCampCard(context, isPremium);
+        }
         
         final goal = goals[index - 1];
         
         DateTime? expiryDate;
-        int baseLimit = isPremium ? 4 : 2;
+        int baseLimit = isPremium ? 10 : 2;
         int slotIndex = (index - 1) - baseLimit;
         if (slotIndex >= 0 && slotIndex < purchasedSlots.length) {
           expiryDate = purchasedSlots[slotIndex];
         }
+        
+        final isLocked = (index - 1) >= totalAllowed;
         
         return Dismissible(
           key: Key(goal.id),
@@ -189,15 +235,37 @@ class GoalsListPage extends ConsumerWidget {
             padding: const EdgeInsets.only(right: 20),
             child: const Icon(Icons.delete, color: Colors.white),
           ),
-          onDismissed: (direction) {
-            // currentSavings > 0 is used as proxy for "has check-ins"
-            if (goal.currentSavings > 0) {
-              ref.read(goalsProvider.notifier).updateGoal(goal.copyWith(status: 'archived'));
-            } else {
-              ref.read(goalsProvider.notifier).deleteGoal(goal.id);
-            }
+          confirmDismiss: (direction) async {
+            return await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                backgroundColor: AppColors.surfaceElevatedDark,
+                title: const Row(
+                  children: [
+                    Icon(Icons.warning_amber_rounded, color: AppColors.warning),
+                    Gap(AppSizes.sm),
+                    Text('Xác nhận xóa'),
+                  ],
+                ),
+                content: Text('Bạn có chắc chắn muốn xóa mục tiêu "${goal.name}" không? Mục tiêu này sẽ được chuyển vào Thùng rác trong 7 ngày trước khi bị xóa vĩnh viễn.'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: const Text('Hủy', style: TextStyle(color: AppColors.textMuted)),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(ctx, true),
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+                    child: const Text('Xóa', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                  ),
+                ],
+              ),
+            );
           },
-          child: _buildGoalCard(context, ref, goal, expiryDate)
+          onDismissed: (direction) {
+            ref.read(goalsProvider.notifier).updateGoal(goal.copyWith(status: 'archived', updatedAt: DateTime.now()));
+          },
+          child: _buildGoalCard(context, ref, goal, expiryDate, isLocked)
               .animate()
               .fadeIn(delay: Duration(milliseconds: 100 * index))
               .slideY(begin: 0.1),
@@ -206,7 +274,140 @@ class GoalsListPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildGoalCard(BuildContext context, WidgetRef ref, Goal goal, DateTime? expiryDate) {
+  Widget _buildArchivedGoalsTab(BuildContext context, WidgetRef ref, List<Goal> archivedGoals) {
+    if (archivedGoals.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.delete_outline, size: 80, color: AppColors.textMuted),
+            const Gap(AppSizes.lg),
+            Text(
+              'Thùng rác trống',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const Gap(AppSizes.sm),
+            Text(
+              'Các mục tiêu đã xóa sẽ nằm ở đây trong 7 ngày.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+        ),
+      );
+    }
+
+    archivedGoals.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+    return ListView.builder(
+      padding: const EdgeInsets.only(
+        left: AppSizes.pageHorizontalPadding,
+        right: AppSizes.pageHorizontalPadding,
+        top: AppSizes.lg,
+        bottom: 100,
+      ),
+      itemCount: archivedGoals.length,
+      itemBuilder: (context, index) {
+        final goal = archivedGoals[index];
+        final daysLeft = 7 - DateTime.now().difference(goal.updatedAt).inDays;
+        
+        return Container(
+          margin: const EdgeInsets.only(bottom: AppSizes.lg),
+          padding: const EdgeInsets.all(AppSizes.md),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceDark,
+            borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+            border: Border.all(color: AppColors.borderDark),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(goal.emoji ?? '🎯', style: const TextStyle(fontSize: 24)),
+                  const Gap(AppSizes.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          goal.name,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: AppColors.textMuted,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          'Sẽ bị xóa vĩnh viễn sau $daysLeft ngày',
+                          style: const TextStyle(fontSize: 12, color: AppColors.danger),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const Gap(AppSizes.md),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          backgroundColor: AppColors.surfaceElevatedDark,
+                          title: const Text('Xóa vĩnh viễn'),
+                          content: const Text('Bạn không thể khôi phục mục tiêu này sau khi xóa vĩnh viễn. Tiếp tục?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx),
+                              child: const Text('Hủy', style: TextStyle(color: AppColors.textMuted)),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(ctx);
+                                ref.read(goalsProvider.notifier).deleteGoal(goal.id);
+                              },
+                              style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+                              child: const Text('Xóa vĩnh viễn', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.delete_forever, size: 16),
+                    label: const Text('Xóa'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.danger,
+                      side: const BorderSide(color: AppColors.danger),
+                    ),
+                  ),
+                  const Gap(AppSizes.sm),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      ref.read(goalsProvider.notifier).updateGoal(goal.copyWith(status: 'active', updatedAt: DateTime.now()));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Đã khôi phục mục tiêu!'),
+                          backgroundColor: AppColors.success,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.restore, size: 16),
+                    label: const Text('Khôi phục'),
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGoalCard(BuildContext context, WidgetRef ref, Goal goal, DateTime? expiryDate, bool isLocked) {
     final progress = goal.targetAmount > 0
         ? (goal.currentSavings / goal.targetAmount).clamp(0.0, 1.0)
         : 0.0;
@@ -255,16 +456,52 @@ class GoalsListPage extends ConsumerWidget {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () {
+                  if (isLocked) {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        backgroundColor: AppColors.surfaceElevatedDark,
+                        title: const Row(
+                          children: [
+                            Icon(Icons.lock, color: AppColors.warning),
+                            Gap(AppSizes.sm),
+                            Text('Mục tiêu đã khóa'),
+                          ],
+                        ),
+                        content: const Text(
+                          'Mục tiêu này đã vượt quá giới hạn hoặc gói mua đã hết hạn. Nâng cấp lên Premium để mở khóa TẤT CẢ các mục tiêu ngay lập tức!',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text('Để sau', style: TextStyle(color: AppColors.textMuted)),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(ctx);
+                              context.push('/home/paywall');
+                            },
+                            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                            child: const Text('Mở khóa Premium', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                    );
+                    return;
+                  }
+                  
                   if (!goal.isPrimary) {
                     ref.read(goalsProvider.notifier).setPrimaryGoal(goal.id);
                   }
                   context.push(AppRoutes.dashboard);
                 },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSizes.md,
-                    vertical: AppSizes.sm,
-                  ),
+                child: Opacity(
+                  opacity: isLocked ? 0.5 : 1.0,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSizes.md,
+                      vertical: AppSizes.sm,
+                    ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -316,11 +553,12 @@ class GoalsListPage extends ConsumerWidget {
                           // Removed isPrimary star as requested to avoid duplicate stars
                           IconButton(
                             icon: Icon(
-                              goal.isPinned ? Icons.star_rounded : Icons.star_outline_rounded,
-                              color: goal.isPinned ? AppColors.primary : AppColors.textMuted,
+                              isLocked ? Icons.lock : (goal.isPinned ? Icons.star_rounded : Icons.star_outline_rounded),
+                              color: isLocked ? AppColors.warning : (goal.isPinned ? AppColors.primary : AppColors.textMuted),
                               size: 20,
                             ),
                             onPressed: () {
+                              if (isLocked) return;
                               ref.read(goalsProvider.notifier).updateGoal(
                                 goal.copyWith(isPinned: !goal.isPinned),
                               );
@@ -394,10 +632,71 @@ class GoalsListPage extends ConsumerWidget {
                     ],
                   ),
                 ),
+                ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTrainingCampCard(BuildContext context, bool isPremium) {
+    return Container(
+      margin: const EdgeInsets.only(top: AppSizes.lg, bottom: AppSizes.xl),
+      padding: const EdgeInsets.all(AppSizes.lg),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.primary.withValues(alpha: 0.15), AppColors.primaryDark.withValues(alpha: 0.15)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(AppSizes.radiusXl),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSizes.sm),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.sports_esports, color: AppColors.primary, size: 28),
+              ),
+              const Gap(AppSizes.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Trại huấn luyện Cashflow', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const Gap(AppSizes.md),
+          Text(
+            'Chơi game mô phỏng dòng tiền để học cách quản lý tài chính và thoát khỏi "Rat Race".',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const Gap(AppSizes.lg),
+          ElevatedButton.icon(
+            onPressed: () {
+              context.push(AppRoutes.cashflowBoardGame);
+            },
+            icon: const Icon(Icons.play_arrow, color: Colors.white),
+            label: const Text('Vào Trại Huấn Luyện', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              minimumSize: const Size(double.infinity, AppSizes.buttonHeight),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
+            ),
+          ),
+        ],
       ),
     );
   }

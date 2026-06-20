@@ -16,6 +16,12 @@ class ScenarioInput {
   /// Variance buffer for best/worst case (default: ±15% = 0.15)
   final double varianceBuffer;
 
+  /// Expected annual investment return (e.g. 0.08 for 8%)
+  final double investmentReturn;
+
+  /// Expected annual income growth (e.g. 0.05 for 5%)
+  final double incomeGrowth;
+
   /// Number of months user has provided actual data (for reliability score)
   final int monthsWithActualData;
 
@@ -28,6 +34,8 @@ class ScenarioInput {
     required this.targetAmount,
     this.inflationRate = 0.05,
     this.varianceBuffer = 0.15,
+    this.investmentReturn = 0.0,
+    this.incomeGrowth = 0.0,
     this.monthsWithActualData = 0,
     this.averageVariance = 0.0,
   });

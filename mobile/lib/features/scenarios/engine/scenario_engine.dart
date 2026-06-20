@@ -26,7 +26,7 @@ class ScenarioEngine {
       );
     }
 
-    final expected = _expectedMonths(remaining, input.monthlySaving);
+    final expected = _calculateMonths(input);
     final best = _bestCaseMonths(expected, input.varianceBuffer);
     final worst = _worstCaseMonths(expected, input.varianceBuffer);
     final reliability = _planReliability(input);
@@ -57,6 +57,8 @@ class ScenarioEngine {
       targetAmount: input.targetAmount,
       inflationRate: input.inflationRate,
       varianceBuffer: input.varianceBuffer,
+      investmentReturn: input.investmentReturn,
+      incomeGrowth: input.incomeGrowth,
       monthsWithActualData: input.monthsWithActualData,
       averageVariance: input.averageVariance,
     );
@@ -76,11 +78,36 @@ class ScenarioEngine {
     return remaining < 0 ? 0 : remaining;
   }
 
-  /// Base case: straightforward division.
-  /// Formula: ceil((target - savings) / monthly_saving)
-  int _expectedMonths(int remaining, int monthlySaving) {
-    if (monthlySaving <= 0) return 9999; // Guard: avoid division by zero
-    return (remaining / monthlySaving).ceil();
+  /// Compound calculation loop.
+  int _calculateMonths(ScenarioInput input) {
+    if (input.monthlySaving <= 0) return 9999;
+
+    double savings = input.currentSavings.toDouble();
+    double target = input.targetAmount.toDouble();
+    double currentMonthlySaving = input.monthlySaving.toDouble();
+    
+    int months = 0;
+    while (savings < target && months < 1200) { // Cap at 100 years
+      savings += currentMonthlySaving;
+      
+      if (input.investmentReturn > 0) {
+        savings += savings * (input.investmentReturn / 12);
+      }
+      
+      if (input.inflationRate > 0) {
+        target += target * (input.inflationRate / 12);
+      }
+      
+      if (months > 0 && months % 12 == 0) {
+        if (input.incomeGrowth > 0) {
+          currentMonthlySaving += currentMonthlySaving * input.incomeGrowth;
+        }
+      }
+      
+      months++;
+    }
+    
+    return months;
   }
 
   /// Best case: user saves better than planned (buffer = 20% faster)

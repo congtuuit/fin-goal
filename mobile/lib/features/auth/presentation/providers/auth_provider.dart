@@ -125,5 +125,19 @@ class AuthNotifier extends _$AuthNotifier {
     state = const AuthIdle();
   }
 
+  Future<String?> sendPasswordResetEmail(String email) async {
+    state = const AuthLoading();
+    final result = await ref.read(authRepositoryProvider).sendPasswordResetEmail(email);
+    state = const AuthIdle();
+    return result.fold((f) => f.message, (_) => null);
+  }
+
+  Future<String?> deleteAccount() async {
+    state = const AuthLoading();
+    final result = await ref.read(authRepositoryProvider).deleteAccount();
+    state = const AuthIdle();
+    return result.fold((f) => f.message, (_) => null);
+  }
+
   void reset() => state = const AuthIdle();
 }

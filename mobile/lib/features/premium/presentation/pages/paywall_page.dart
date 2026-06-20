@@ -102,11 +102,11 @@ class PaywallPage extends ConsumerWidget {
 
                         _buildPricingCard(
                           context,
-                          title: 'Premium (Gói 6 Tháng)',
-                          price: '199.000₫',
-                          subtitle: 'Mở khóa mọi tính năng',
+                          title: 'Premium (Gói 1 Tháng)',
+                          price: '49.000₫',
+                          subtitle: 'Trải nghiệm không giới hạn',
                           isPopular: false,
-                          onTap: () => _purchase(context, 'Premium 6 Tháng', '199.000₫'),
+                          onTap: () => _purchase(context, 'Premium 1 Tháng', '49.000₫'),
                         ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
 
                         const Gap(AppSizes.md),

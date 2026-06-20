@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:fin_goal/features/auth/presentation/pages/login_page.dart';
+import 'package:fin_goal/features/auth/presentation/pages/register_page.dart';
 import 'package:fin_goal/features/auth/presentation/pages/splash_page.dart';
 import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
 import 'package:fin_goal/features/goals/presentation/pages/goal_selection_page.dart';
@@ -13,6 +14,7 @@ import 'package:fin_goal/features/scenarios/presentation/pages/scenario_dashboar
 import 'package:fin_goal/features/scenarios/presentation/pages/what_if_page.dart';
 import 'package:fin_goal/features/profile/presentation/providers/profile_provider.dart';
 import 'package:fin_goal/features/profile/presentation/pages/settings_page.dart';
+import 'package:fin_goal/features/profile/presentation/pages/legal_page.dart';
 import 'package:fin_goal/features/premium/presentation/pages/paywall_page.dart';
 import 'package:fin_goal/features/premium/presentation/pages/payment_page.dart';
 import 'package:fin_goal/features/scenarios/domain/entities/monthly_record.dart';
@@ -68,12 +70,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, __) => const LoginPage(),
       ),
       GoRoute(
+        path: AppRoutes.register,
+        builder: (_, __) => const RegisterPage(),
+      ),
+      GoRoute(
         path: AppRoutes.onboarding,
         builder: (_, __) => const OnboardingPage(),
       ),
       GoRoute(
         path: AppRoutes.profile,
         builder: (_, __) => const SettingsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.legal,
+        builder: (_, __) => const LegalPage(title: 'Chính sách & Điều khoản'),
       ),
       GoRoute(
         path: AppRoutes.cashflowBoardGame,

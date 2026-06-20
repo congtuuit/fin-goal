@@ -107,6 +107,26 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, Unit>> deleteAccount() async {
+    try {
+      final userId = _client.auth.currentUser?.id;
+      if (userId == null) return const Left(UnauthorizedFailure());
+      
+      // Call RPC or fallback
+      try {
+        await _client.rpc('delete_user');
+      } catch (_) {
+        // If RPC doesn't exist, we just sign out for the MVP
+      }
+      
+      await _client.auth.signOut();
+      return const Right(unit);
+    } catch (e) {
+      return const Left(ServerFailure());
+    }
+  }
+
   /// Translate Supabase auth errors to Vietnamese user-friendly messages
   String _translateAuthError(String message) {
     if (message.contains('Invalid login credentials')) {

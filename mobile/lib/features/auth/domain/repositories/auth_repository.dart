@@ -35,4 +35,7 @@ abstract class AuthRepository {
 
   /// Send password reset email
   Future<Either<Failure, Unit>> sendPasswordResetEmail(String email);
+
+  /// Delete account permanently
+  Future<Either<Failure, Unit>> deleteAccount();
 }

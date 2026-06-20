@@ -33,7 +33,7 @@ int totalAllowedGoals(Ref ref) {
   final tier = ref.watch(subscriptionProvider);
   final profileState = ref.watch(profileProvider);
   
-  int baseLimit = (tier == SubscriptionTier.premium || tier == SubscriptionTier.pro) ? 4 : 2;
+  int baseLimit = (tier == SubscriptionTier.premium || tier == SubscriptionTier.pro) ? 10 : 2;
   
   int extraSlots = 0;
   if (profileState is ProfileLoaded && profileState.profile != null) {
@@ -55,5 +55,5 @@ bool canCreateNewGoal(Ref ref, int currentActiveGoals) {
 
 @riverpod
 int getGoalSlotPrice(Ref ref, int currentActiveGoals) {
-  return 79000;
+  return 39000;
 }

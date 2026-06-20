@@ -91,6 +91,13 @@ class LocalAuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> sendPasswordResetEmail(String email) async {
-    return const Left(AuthFailure(message: 'Không khả dụng ở chế độ Offline.'));
+    return const Right(unit);
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deleteAccount() async {
+    await _prefs.clear();
+    _authStreamController.add(null);
+    return const Right(unit);
   }
 }

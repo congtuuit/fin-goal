@@ -38,6 +38,8 @@ dependencies:
 
   # ── Analytics & Error Tracking ────────────────────────────────────────────
   posthog_flutter: ^5.25.2
+  sentry_flutter: ^9.0.0
+  flutter_dotenv: ^5.1.0
 
   # ── UI / Animations ───────────────────────────────────────────────────────
   google_fonts: ^8.1.0
@@ -85,6 +87,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/images/
     - assets/images/goals/
     - assets/animations/
     - assets/audio/
@@ -103,3 +106,10 @@ flutter_launcher_icons:
   image_path: "assets/images/logo.png"
   adaptive_icon_background: "#121212"
   adaptive_icon_foreground: "assets/images/logo.png"
+
+flutter_native_splash:
+  color: "#121212"
+  image: "assets/images/logo.png"
+  android_12:
+    image: "assets/images/logo.png"
+    icon_background_color: "#121212"

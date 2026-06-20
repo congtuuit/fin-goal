@@ -37,6 +37,11 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
   // Local state for the slider
   int? _customMonthlySaving;
 
+  // Macro What-if state
+  double _customInflationRate = 0.05;
+  double _customInvestmentReturn = 0.0;
+  double _customIncomeGrowth = 0.0;
+
   @override
   void initState() {
     super.initState();
@@ -57,124 +62,213 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
 
   void _showEditDialog(Goal goal) {
     _nameController.text = goal.name;
-    _targetAmountController.text = goal.targetAmount.toString();
-    _currentSavingsController.text = goal.currentSavings.toString();
-    _monthlySavingController.text = goal.monthlySaving.toString();
+    _targetAmountController.text = CurrencyFormatter.formatInput(goal.targetAmount);
+    _currentSavingsController.text = CurrencyFormatter.formatInput(goal.currentSavings);
+    _monthlySavingController.text = CurrencyFormatter.formatInput(goal.monthlySaving);
+    
+    final deadlineCtrl = TextEditingController();
+    bool isBudgetFixed = true;
 
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Chỉnh sửa mục tiêu'),
-          content: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Tên mục tiêu',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty)
-                        return 'Vui lòng nhập tên';
-                      return null;
-                    },
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return AlertDialog(
+              backgroundColor: AppColors.surfaceDark,
+              title: const Text('Chỉnh sửa mục tiêu'),
+              content: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Tên mục tiêu',
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) return 'Vui lòng nhập tên';
+                          return null;
+                        },
+                      ),
+                      const Gap(AppSizes.md),
+                      TextFormField(
+                        controller: _targetAmountController,
+                        decoration: const InputDecoration(
+                          labelText: 'Số tiền mục tiêu',
+                          suffixText: '₫',
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          final parsed = CurrencyFormatter.parse(value);
+                          if (parsed != null) {
+                            final formatted = CurrencyFormatter.formatInput(parsed);
+                            if (formatted != value) {
+                              _targetAmountController.value = TextEditingValue(
+                                text: formatted,
+                                selection: TextSelection.collapsed(offset: formatted.length),
+                              );
+                            }
+                          }
+                        },
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) return 'Vui lòng nhập số tiền';
+                          if (CurrencyFormatter.parse(value) == null) return 'Số tiền không hợp lệ';
+                          return null;
+                        },
+                      ),
+                      const Gap(AppSizes.md),
+                      TextFormField(
+                        controller: _currentSavingsController,
+                        decoration: const InputDecoration(
+                          labelText: 'Số tiền đã có',
+                          suffixText: '₫',
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          final parsed = CurrencyFormatter.parse(value);
+                          if (parsed != null) {
+                            final formatted = CurrencyFormatter.formatInput(parsed);
+                            if (formatted != value) {
+                              _currentSavingsController.value = TextEditingValue(
+                                text: formatted,
+                                selection: TextSelection.collapsed(offset: formatted.length),
+                              );
+                            }
+                          }
+                        },
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) return 'Vui lòng nhập số tiền';
+                          if (CurrencyFormatter.parse(value) == null) return 'Số tiền không hợp lệ';
+                          return null;
+                        },
+                      ),
+                      const Gap(AppSizes.xl),
+                      Text(
+                        'Điều gì là cố định đối với bạn?',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const Gap(AppSizes.sm),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ChoiceChip(
+                              label: const Text('Mức tiết kiệm'),
+                              selected: isBudgetFixed,
+                              onSelected: (val) => setModalState(() => isBudgetFixed = true),
+                            ),
+                          ),
+                          const Gap(AppSizes.sm),
+                          Expanded(
+                            child: ChoiceChip(
+                              label: const Text('Thời hạn'),
+                              selected: !isBudgetFixed,
+                              onSelected: (val) => setModalState(() => isBudgetFixed = false),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Gap(AppSizes.md),
+                      if (isBudgetFixed)
+                        TextFormField(
+                          controller: _monthlySavingController,
+                          decoration: const InputDecoration(
+                            labelText: 'Mức tiết kiệm mỗi tháng',
+                            suffixText: '₫',
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            final parsed = CurrencyFormatter.parse(value);
+                            if (parsed != null) {
+                              final formatted = CurrencyFormatter.formatInput(parsed);
+                              if (formatted != value) {
+                                _monthlySavingController.value = TextEditingValue(
+                                  text: formatted,
+                                  selection: TextSelection.collapsed(offset: formatted.length),
+                                );
+                              }
+                            }
+                          },
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) return 'Vui lòng nhập số tiền';
+                            if (CurrencyFormatter.parse(value) == null) return 'Số tiền không hợp lệ';
+                            return null;
+                          },
+                        )
+                      else
+                        TextFormField(
+                          controller: deadlineCtrl,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Số tháng mong muốn hoàn thành',
+                            hintText: 'VD: 24',
+                            suffixText: 'tháng',
+                          ),
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'Vui lòng nhập số tháng';
+                            final val = int.tryParse(v);
+                            if (val == null || val <= 0) return 'Số tháng không hợp lệ';
+                            return null;
+                          },
+                        ),
+                    ],
                   ),
-                  const Gap(AppSizes.md),
-                  TextFormField(
-                    controller: _targetAmountController,
-                    decoration: const InputDecoration(
-                      labelText: 'Số tiền mục tiêu (VND)',
-                      prefixText: '₫ ',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty)
-                        return 'Vui lòng nhập số tiền';
-                      if (int.tryParse(value) == null) return 'Số không hợp lệ';
-                      return null;
-                    },
-                  ),
-                  const Gap(AppSizes.md),
-                  TextFormField(
-                    controller: _currentSavingsController,
-                    decoration: const InputDecoration(
-                      labelText: 'Số tiền đã có (VND)',
-                      prefixText: '₫ ',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty)
-                        return 'Vui lòng nhập số tiền';
-                      if (int.tryParse(value) == null) return 'Số không hợp lệ';
-                      return null;
-                    },
-                  ),
-                  const Gap(AppSizes.md),
-                  TextFormField(
-                    controller: _monthlySavingController,
-                    decoration: const InputDecoration(
-                      labelText: 'Mức tiết kiệm (VND/tháng)',
-                      prefixText: '₫ ',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty)
-                        return 'Vui lòng nhập số tiền';
-                      if (int.tryParse(value) == null) return 'Số không hợp lệ';
-                      return null;
-                    },
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Hủy'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  final updatedGoal = goal.copyWith(
-                    name: _nameController.text.trim(),
-                    targetAmount:
-                        int.parse(_targetAmountController.text.trim()),
-                    currentSavings:
-                        int.parse(_currentSavingsController.text.trim()),
-                    monthlySaving:
-                        int.parse(_monthlySavingController.text.trim()),
-                    updatedAt: DateTime.now(),
-                  );
-                  ref.read(goalsProvider.notifier).updateGoal(updatedGoal);
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Hủy', style: TextStyle(color: AppColors.textMuted)),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      final targetAmt = CurrencyFormatter.parse(_targetAmountController.text.trim()) ?? goal.targetAmount;
+                      final currentSav = CurrencyFormatter.parse(_currentSavingsController.text.trim()) ?? goal.currentSavings;
+                      int finalMonthlySaving = 0;
+                      
+                      if (isBudgetFixed) {
+                        finalMonthlySaving = CurrencyFormatter.parse(_monthlySavingController.text.trim()) ?? goal.monthlySaving;
+                      } else {
+                        final months = int.parse(deadlineCtrl.text);
+                        final remaining = targetAmt - currentSav;
+                        finalMonthlySaving = remaining > 0 ? (remaining / months).ceil() : 0;
+                      }
 
-                  // Reset custom saving if it was set
-                  if (_customMonthlySaving != null) {
-                    setState(() {
-                      _customMonthlySaving = null;
-                    });
-                  }
+                      final updatedGoal = goal.copyWith(
+                        name: _nameController.text.trim(),
+                        targetAmount: targetAmt,
+                        currentSavings: currentSav,
+                        monthlySaving: finalMonthlySaving,
+                        updatedAt: DateTime.now(),
+                      );
+                      ref.read(goalsProvider.notifier).updateGoal(updatedGoal);
 
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Đã cập nhật mục tiêu thành công!'),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
-                }
-              },
-              child: const Text('Lưu'),
-            ),
-          ],
+                      // Reset custom saving if it was set
+                      if (_customMonthlySaving != null) {
+                        setState(() {
+                          _customMonthlySaving = null;
+                        });
+                      }
+
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Đã cập nhật mục tiêu thành công!'),
+                          backgroundColor: AppColors.success,
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                  child: const Text('Lưu thay đổi', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ],
+            );
+          }
         );
       },
     );
@@ -266,7 +360,9 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
       currentSavings: primaryGoal.currentSavings,
       monthlySaving: monthlySaving,
       targetAmount: primaryGoal.targetAmount,
-      inflationRate: 0.05,
+      inflationRate: _customInflationRate,
+      investmentReturn: _customInvestmentReturn,
+      incomeGrowth: _customIncomeGrowth,
       varianceBuffer: 0.15,
       monthsWithActualData: 0,
       averageVariance: 0.0,
@@ -341,6 +437,8 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           children: [
             _buildTimelineCard(result, primaryGoal.targetAmount),
             const Gap(AppSizes.xl),
+            _buildMacroControlPanel(isPremium),
+            const Gap(AppSizes.xl),
             _buildReliabilityScore(result.planReliability),
             const Gap(AppSizes.xl),
             _buildMonthlySavingSlider(profile.disposableIncome, monthlySaving),
@@ -357,6 +455,8 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
 
   void _showSwitchGoalSheet(
       BuildContext context, GoalsLoaded goalsState, bool isPremium) {
+    final activeGoals = goalsState.goals.where((g) => g.status != 'archived').toList();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -393,9 +493,9 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
                   Flexible(
                     child: ListView.builder(
                       shrinkWrap: true,
-                      itemCount: goalsState.goals.length,
+                      itemCount: activeGoals.length,
                       itemBuilder: (context, index) {
-                        final goal = goalsState.goals[index];
+                        final goal = activeGoals[index];
                         final isCurrent = goal.id == goalsState.primaryGoal?.id;
                         return ListTile(
                           leading: Text(goal.emoji ?? '🎯',
@@ -431,8 +531,8 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
                             fontWeight: FontWeight.bold)),
                     onTap: () {
                       Navigator.pop(ctx);
-                      if (!isPremium && goalsState.goals.isNotEmpty) {
-                        // Limit free users to 1 goal
+                      final canCreate = ref.read(canCreateNewGoalProvider(activeGoals.length));
+                      if (!canCreate) {
                         context.push('/home/paywall');
                       } else {
                         context.push('/home/goal-selection');
@@ -511,6 +611,88 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           'T${date.month}/${date.year}',
           style:
               Theme.of(context).textTheme.titleMedium?.copyWith(color: color),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMacroControlPanel(bool isPremium) {
+    return Container(
+      padding: const EdgeInsets.all(AppSizes.xl),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceElevatedDark,
+        borderRadius: BorderRadius.circular(AppSizes.radiusXl),
+        border: Border.all(color: AppColors.borderDark),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.tune, color: AppColors.primary),
+              const Gap(AppSizes.sm),
+              Text('Kịch bản Vĩ mô (Macro)', style: Theme.of(context).textTheme.titleMedium),
+              const Spacer(),
+            ],
+          ),
+          const Gap(AppSizes.lg),
+          _buildMacroSlider(
+            label: 'Lạm phát',
+            value: _customInflationRate,
+            min: 0.0,
+            max: 0.15,
+            onChanged: (val) => setState(() => _customInflationRate = val),
+          ),
+          const Gap(AppSizes.md),
+          _buildMacroSlider(
+            label: 'Lãi suất đầu tư',
+            value: _customInvestmentReturn,
+            min: 0.0,
+            max: 0.20,
+            onChanged: (val) => setState(() => _customInvestmentReturn = val),
+          ),
+          const Gap(AppSizes.md),
+          _buildMacroSlider(
+            label: 'Tăng thu nhập/năm',
+            value: _customIncomeGrowth,
+            min: 0.0,
+            max: 0.10,
+            onChanged: (val) => setState(() => _customIncomeGrowth = val),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMacroSlider({
+    required String label,
+    required double value,
+    required double min,
+    required double max,
+    required ValueChanged<double> onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: Theme.of(context).textTheme.bodyMedium),
+            Text('${(value * 100).toStringAsFixed(1)}%', style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            activeTrackColor: AppColors.primary,
+            thumbColor: AppColors.primary,
+          ),
+          child: Slider(
+            value: value,
+            min: min,
+            max: max,
+            divisions: 20,
+            onChanged: onChanged,
+          ),
         ),
       ],
     );
@@ -618,7 +800,39 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
   }
 
   Widget _buildHistorySection(List<MonthlyRecord> records) {
-    if (records.isEmpty) return const SizedBox();
+    if (records.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Lịch sử tích luỹ', style: Theme.of(context).textTheme.titleLarge),
+          const Gap(AppSizes.md),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: AppSizes.xxl, horizontal: AppSizes.lg),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceElevatedDark,
+              borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+              border: Border.all(color: AppColors.borderDark),
+            ),
+            child: Column(
+              children: [
+                const Icon(Icons.history_toggle_off, size: 64, color: AppColors.textMuted),
+                const Gap(AppSizes.md),
+                Text(
+                  'Chưa có dữ liệu',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const Gap(AppSizes.sm),
+                Text(
+                  'Hãy cập nhật tiến độ mỗi tháng để AI theo dõi sát sao mục tiêu của bạn.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -652,12 +866,12 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
                       decoration: BoxDecoration(
                         color: isGood
                             ? AppColors.success.withValues(alpha: 0.1)
-                            : AppColors.warning.withValues(alpha: 0.1),
+                            : AppColors.danger.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         isGood ? Icons.trending_up : Icons.trending_down,
-                        color: isGood ? AppColors.success : AppColors.warning,
+                        color: isGood ? AppColors.success : AppColors.danger,
                       ),
                     ),
                     const Gap(AppSizes.md),

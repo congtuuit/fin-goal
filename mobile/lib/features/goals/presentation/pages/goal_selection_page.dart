@@ -63,7 +63,11 @@ class _GoalSelectionPageState extends ConsumerState<GoalSelectionPage> {
     final monthlySavingCtrl = TextEditingController(
       text: defaultMonthlySaving > 0 ? CurrencyFormatter.formatInput(defaultMonthlySaving) : '',
     );
+    final deadlineCtrl = TextEditingController();
     final formKey = GlobalKey<FormState>();
+    
+    // true = Mức tiết kiệm cố định, false = Thời hạn cố định
+    bool isBudgetFixed = true;
 
     await showModalBottomSheet(
       context: context,
@@ -73,132 +77,191 @@ class _GoalSelectionPageState extends ConsumerState<GoalSelectionPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl)),
       ),
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: AppSizes.pageHorizontalPadding,
-            right: AppSizes.pageHorizontalPadding,
-            top: AppSizes.xl,
-          ),
-          child: Form(
-            key: formKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(preset.icon, style: const TextStyle(fontSize: 32)),
-                    const Gap(AppSizes.sm),
-                    Text('Cấu hình mục tiêu', style: Theme.of(context).textTheme.titleLarge),
-                  ],
-                ),
-                const Gap(AppSizes.xl),
-                TextFormField(
-                  controller: nameCtrl,
-                  decoration: const InputDecoration(labelText: 'Tên mục tiêu'),
-                  validator: (v) => v == null || v.isEmpty ? 'Vui lòng nhập tên' : null,
-                ),
-                const Gap(AppSizes.lg),
-                TextFormField(
-                  controller: amountCtrl,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Số tiền mục tiêu',
-                    hintText: 'VD: 50.000.000',
-                    suffixText: '₫',
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: AppSizes.pageHorizontalPadding,
+                right: AppSizes.pageHorizontalPadding,
+                top: AppSizes.xl,
+              ),
+              child: Form(
+                key: formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(preset.icon, style: const TextStyle(fontSize: 32)),
+                          const Gap(AppSizes.sm),
+                          Text('Cấu hình mục tiêu', style: Theme.of(context).textTheme.titleLarge),
+                        ],
+                      ),
+                      const Gap(AppSizes.xl),
+                      TextFormField(
+                        controller: nameCtrl,
+                        decoration: const InputDecoration(labelText: 'Tên mục tiêu'),
+                        validator: (v) => v == null || v.isEmpty ? 'Vui lòng nhập tên' : null,
+                      ),
+                      const Gap(AppSizes.lg),
+                      TextFormField(
+                        controller: amountCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Số tiền mục tiêu',
+                          hintText: 'VD: 50.000.000',
+                          suffixText: '₫',
+                        ),
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return 'Vui lòng nhập số tiền';
+                          final val = CurrencyFormatter.parse(v);
+                          if (val == null || val <= 0) return 'Số tiền không hợp lệ';
+                          return null;
+                        },
+                        onChanged: (value) {
+                          final parsed = CurrencyFormatter.parse(value);
+                          if (parsed != null) {
+                            final formatted = CurrencyFormatter.formatInput(parsed);
+                            if (formatted != value) {
+                              amountCtrl.value = TextEditingValue(
+                                text: formatted,
+                                selection: TextSelection.collapsed(offset: formatted.length),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                      const Gap(AppSizes.lg),
+                      TextFormField(
+                        controller: currentSavingsCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Số tiền đã có sẵn (Tùy chọn)',
+                          hintText: 'VD: 10.000.000',
+                          suffixText: '₫',
+                        ),
+                        onChanged: (value) {
+                          final parsed = CurrencyFormatter.parse(value);
+                          if (parsed != null) {
+                            final formatted = CurrencyFormatter.formatInput(parsed);
+                            if (formatted != value) {
+                              currentSavingsCtrl.value = TextEditingValue(
+                                text: formatted,
+                                selection: TextSelection.collapsed(offset: formatted.length),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                      const Gap(AppSizes.xl),
+                      Text(
+                        'Điều gì là cố định đối với bạn?',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const Gap(AppSizes.sm),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ChoiceChip(
+                              label: const Text('Ngân sách hàng tháng'),
+                              selected: isBudgetFixed,
+                              onSelected: (val) => setModalState(() => isBudgetFixed = true),
+                            ),
+                          ),
+                          const Gap(AppSizes.sm),
+                          Expanded(
+                            child: ChoiceChip(
+                              label: const Text('Thời hạn hoàn thành'),
+                              selected: !isBudgetFixed,
+                              onSelected: (val) => setModalState(() => isBudgetFixed = false),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Gap(AppSizes.lg),
+                      if (isBudgetFixed)
+                        TextFormField(
+                          controller: monthlySavingCtrl,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Số tiền sẽ tiết kiệm mỗi tháng',
+                            hintText: 'VD: 5.000.000',
+                            suffixText: '₫',
+                          ),
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'Vui lòng nhập số tiền';
+                            final val = CurrencyFormatter.parse(v);
+                            if (val == null || val <= 0) return 'Số tiền không hợp lệ';
+                            return null;
+                          },
+                          onChanged: (value) {
+                            final parsed = CurrencyFormatter.parse(value);
+                            if (parsed != null) {
+                              final formatted = CurrencyFormatter.formatInput(parsed);
+                              if (formatted != value) {
+                                monthlySavingCtrl.value = TextEditingValue(
+                                  text: formatted,
+                                  selection: TextSelection.collapsed(offset: formatted.length),
+                                );
+                              }
+                            }
+                          },
+                        )
+                      else
+                        TextFormField(
+                          controller: deadlineCtrl,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Số tháng mong muốn hoàn thành',
+                            hintText: 'VD: 24',
+                            suffixText: 'tháng',
+                          ),
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'Vui lòng nhập số tháng';
+                            final val = int.tryParse(v);
+                            if (val == null || val <= 0) return 'Số tháng không hợp lệ';
+                            return null;
+                          },
+                        ),
+                      const Gap(AppSizes.xxl),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (formKey.currentState?.validate() ?? false) {
+                            final targetAmt = CurrencyFormatter.parse(amountCtrl.text) ?? 0;
+                            final currentSav = CurrencyFormatter.parse(currentSavingsCtrl.text) ?? 0;
+                            int finalMonthlySaving = 0;
+                            
+                            if (isBudgetFixed) {
+                              finalMonthlySaving = CurrencyFormatter.parse(monthlySavingCtrl.text) ?? 0;
+                            } else {
+                              final months = int.parse(deadlineCtrl.text);
+                              final remaining = targetAmt - currentSav;
+                              finalMonthlySaving = remaining > 0 ? (remaining / months).ceil() : 0;
+                            }
+
+                            Navigator.pop(context);
+                            _createGoal(
+                              name: nameCtrl.text.trim(),
+                              amount: targetAmt,
+                              currentSavings: currentSav,
+                              monthlySaving: finalMonthlySaving,
+                              preset: preset,
+                            );
+                          }
+                        },
+                        child: const Text('Bắt đầu mô phỏng'),
+                      ),
+                      const Gap(AppSizes.xl),
+                    ],
                   ),
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Vui lòng nhập số tiền';
-                    final val = CurrencyFormatter.parse(v);
-                    if (val == null || val <= 0) return 'Số tiền không hợp lệ';
-                    return null;
-                  },
-                  onChanged: (value) {
-                    final parsed = CurrencyFormatter.parse(value);
-                    if (parsed != null) {
-                      final formatted = CurrencyFormatter.formatInput(parsed);
-                      if (formatted != value) {
-                        amountCtrl.value = TextEditingValue(
-                          text: formatted,
-                          selection: TextSelection.collapsed(offset: formatted.length),
-                        );
-                      }
-                    }
-                  },
                 ),
-                const Gap(AppSizes.lg),
-                TextFormField(
-                  controller: currentSavingsCtrl,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Số tiền đã có sẵn (Tùy chọn)',
-                    hintText: 'VD: 10.000.000',
-                    suffixText: '₫',
-                  ),
-                  onChanged: (value) {
-                    final parsed = CurrencyFormatter.parse(value);
-                    if (parsed != null) {
-                      final formatted = CurrencyFormatter.formatInput(parsed);
-                      if (formatted != value) {
-                        currentSavingsCtrl.value = TextEditingValue(
-                          text: formatted,
-                          selection: TextSelection.collapsed(offset: formatted.length),
-                        );
-                      }
-                    }
-                  },
-                ),
-                const Gap(AppSizes.lg),
-                TextFormField(
-                  controller: monthlySavingCtrl,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Số tiền sẽ tiết kiệm mỗi tháng',
-                    hintText: 'VD: 5.000.000',
-                    suffixText: '₫',
-                  ),
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Vui lòng nhập số tiền';
-                    final val = CurrencyFormatter.parse(v);
-                    if (val == null || val <= 0) return 'Số tiền không hợp lệ';
-                    return null;
-                  },
-                  onChanged: (value) {
-                    final parsed = CurrencyFormatter.parse(value);
-                    if (parsed != null) {
-                      final formatted = CurrencyFormatter.formatInput(parsed);
-                      if (formatted != value) {
-                        monthlySavingCtrl.value = TextEditingValue(
-                          text: formatted,
-                          selection: TextSelection.collapsed(offset: formatted.length),
-                        );
-                      }
-                    }
-                  },
-                ),
-                const Gap(AppSizes.xxl),
-                ElevatedButton(
-                  onPressed: () {
-                    if (formKey.currentState?.validate() ?? false) {
-                      Navigator.pop(context);
-                      _createGoal(
-                        name: nameCtrl.text.trim(),
-                        amount: CurrencyFormatter.parse(amountCtrl.text)!,
-                        currentSavings: CurrencyFormatter.parse(currentSavingsCtrl.text) ?? 0,
-                        monthlySaving: CurrencyFormatter.parse(monthlySavingCtrl.text) ?? 0,
-                        preset: preset,
-                      );
-                    }
-                  },
-                  child: const Text('Bắt đầu mô phỏng'),
-                ),
-                const Gap(AppSizes.xl),
-              ],
-            ),
-          )),
+              ),
+            );
+          }
         );
       },
     );
