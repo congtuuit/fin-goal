@@ -13,6 +13,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- RPC Function to delete the authenticated user's account
+CREATE OR REPLACE FUNCTION delete_user()
+RETURNS void AS $$
+BEGIN
+    DELETE FROM auth.users WHERE id = auth.uid();
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- ============================================================================
 -- 2. Tables & Triggers
 -- ============================================================================
@@ -133,7 +141,7 @@ CREATE OR REPLACE TRIGGER update_user_subscriptions_updated_at
 CREATE OR REPLACE FUNCTION create_default_subscription()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO user_subscriptions (user_id, tier)
+    INSERT INTO public.user_subscriptions (user_id, tier)
     VALUES (NEW.id, 'free')
     ON CONFLICT (user_id) DO NOTHING;
     RETURN NEW;

@@ -133,9 +133,14 @@ class AuthRepositoryImpl implements AuthRepository {
       if (user == null) return const Left(AuthFailure(message: 'Không thể xác thực với Supabase.'));
       return Right(UserModel.fromSupabase(user).toEntity());
     } on sb.AuthException catch (e) {
-      return Left(AuthFailure(message: _translateAuthError(e.message)));
+      debugPrint('Google Sign-In Supabase AuthException: ${e.message} (status: ${e.statusCode})');
+      return Left(AuthFailure(
+        message: 'Xác thực Supabase thất bại: ${e.message}', 
+        code: e.statusCode?.toString()
+      ));
     } catch (e) {
-      return Left(AuthFailure(message: e.toString()));
+      debugPrint('Google Sign-In General Exception: $e');
+      return Left(AuthFailure(message: 'Lỗi hệ thống: $e'));
     }
   }
 
@@ -144,6 +149,19 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final prefs = getIt<SharedPreferences>();
       await prefs.remove('local_username');
+      
+      try {
+        final googleSignIn = GoogleSignIn(
+          clientId: Platform.isIOS ? AppConfig.googleIosClientId : null,
+          serverClientId: AppConfig.googleWebClientId.isNotEmpty ? AppConfig.googleWebClientId : null,
+        );
+        if (await googleSignIn.isSignedIn()) {
+          await googleSignIn.signOut();
+        }
+      } catch (e) {
+        debugPrint('Google Sign-Out error: $e');
+      }
+
       await _client.auth.signOut();
       return const Right(unit);
     } catch (_) {
@@ -197,8 +215,22 @@ class AuthRepositoryImpl implements AuthRepository {
       } catch (_) {
         // If RPC doesn't exist, we just sign out for the MVP
       }
+
+      // Also sign out from Google Sign-In so that they can sign in/sign up again next time!
+      try {
+        final googleSignIn = GoogleSignIn(
+          clientId: Platform.isIOS ? AppConfig.googleIosClientId : null,
+          serverClientId: AppConfig.googleWebClientId.isNotEmpty ? AppConfig.googleWebClientId : null,
+        );
+        if (await googleSignIn.isSignedIn()) {
+          await googleSignIn.signOut();
+        }
+      } catch (e) {
+        debugPrint('Google Sign-Out during account deletion error: $e');
+      }
       
-      await _client.auth.signOut();
+      // Sign out locally to clear session cache since user record is deleted
+      await _client.auth.signOut(scope: sb.SignOutScope.local);
       return const Right(unit);
     } catch (e) {
       return const Left(ServerFailure());
