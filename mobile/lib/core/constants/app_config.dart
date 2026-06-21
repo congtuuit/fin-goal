@@ -4,16 +4,16 @@ class AppConfig {
   AppConfig._();
 
   // ── Mode Configuration ──────────────────────────────────────────────────────
-  static const isOffline = String.fromEnvironment('OFFLINE', defaultValue: 'true') == 'true';
+  static const isOffline = String.fromEnvironment('OFFLINE', defaultValue: 'false') == 'true';
 
   // ── Supabase ──────────────────────────────────────────────────────────────
   static const supabaseUrl = String.fromEnvironment(
     'SUPABASE_URL',
-    defaultValue: 'http://localhost:54321', // local dev default
+    defaultValue: 'https://jpjncvzbdlvxhqqiaied.supabase.co/',
   );
   static const supabaseAnonKey = String.fromEnvironment(
     'SUPABASE_ANON_KEY',
-    defaultValue: 'your-local-anon-key',
+    defaultValue: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impwam5jdnpiZGx2eGhxcWlhaWVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NjYzNDgsImV4cCI6MjA5NzU0MjM0OH0.cqXitmYMVjnRLyD7SZNH3nnizwbemhgemuqALau0als',
   );
 
   // ── Sentry ────────────────────────────────────────────────────────────────

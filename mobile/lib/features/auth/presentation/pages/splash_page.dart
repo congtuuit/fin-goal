@@ -46,18 +46,14 @@ class _SplashPageState extends ConsumerState<SplashPage>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // App logo placeholder
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  gradient: AppColors.gradientPrimary,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusXl),
-                ),
-                child: const Icon(
-                  Icons.trending_up_rounded,
-                  color: Colors.white,
-                  size: AppSizes.iconXl,
+              // App logo
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppSizes.radiusXl),
+                child: Image.asset(
+                  'assets/images/plash.png',
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.contain,
                 ),
               ),
               const SizedBox(height: AppSizes.lg),
