@@ -3,12 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fin_goal/core/theme/app_theme.dart';
 import 'package:fin_goal/app/router/app_router.dart';
+import 'package:fin_goal/core/services/notification_service.dart';
 
 class App extends ConsumerWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Keep the salary reminder scheduler active
+    ref.watch(salaryReminderSchedulerProvider);
+
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(

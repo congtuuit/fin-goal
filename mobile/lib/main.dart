@@ -7,6 +7,7 @@ import 'package:fin_goal/app/di/injection.dart';
 import 'package:fin_goal/core/constants/app_config.dart';
 // import 'package:fin_goal/core/services/ad_service.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:fin_goal/core/services/notification_service.dart';
 
 Future<void> main() async {
   await bootstrap(AppFlavor.production);
@@ -16,6 +17,9 @@ Future<void> main() async {
 Future<void> bootstrap(AppFlavor flavor) async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  // Local Notifications Initialization
+  await NotificationService.instance.initialize();
 
   // Supabase
   await Supabase.initialize(

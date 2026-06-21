@@ -12,6 +12,7 @@ import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart
 import 'package:fin_goal/features/auth/presentation/widgets/login_bottom_sheet.dart';
 import 'package:fin_goal/core/services/direct_client_ai_service.dart';
 import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
+import 'package:fin_goal/core/services/notification_service.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -120,6 +121,29 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
   }
 
+  Future<void> _requestNotificationPermissions() async {
+    final granted = await NotificationService.instance.requestPermissions();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(granted ? 'Đã được cấp quyền thông báo!' : 'Yêu cầu quyền thông báo bị từ chối.'),
+        backgroundColor: granted ? AppColors.success : AppColors.danger,
+      ),
+    );
+  }
+
+  Future<void> _triggerTestNotification() async {
+    await NotificationService.instance.requestPermissions();
+    await NotificationService.instance.scheduleTestNotification();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Thông báo test sẽ hiển thị sau 5 giây. Vui lòng chuyển app xuống nền/khóa màn hình!'),
+        backgroundColor: AppColors.primary,
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _apiKeyCtrl.dispose();
@@ -209,6 +233,21 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   Padding(
                     padding: const EdgeInsets.only(left: 8, bottom: 8),
                     child: Text(
+                      'THÔNG BÁO',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textMuted,
+                            letterSpacing: 1.2,
+                          ),
+                    ),
+                  ),
+                  _buildNotificationSettingsCard(),
+
+                  const Gap(AppSizes.xxl),
+
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, bottom: 8),
+                    child: Text(
                       'PHÁP LÝ',
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             fontWeight: FontWeight.bold,
@@ -237,6 +276,69 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _buildNotificationSettingsCard() {
+    return Card(
+      color: AppColors.surfaceDark,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+        side: const BorderSide(color: AppColors.borderDark),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSizes.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.notifications_active, color: AppColors.primary),
+                const Gap(AppSizes.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Nhắc nhở ngày nhận lương',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                      ),
+                      const Gap(4),
+                      Text(
+                        'Tự động nhắc bạn kiểm kê kế hoạch vào ngày nhận lương hàng tháng nếu còn mục tiêu chưa xong.',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const Gap(AppSizes.lg),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _requestNotificationPermissions,
+                    child: const Text('Cấp quyền thông báo'),
+                  ),
+                ),
+                const Gap(AppSizes.md),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _triggerTestNotification,
+                    child: const Text('Test thông báo (5s)'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 

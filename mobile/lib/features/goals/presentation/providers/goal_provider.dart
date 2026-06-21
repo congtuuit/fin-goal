@@ -2,13 +2,13 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:fin_goal/core/constants/app_config.dart';
 import 'package:fin_goal/app/di/injection.dart';
 import 'package:fin_goal/core/errors/failures.dart';
 import 'package:fin_goal/features/goals/data/repositories/goal_repository_impl.dart';
 import 'package:fin_goal/features/goals/data/repositories/local_goal_repository_impl.dart';
 import 'package:fin_goal/features/goals/domain/entities/goal.dart';
 import 'package:fin_goal/features/goals/domain/repositories/goal_repository.dart';
+import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
 
 part 'goal_provider.g.dart';
 
@@ -16,10 +16,11 @@ part 'goal_provider.g.dart';
 
 @riverpod
 GoalRepository goalRepository(Ref ref) {
-  if (AppConfig.isOffline) {
-    return LocalGoalRepositoryImpl(getIt<SharedPreferences>());
+  final user = ref.watch(currentUserProvider);
+  if (user != null && user.id != 'local_user_id') {
+    return GoalRepositoryImpl(Supabase.instance.client);
   }
-  return GoalRepositoryImpl(Supabase.instance.client);
+  return LocalGoalRepositoryImpl(getIt<SharedPreferences>());
 }
 
 // ── Goals Controller ──────────────────────────────────────────────────────

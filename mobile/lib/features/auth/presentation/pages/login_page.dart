@@ -29,6 +29,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final authStatus = ref.watch(authProvider);
+    final hasGoogleHistory = ref.watch(hasLoggedInWithGoogleProvider);
 
     // Listen for success/error
     ref.listen(authProvider, (_, next) {
@@ -61,10 +62,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Spacer(),
-                
+
                 // Conversational Header
                 Text(
-                  'Xin chào! 👋',
+                  hasGoogleHistory ? 'Chào mừng trở lại! 👋' : 'Xin chào! 👋',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -74,110 +75,115 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
                 const SizedBox(height: AppSizes.md),
                 Text(
-                  'Trợ lý AI nên xưng hô với bạn thế nào?',
+                  hasGoogleHistory
+                      ? 'Đăng nhập bằng Google để tiếp tục hành trình tài chính của bạn.'
+                      : 'Trợ lý AI nên xưng hô với bạn thế nào?',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: AppColors.textSecondary,
                       ),
                   textAlign: TextAlign.start,
                 ),
                 
-                const SizedBox(height: AppSizes.xxl),
-                
-                // Big Name Input
-                TextFormField(
-                  controller: _nameCtrl,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Tên hoặc biệt danh...',
-                    hintStyle: TextStyle(fontSize: 24, color: AppColors.textMuted.withValues(alpha: 0.5)),
-                    filled: true,
-                    fillColor: AppColors.surfaceDark,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(4),
-                      borderSide: BorderSide.none,
+                if (!hasGoogleHistory) ...[
+                  const SizedBox(height: AppSizes.xxl),
+                  
+                  // Big Name Input
+                  TextFormField(
+                    controller: _nameCtrl,
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Tên hoặc biệt danh...',
+                      hintStyle: TextStyle(fontSize: 24, color: AppColors.textMuted.withValues(alpha: 0.5)),
+                      filled: true,
+                      fillColor: AppColors.surfaceDark,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(4),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+                      errorStyle: const TextStyle(height: 0, fontSize: 0),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
-                    errorStyle: const TextStyle(height: 0, fontSize: 0),
+                    onChanged: (val) {
+                      if (_errorMessage != null && val.trim().isNotEmpty) {
+                        setState(() => _errorMessage = null);
+                        _formKey.currentState?.validate();
+                      }
+                    },
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return '';
+                      }
+                      return null;
+                    },
                   ),
-                  onChanged: (val) {
-                    if (_errorMessage != null && val.trim().isNotEmpty) {
-                      setState(() => _errorMessage = null);
-                      _formKey.currentState?.validate();
-                    }
-                  },
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return '';
-                    }
-                    return null;
-                  },
-                ),
-                
-                if (_errorMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      _errorMessage!,
-                      style: const TextStyle(color: AppColors.danger, fontSize: 13),
+                  
+                  if (_errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        _errorMessage!,
+                        style: const TextStyle(color: AppColors.danger, fontSize: 13),
+                      ),
                     ),
-                  ),
+                ],
                 
                 const Spacer(flex: 2),
                 
-                // Start Button
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primary, AppColors.primaryLight],
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.3),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
+                if (!hasGoogleHistory) ...[
+                  // Start Button
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      gradient: const LinearGradient(
+                        colors: [AppColors.primary, AppColors.primaryLight],
                       ),
-                    ],
-                  ),
-                  child: ElevatedButton(
-                    onPressed: isLoading
-                        ? null
-                        : () {
-                            if (_formKey.currentState!.validate()) {
-                              setState(() => _errorMessage = null);
-                              ref
-                                  .read(authProvider.notifier)
-                                  .signInWithName(_nameCtrl.text.trim());
-                            } else {
-                              setState(() => _errorMessage = 'Bạn chưa nhập tên kìa!');
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
                     ),
-                    child: isLoading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : const Text(
-                            'Bắt đầu ngay',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                    child: ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              if (_formKey.currentState!.validate()) {
+                                setState(() => _errorMessage = null);
+                                ref
+                                    .read(authProvider.notifier)
+                                    .signInWithName(_nameCtrl.text.trim());
+                              } else {
+                                setState(() => _errorMessage = 'Bạn chưa nhập tên kìa!');
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      child: isLoading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Text(
+                              'Bắt đầu ngay',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
+                    ),
                   ),
-                ),
-                
-                const SizedBox(height: AppSizes.xl),
+                  const SizedBox(height: AppSizes.xl),
+                ],
                 
                 // Google Sync Button
                 ElevatedButton.icon(

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 import 'package:google_sign_in/google_sign_in.dart';
@@ -15,15 +16,30 @@ import 'package:fin_goal/app/di/injection.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final sb.SupabaseClient _client;
+  final _localAuthStreamController = StreamController<AppUser?>.broadcast();
 
-  const AuthRepositoryImpl(this._client);
+  AuthRepositoryImpl(this._client);
 
   @override
-  Stream<AppUser?> watchAuthState() {
-    return _client.auth.onAuthStateChange.map((event) {
+  Stream<AppUser?> watchAuthState() async* {
+    yield getCurrentUser();
+    
+    final controller = StreamController<AppUser?>.broadcast();
+    
+    final sub = _client.auth.onAuthStateChange.map((event) {
       final user = event.session?.user;
       return user != null ? UserModel.fromSupabase(user).toEntity() : null;
-    });
+    }).listen(controller.add);
+    
+    final localSub = _localAuthStreamController.stream.listen(controller.add);
+    
+    try {
+      yield* controller.stream;
+    } finally {
+      await sub.cancel();
+      await localSub.cancel();
+      await controller.close();
+    }
   }
 
   @override
@@ -131,6 +147,10 @@ class AuthRepositoryImpl implements AuthRepository {
       
       final user = response.user;
       if (user == null) return const Left(AuthFailure(message: 'Không thể xác thực với Supabase.'));
+      
+      final prefs = getIt<SharedPreferences>();
+      await prefs.setBool('has_logged_in_with_google', true);
+      
       return Right(UserModel.fromSupabase(user).toEntity());
     } on sb.AuthException catch (e) {
       debugPrint('Google Sign-In Supabase AuthException: ${e.message} (status: ${e.statusCode})');
@@ -162,6 +182,7 @@ class AuthRepositoryImpl implements AuthRepository {
         debugPrint('Google Sign-Out error: $e');
       }
 
+      _localAuthStreamController.add(null);
       await _client.auth.signOut();
       return const Right(unit);
     } catch (_) {
@@ -180,12 +201,15 @@ class AuthRepositoryImpl implements AuthRepository {
       final prefs = getIt<SharedPreferences>();
       await prefs.setString('local_username', trimmedName);
       
-      return Right(AppUser(
+      final user = AppUser(
         id: 'local_user_id',
         displayName: trimmedName,
         email: 'offline@fingoal.local',
         createdAt: DateTime.now(),
-      ));
+      );
+      
+      _localAuthStreamController.add(user);
+      return Right(user);
     } catch (_) {
       return const Left(StorageFailure(message: 'Không thể lưu tên người dùng.'));
     }
@@ -229,6 +253,9 @@ class AuthRepositoryImpl implements AuthRepository {
         debugPrint('Google Sign-Out during account deletion error: $e');
       }
       
+      _localAuthStreamController.add(null);
+      final prefs = getIt<SharedPreferences>();
+      await prefs.remove('has_logged_in_with_google');
       // Sign out locally to clear session cache since user record is deleted
       await _client.auth.signOut(scope: sb.SignOutScope.local);
       return const Right(unit);

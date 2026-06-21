@@ -1,7 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:fin_goal/core/constants/app_config.dart';
 import 'package:fin_goal/app/di/injection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,6 +9,7 @@ import 'package:fin_goal/features/profile/data/repositories/profile_repository_i
 import 'package:fin_goal/features/profile/data/repositories/local_profile_repository_impl.dart';
 import 'package:fin_goal/features/profile/domain/entities/financial_profile.dart';
 import 'package:fin_goal/features/profile/domain/repositories/profile_repository.dart';
+import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
 
 part 'profile_provider.g.dart';
 
@@ -17,10 +17,11 @@ part 'profile_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 ProfileRepository profileRepository(Ref ref) {
-  if (AppConfig.isOffline) {
-    return LocalProfileRepositoryImpl(getIt<SharedPreferences>());
+  final user = ref.watch(currentUserProvider);
+  if (user != null && user.id != 'local_user_id') {
+    return ProfileRepositoryImpl(Supabase.instance.client);
   }
-  return ProfileRepositoryImpl(Supabase.instance.client);
+  return LocalProfileRepositoryImpl(getIt<SharedPreferences>());
 }
 
 // ── Onboarding State Provider ─────────────────────────────────────────────

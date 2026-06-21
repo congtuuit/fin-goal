@@ -8,6 +8,8 @@ import 'package:fin_goal/features/auth/data/repositories/auth_repository_impl.da
 import 'package:fin_goal/features/auth/data/repositories/local_auth_repository_impl.dart';
 import 'package:fin_goal/features/auth/domain/entities/app_user.dart';
 import 'package:fin_goal/features/auth/domain/repositories/auth_repository.dart';
+import 'package:fin_goal/features/auth/domain/repositories/data_sync_repository.dart';
+import 'package:fin_goal/features/auth/data/repositories/data_sync_repository_impl.dart';
 
 part 'auth_provider.g.dart';
 
@@ -21,6 +23,11 @@ AuthRepository authRepository(Ref ref) {
   return AuthRepositoryImpl(Supabase.instance.client);
 }
 
+@riverpod
+DataSyncRepository dataSyncRepository(Ref ref) {
+  return DataSyncRepositoryImpl(Supabase.instance.client, getIt<SharedPreferences>());
+}
+
 // ── Auth State Providers ──────────────────────────────────────────────────
 
 /// Watches auth state reactively — rebuilds on sign in / sign out.
@@ -32,7 +39,11 @@ Stream<AppUser?> authState(Ref ref) {
 /// Current user — null if not logged in.
 @riverpod
 AppUser? currentUser(Ref ref) {
-  return ref.watch(authRepositoryProvider).getCurrentUser();
+  final authStateAsync = ref.watch(authStateProvider);
+  return authStateAsync.maybeWhen(
+    data: (user) => user,
+    orElse: () => ref.read(authRepositoryProvider).getCurrentUser(),
+  );
 }
 
 /// True if user is authenticated.
@@ -114,10 +125,17 @@ class AuthNotifier extends _$AuthNotifier {
   Future<void> signInWithGoogle() async {
     state = const AuthLoading();
     final result = await ref.read(authRepositoryProvider).signInWithGoogle();
-    state = result.fold(
-      (failure) => AuthError(failure.message),
-      (user) => AuthSuccess(user),
-    );
+    
+    if (result.isRight()) {
+      final user = result.getOrElse(() => throw Exception());
+      // Sync local data if any
+      await ref.read(dataSyncRepositoryProvider).syncLocalDataToOnline();
+      ref.invalidate(hasLoggedInWithGoogleProvider);
+      state = AuthSuccess(user);
+    } else {
+      final failure = result.fold((l) => l, (r) => throw Exception());
+      state = AuthError(failure.message);
+    }
   }
 
   Future<void> signOut() async {
@@ -154,4 +172,10 @@ class HasSeenWelcome extends _$HasSeenWelcome {
     state = true;
     await getIt<SharedPreferences>().setBool('has_seen_welcome', true);
   }
+}
+
+// ── Google Login Status ───────────────────────────────────────────────────
+@riverpod
+bool hasLoggedInWithGoogle(Ref ref) {
+  return getIt<SharedPreferences>().getBool('has_logged_in_with_google') ?? false;
 }
