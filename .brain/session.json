@@ -1,17 +1,16 @@
 {
-  "updated_at": "2026-06-21T14:00:00Z",
+  "updated_at": "2026-06-21T14:11:00Z",
   "working_on": {
     "feature": "Branding & Assets",
-    "task": "Use plash.png for native splash screen and in-app splash page",
+    "task": "Align app name to 'Financial Goals' (main title) and 'Financial Simulator' (subtitle/description) on Splash Screen and App config",
     "status": "completed",
     "files": [
-      "mobile/assets/images/plash.png",
-      "mobile/flutter_native_splash.yaml",
-      "mobile/pubspec.yaml",
-      "mobile/lib/features/auth/presentation/pages/splash_page.dart"
+      "mobile/lib/features/auth/presentation/pages/splash_page.dart",
+      "mobile/lib/app/app.dart",
+      "docs/store_marketing_kit.md"
     ],
     "blockers": [],
-    "notes": "Updated native splash yaml config and pubspec config to use assets/images/plash.png. Regenerated native splash screens for Android and iOS. Updated the Image.asset widget inside splash_page.dart to display plash.png."
+    "notes": "Configured hybrid name scheme: 'Financial Goals' is the primary app name and display title on splash page, while 'Financial Simulator' is the description/subtitle. Updated store_marketing_kit.md to use 'Financial Goals - Simulator'."
   },
   "pending_tasks": [
     { "task": "Integrate premium features properly", "priority": "medium", "notes": "Paywall and limits" },
@@ -19,14 +18,14 @@
     { "task": "AI Coach Feature", "priority": "medium", "notes": "Implement AI Coach" }
   ],
   "recent_changes": [
+    { "timestamp": "2026-06-21T14:11:00Z", "type": "feature", "description": "Apply hybrid branding with Financial Goals as main brand and Financial Simulator as subtitle", "files": ["mobile/lib/features/auth/presentation/pages/splash_page.dart", "mobile/lib/app/app.dart", "docs/store_marketing_kit.md"] },
     { "timestamp": "2026-06-21T14:00:00Z", "type": "feature", "description": "Configure and regenerate splash screens to use plash.png", "files": ["mobile/assets/images/plash.png", "mobile/flutter_native_splash.yaml", "mobile/pubspec.yaml", "mobile/lib/features/auth/presentation/pages/splash_page.dart"] },
-    { "timestamp": "2026-06-21T13:34:00Z", "type": "config", "description": "Disable offline mode by default and configure Supabase credentials fallback", "files": ["mobile/lib/core/constants/app_config.dart"] },
-    { "timestamp": "2026-06-21T13:17:00Z", "type": "feature", "description": "Integrate redesigned logo, regenerate native launcher icons and native splash screens, and update app splash page UI", "files": ["mobile/assets/images/logo.png", "mobile/pubspec.yaml", "mobile/lib/features/auth/presentation/pages/splash_page.dart"] }
+    { "timestamp": "2026-06-21T13:34:00Z", "type": "config", "description": "Disable offline mode by default and configure Supabase credentials fallback", "files": ["mobile/lib/core/constants/app_config.dart"] }
   ],
   "errors_encountered": [],
   "decisions_made": [
+    { "decision": "Branding Strategy Alignment", "reason": "Adopted hybrid branding: 'Financial Goals' as launcher/app name and splash main brand, 'Financial Simulator' as subtitle on splash page and marketing kit suffix ('Financial Goals - Simulator')." },
     { "decision": "Disable Offline Mode by Default", "reason": "User requested to turn off offline mode. Configured AppConfig to use false as default for isOffline and set development Supabase credentials as fallback." },
-    { "decision": "Disable Ads", "reason": "User requested to temporarily comment out all ad-related code. A list of modified files was created at disabled_ads_files.txt." },
-    { "decision": "Fast Track Logic", "reason": "Kept upfront cash at x100 for big deals, lowered monthly income to x20 to make game challenging. Rat Race assets are bundled into a Personal Trust Fund instead of being wiped." }
+    { "decision": "Disable Ads", "reason": "User requested to temporarily comment out all ad-related code. A list of modified files was created at disabled_ads_files.txt." }
   ]
 }

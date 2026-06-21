@@ -7,7 +7,7 @@ Bộ tài liệu chuẩn bị cho việc phát hành ứng dụng lên các kho 
 ## 📌 THÔNG TIN CƠ BẢN (Basic Info)
 
 **Tên ứng dụng (App Name - Tối đa 30 ký tự):**
-> Financial Goals - Tương Lai
+> Financial Goals - Simulator
 
 **Phụ đề (Subtitle / Short Description):**
 > Quản trị mục tiêu, làm chủ dòng tiền và chạm mốc tự do tài chính.

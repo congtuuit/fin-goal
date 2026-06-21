@@ -58,13 +58,18 @@ class _SplashPageState extends ConsumerState<SplashPage>
               ),
               const SizedBox(height: AppSizes.lg),
               Text(
-                'Financial Simulator',
-                style: Theme.of(context).textTheme.headlineSmall,
+                'Financial Goals',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
               ),
               const SizedBox(height: AppSizes.sm),
               Text(
-                'Mô phỏng tài chính của bạn',
-                style: Theme.of(context).textTheme.bodyMedium,
+                'Financial Simulator',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
               ),
               const SizedBox(height: AppSizes.xxl),
               SizedBox(
