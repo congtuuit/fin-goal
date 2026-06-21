@@ -11,6 +11,7 @@ import 'package:fin_goal/core/utils/validators.dart';
 import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
 import 'package:fin_goal/features/profile/domain/entities/financial_profile.dart';
 import 'package:fin_goal/features/profile/presentation/providers/profile_provider.dart';
+import 'package:fin_goal/app/router/routes.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
@@ -116,7 +117,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               content: Text(error.message), backgroundColor: AppColors.danger),
         );
       } else {
-        context.go('/home/board-game');
+        context.go(AppRoutes.cashflowBoardGame);
       }
     }
   }

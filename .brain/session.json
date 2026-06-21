@@ -1,16 +1,14 @@
 {
-  "updated_at": "2026-06-21T14:11:00Z",
+  "updated_at": "2026-06-21T14:55:00Z",
   "working_on": {
-    "feature": "Branding & Assets",
-    "task": "Align app name to 'Financial Goals' (main title) and 'Financial Simulator' (subtitle/description) on Splash Screen and App config",
+    "feature": "Onboarding",
+    "task": "Fix invalid navigation target path on onboarding page submit",
     "status": "completed",
     "files": [
-      "mobile/lib/features/auth/presentation/pages/splash_page.dart",
-      "mobile/lib/app/app.dart",
-      "docs/store_marketing_kit.md"
+      "mobile/lib/features/onboarding/presentation/pages/onboarding_page.dart"
     ],
     "blockers": [],
-    "notes": "Configured hybrid name scheme: 'Financial Goals' is the primary app name and display title on splash page, while 'Financial Simulator' is the description/subtitle. Updated store_marketing_kit.md to use 'Financial Goals - Simulator'."
+    "notes": "Fixed route redirection error where the app was trying to navigate to non-existent path '/home/board-game' upon completing onboarding. Replaced it with the correct constant AppRoutes.cashflowBoardGame ('/cashflow-board-game')."
   },
   "pending_tasks": [
     { "task": "Integrate premium features properly", "priority": "medium", "notes": "Paywall and limits" },
@@ -18,14 +16,14 @@
     { "task": "AI Coach Feature", "priority": "medium", "notes": "Implement AI Coach" }
   ],
   "recent_changes": [
-    { "timestamp": "2026-06-21T14:11:00Z", "type": "feature", "description": "Apply hybrid branding with Financial Goals as main brand and Financial Simulator as subtitle", "files": ["mobile/lib/features/auth/presentation/pages/splash_page.dart", "mobile/lib/app/app.dart", "docs/store_marketing_kit.md"] },
-    { "timestamp": "2026-06-21T14:00:00Z", "type": "feature", "description": "Configure and regenerate splash screens to use plash.png", "files": ["mobile/assets/images/plash.png", "mobile/flutter_native_splash.yaml", "mobile/pubspec.yaml", "mobile/lib/features/auth/presentation/pages/splash_page.dart"] },
-    { "timestamp": "2026-06-21T13:34:00Z", "type": "config", "description": "Disable offline mode by default and configure Supabase credentials fallback", "files": ["mobile/lib/core/constants/app_config.dart"] }
+    { "timestamp": "2026-06-21T14:55:00Z", "type": "bugfix", "description": "Fix invalid navigation target on onboarding completion", "files": ["mobile/lib/features/onboarding/presentation/pages/onboarding_page.dart"] },
+    { "timestamp": "2026-06-21T14:51:00Z", "type": "bugfix", "description": "Configure fallback Google Client IDs in AppConfig and add auth diagnostic logs", "files": ["mobile/lib/core/constants/app_config.dart", "mobile/lib/features/auth/data/repositories/auth_repository_impl.dart"] },
+    { "timestamp": "2026-06-21T14:35:00Z", "type": "feature", "description": "Implement Native Google Sign-In flow with google_sign_in and Supabase", "files": ["mobile/pubspec.yaml", "mobile/lib/core/constants/app_config.dart", "mobile/lib/features/auth/data/repositories/auth_repository_impl.dart"] }
   ],
   "errors_encountered": [],
   "decisions_made": [
-    { "decision": "Branding Strategy Alignment", "reason": "Adopted hybrid branding: 'Financial Goals' as launcher/app name and splash main brand, 'Financial Simulator' as subtitle on splash page and marketing kit suffix ('Financial Goals - Simulator')." },
-    { "decision": "Disable Offline Mode by Default", "reason": "User requested to turn off offline mode. Configured AppConfig to use false as default for isOffline and set development Supabase credentials as fallback." },
-    { "decision": "Disable Ads", "reason": "User requested to temporarily comment out all ad-related code. A list of modified files was created at disabled_ads_files.txt." }
+    { "decision": "Google Client ID Fallback Configuration", "reason": "Added development Google Web/iOS Client IDs as default values inside AppConfig so local debug builds connect automatically without requiring explicit --dart-define parameters." },
+    { "decision": "Native Google Sign-In Integration", "reason": "Implemented Native Google Sign-In (Option A) using google_sign_in package to provide seamless UX without leaving the app, authentication is completed via signInWithIdToken on Supabase." },
+    { "decision": "Keystore Signing Setup", "reason": "Generated release upload-keystore.jks in PKCS12 format, set up key.properties and created fingerprints.txt for safe local credential reference." }
   ]
 }

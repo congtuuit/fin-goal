@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dartz/dartz.dart';
@@ -28,7 +29,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
       if (data == null) return const Right(null);
       return Right(FinancialProfileModel.fromJson(data).toEntity());
     } catch (e) {
-      return const Left(ServerFailure());
+      debugPrint('ProfileRepositoryImpl.getProfile error: $e');
+      return Left(ServerFailure(message: 'Lỗi máy chủ (getProfile): $e'));
     }
   }
 
@@ -51,7 +53,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
       return Right(FinancialProfileModel.fromJson(data).toEntity());
     } catch (e) {
-      return const Left(ServerFailure());
+      debugPrint('ProfileRepositoryImpl.createProfile error: $e');
+      return Left(ServerFailure(message: 'Lỗi máy chủ (createProfile): $e'));
     }
   }
 
@@ -71,7 +74,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
       return Right(FinancialProfileModel.fromJson(data).toEntity());
     } catch (e) {
-      return const Left(ServerFailure());
+      debugPrint('ProfileRepositoryImpl.updateProfile error: $e');
+      return Left(ServerFailure(message: 'Lỗi máy chủ (updateProfile): $e'));
     }
   }
 

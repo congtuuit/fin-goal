@@ -82,3 +82,4 @@ mobile/deps.txt
 .buildlog/
 .history/
 migrate_working_dir/
+.env.development

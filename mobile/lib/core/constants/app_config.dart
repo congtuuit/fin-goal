@@ -41,6 +41,16 @@ class AppConfig {
     'POSTHOG_HOST',
     defaultValue: 'https://app.posthog.com',
   );
+
+  // ── Google Sign-In ────────────────────────────────────────────────────────
+  static const googleWebClientId = String.fromEnvironment(
+    'GOOGLE_WEB_CLIENT_ID',
+    defaultValue: '485944967593-pqf3rietfrtbbni44hvkl24rjvttl5ls.apps.googleusercontent.com',
+  );
+  static const googleIosClientId = String.fromEnvironment(
+    'GOOGLE_IOS_CLIENT_ID',
+    defaultValue: '485944967593-l1v82v83o6s0l1t1s68lpb46h1t38f7g.apps.googleusercontent.com',
+  );
 }
 
 /// App flavor/environment

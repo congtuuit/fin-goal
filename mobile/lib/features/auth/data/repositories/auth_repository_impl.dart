@@ -1,8 +1,12 @@
+import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
+import 'package:google_sign_in/google_sign_in.dart';
 
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:fin_goal/core/constants/app_config.dart';
 import 'package:fin_goal/core/errors/failures.dart';
 import 'package:fin_goal/features/auth/domain/entities/app_user.dart';
 import 'package:fin_goal/features/auth/domain/repositories/auth_repository.dart';
@@ -84,15 +88,54 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, AppUser>> signInWithGoogle() async {
     try {
-      await _client.auth.signInWithOAuth(sb.OAuthProvider.google);
-      // OAuth redirect — user will be set after deep link callback
-      final user = _client.auth.currentUser;
-      if (user == null) return const Left(AuthFailure());
+      debugPrint('--- Google Sign-In Diagnostic ---');
+      debugPrint('AppConfig.googleWebClientId: "${AppConfig.googleWebClientId}"');
+      debugPrint('AppConfig.googleIosClientId: "${AppConfig.googleIosClientId}"');
+      debugPrint('Platform: ${Platform.isIOS ? "iOS" : "Android"}');
+      
+      final googleSignIn = GoogleSignIn(
+        clientId: Platform.isIOS ? AppConfig.googleIosClientId : null,
+        serverClientId: AppConfig.googleWebClientId.isNotEmpty ? AppConfig.googleWebClientId : null,
+      );
+      
+      debugPrint('GoogleSignIn initialized with serverClientId: "${googleSignIn.serverClientId}"');
+      
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        debugPrint('Google Sign-In: User cancelled the flow.');
+        return const Left(AuthFailure(message: 'Đăng nhập Google bị hủy.'));
+      }
+      
+      debugPrint('Google Sign-In: User signed in successfully: ${googleUser.email}');
+      
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken;
+      final accessToken = googleAuth.accessToken;
+      
+      debugPrint('Google Sign-In credentials fetched:');
+      debugPrint('  idToken is null: ${idToken == null}');
+      debugPrint('  idToken length: ${idToken?.length}');
+      debugPrint('  accessToken is null: ${accessToken == null}');
+      debugPrint('  accessToken length: ${accessToken?.length}');
+      
+      if (idToken == null) {
+        debugPrint('Google Sign-In ERROR: idToken is null. Check if the package name and SHA-1 keys are properly registered in Google Cloud Console!');
+        return const Left(AuthFailure(message: 'Không tìm thấy ID Token từ Google.'));
+      }
+      
+      final response = await _client.auth.signInWithIdToken(
+        provider: sb.OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+      
+      final user = response.user;
+      if (user == null) return const Left(AuthFailure(message: 'Không thể xác thực với Supabase.'));
       return Right(UserModel.fromSupabase(user).toEntity());
     } on sb.AuthException catch (e) {
       return Left(AuthFailure(message: _translateAuthError(e.message)));
-    } catch (_) {
-      return const Left(ServerFailure());
+    } catch (e) {
+      return Left(AuthFailure(message: e.toString()));
     }
   }
 
