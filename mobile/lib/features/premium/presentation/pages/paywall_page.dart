@@ -8,6 +8,8 @@ import 'package:fin_goal/core/constants/app_colors.dart';
 import 'package:fin_goal/core/constants/app_sizes.dart';
 import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
 
+import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
+import 'package:fin_goal/features/auth/presentation/widgets/login_bottom_sheet.dart';
 import 'package:fin_goal/features/goals/presentation/providers/goal_provider.dart';
 
 class PaywallPage extends ConsumerWidget {
@@ -95,7 +97,7 @@ class PaywallPage extends ConsumerWidget {
                           price: singlePriceStr,
                           subtitle: 'Thời hạn 1 năm',
                           isPopular: false,
-                          onTap: () => _purchase(context, 'Mục tiêu lẻ', singlePriceStr),
+                          onTap: () => _purchase(context, ref, 'Mục tiêu lẻ', singlePriceStr),
                         ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1),
 
                         const Gap(AppSizes.md),
@@ -106,7 +108,7 @@ class PaywallPage extends ConsumerWidget {
                           price: '49.000₫',
                           subtitle: 'Trải nghiệm không giới hạn',
                           isPopular: false,
-                          onTap: () => _purchase(context, 'Premium 1 Tháng', '49.000₫'),
+                          onTap: () => _purchase(context, ref, 'Premium 1 Tháng', '49.000₫'),
                         ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
 
                         const Gap(AppSizes.md),
@@ -117,7 +119,7 @@ class PaywallPage extends ConsumerWidget {
                           price: '399.000₫',
                           subtitle: 'Tiết kiệm nhất',
                           isPopular: true,
-                          onTap: () => _purchase(context, 'Premium 1 Năm', '399.000₫'),
+                          onTap: () => _purchase(context, ref, 'Premium 1 Năm', '399.000₫'),
                         ).animate().fadeIn(delay: 700.ms).slideY(begin: 0.1),
                       ],
                     ),
@@ -235,7 +237,19 @@ class PaywallPage extends ConsumerWidget {
     );
   }
 
-  void _purchase(BuildContext context, String title, String price) {
+  void _purchase(BuildContext context, WidgetRef ref, String title, String price) {
+    final user = ref.read(currentUserProvider);
+    final isGuest = user?.email == 'offline@fingoal.local';
+    
+    if (isGuest) {
+      LoginBottomSheet.show(
+        context, 
+        title: 'Đăng nhập để Mua', 
+        subtitle: 'Bạn cần liên kết tài khoản Google để thực hiện thanh toán.'
+      );
+      return;
+    }
+
     context.push('/home/payment', extra: {
       'title': title,
       'price': price,

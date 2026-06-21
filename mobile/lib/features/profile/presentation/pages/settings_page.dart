@@ -9,6 +9,7 @@ import 'package:fin_goal/core/constants/app_sizes.dart';
 import 'package:fin_goal/app/di/injection.dart';
 import 'package:fin_goal/app/router/routes.dart';
 import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
+import 'package:fin_goal/features/auth/presentation/widgets/login_bottom_sheet.dart';
 import 'package:fin_goal/core/services/direct_client_ai_service.dart';
 import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
 
@@ -241,6 +242,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Widget _buildUserInfoCard(dynamic user, bool isPremium) {
     final displayName = user?.displayName ?? 'Người dùng Offline';
+    final isGuest = user?.email == 'offline@fingoal.local';
+
     return Container(
       padding: const EdgeInsets.all(AppSizes.xl),
       decoration: BoxDecoration(
@@ -294,26 +297,47 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       ),
                 ),
                 const Gap(8),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: isPremium
-                        ? Colors.white.withValues(alpha: 0.25)
-                        : AppColors.surfaceDark,
-                    borderRadius: BorderRadius.circular(12),
+                if (isGuest) ...[
+                  Text(
+                    'Lưu trữ an toàn tiến trình',
+                    style: TextStyle(color: Colors.white70, fontSize: 12),
                   ),
-                  child: Text(
-                    isPremium ? '★ PREMIUM' : 'Miễn Phí',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: isPremium
-                          ? const Color(0xFFFFD700)
-                          : AppColors.textMuted,
+                  const Gap(6),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      LoginBottomSheet.show(context, title: 'Lưu tiến trình', subtitle: 'Liên kết tài khoản Google để đồng bộ dữ liệu.');
+                    },
+                    icon: const Icon(Icons.g_mobiledata, size: 24),
+                    label: const Text('Đăng nhập'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black87,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                      minimumSize: const Size(0, 32),
                     ),
                   ),
-                ),
+                ] else ...[
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: isPremium
+                          ? Colors.white.withValues(alpha: 0.25)
+                          : AppColors.surfaceDark,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      isPremium ? '★ PREMIUM' : 'Miễn Phí',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: isPremium
+                            ? const Color(0xFFFFD700)
+                            : AppColors.textMuted,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

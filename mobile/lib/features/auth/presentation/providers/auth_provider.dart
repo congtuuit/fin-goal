@@ -141,3 +141,17 @@ class AuthNotifier extends _$AuthNotifier {
 
   void reset() => state = const AuthIdle();
 }
+
+// ── Welcome Screen State ──────────────────────────────────────────────────
+@riverpod
+class HasSeenWelcome extends _$HasSeenWelcome {
+  @override
+  bool build() {
+    return getIt<SharedPreferences>().getBool('has_seen_welcome') ?? false;
+  }
+
+  Future<void> setSeen() async {
+    state = true;
+    await getIt<SharedPreferences>().setBool('has_seen_welcome', true);
+  }
+}

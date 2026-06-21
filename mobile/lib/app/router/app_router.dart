@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:fin_goal/features/auth/presentation/pages/login_page.dart';
 import 'package:fin_goal/features/auth/presentation/pages/register_page.dart';
 import 'package:fin_goal/features/auth/presentation/pages/splash_page.dart';
+import 'package:fin_goal/features/auth/presentation/pages/welcome_page.dart';
 import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
 import 'package:fin_goal/features/goals/presentation/pages/goal_selection_page.dart';
 import 'package:fin_goal/features/goals/presentation/pages/goals_list_page.dart';
@@ -33,13 +34,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isAuth = authState.value != null;
       final isAuthRoute = state.matchedLocation == AppRoutes.login;
       final isSplash = state.matchedLocation == AppRoutes.splash;
+      final isWelcome = state.matchedLocation == AppRoutes.welcome;
       final isOnboardingRoute = state.matchedLocation == AppRoutes.onboarding;
+      
+      final hasSeenWelcome = ref.read(hasSeenWelcomeProvider);
 
       // Still loading auth state — don't redirect yet
       if (authState.isLoading) return null;
 
+      if (!hasSeenWelcome && !isWelcome) {
+        return AppRoutes.welcome;
+      }
+      if (hasSeenWelcome && isWelcome) {
+        return AppRoutes.login;
+      }
+
       // Not authenticated → go to login
-      if (!isAuth && !isAuthRoute) return AppRoutes.login;
+      if (!isAuth && !isAuthRoute && !isWelcome) return AppRoutes.login;
 
       if (isAuth) {
         // Still checking onboarding state
@@ -68,6 +79,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.login,
         builder: (_, __) => const LoginPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.welcome,
+        builder: (_, __) => const WelcomePage(),
       ),
       GoRoute(
         path: AppRoutes.register,

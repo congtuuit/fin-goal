@@ -22,17 +22,21 @@ class GoalsListPage extends ConsumerWidget {
     final goalsState = ref.watch(goalsProvider);
     final isPremium = ref.watch(isPremiumUserProvider);
     final profileState = ref.watch(profileProvider);
-    
+
     int currentActive = 0;
     List<Goal> activeGoals = [];
     List<Goal> archivedGoals = [];
     if (goalsState is GoalsLoaded) {
-      activeGoals = goalsState.goals.where((g) => g.status != 'archived').toList();
-      archivedGoals = goalsState.goals.where((g) => g.status == 'archived').toList();
+      activeGoals =
+          goalsState.goals.where((g) => g.status != 'archived').toList();
+      archivedGoals =
+          goalsState.goals.where((g) => g.status == 'archived').toList();
       currentActive = activeGoals.length;
-      
+
       final now = DateTime.now();
-      final toDelete = archivedGoals.where((g) => now.difference(g.updatedAt).inDays >= 7).toList();
+      final toDelete = archivedGoals
+          .where((g) => now.difference(g.updatedAt).inDays >= 7)
+          .toList();
       if (toDelete.isNotEmpty) {
         archivedGoals.removeWhere((g) => toDelete.contains(g));
         Future.microtask(() {
@@ -98,28 +102,37 @@ class GoalsListPage extends ConsumerWidget {
                 ? Center(child: Text('Lỗi: ${goalsState.message}'))
                 : TabBarView(
                     children: [
-                      _buildActiveGoalsTab(context, ref, activeGoals, isPremium, ref.watch(totalAllowedGoalsProvider), purchasedSlots),
+                      _buildActiveGoalsTab(context, ref, activeGoals, isPremium,
+                          ref.watch(totalAllowedGoalsProvider), purchasedSlots),
                       _buildArchivedGoalsTab(context, ref, archivedGoals),
                     ],
                   ),
-        floatingActionButton: currentActive >= 10 ? null : FloatingActionButton(
-          onPressed: () {
-            final canCreate = ref.read(canCreateNewGoalProvider(currentActive));
-            
-            if (!canCreate) {
-              context.push('/home/paywall');
-            } else {
-              context.push('/home/goal-selection');
-            }
-          },
-          child: const Icon(Icons.add),
-        ),
+        floatingActionButton: currentActive >= 10
+            ? null
+            : FloatingActionButton(
+                onPressed: () {
+                  final canCreate =
+                      ref.read(canCreateNewGoalProvider(currentActive));
+
+                  if (!canCreate) {
+                    context.push('/home/paywall');
+                  } else {
+                    context.push('/home/goal-selection');
+                  }
+                },
+                child: const Icon(Icons.add),
+              ),
       ),
     );
   }
 
   Widget _buildActiveGoalsTab(
-      BuildContext context, WidgetRef ref, List<Goal> goals, bool isPremium, int totalAllowed, List<DateTime> purchasedSlots) {
+      BuildContext context,
+      WidgetRef ref,
+      List<Goal> goals,
+      bool isPremium,
+      int totalAllowed,
+      List<DateTime> purchasedSlots) {
     goals.sort((a, b) {
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
@@ -129,7 +142,8 @@ class GoalsListPage extends ConsumerWidget {
     if (goals.isEmpty) {
       return Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: AppSizes.pageHorizontalPadding),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppSizes.pageHorizontalPadding),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -143,12 +157,16 @@ class GoalsListPage extends ConsumerWidget {
               const Gap(AppSizes.md),
               Text(
                 'Hãy tạo một mục tiêu để AI giúp bạn lập kế hoạch.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
               const Gap(AppSizes.xl),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceElevatedDark,
                   borderRadius: BorderRadius.circular(AppSizes.radiusLg),
@@ -192,7 +210,8 @@ class GoalsListPage extends ConsumerWidget {
                       ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceElevatedDark,
                     borderRadius: BorderRadius.circular(AppSizes.radiusLg),
@@ -214,18 +233,18 @@ class GoalsListPage extends ConsumerWidget {
         if (index == goals.length + 1) {
           return _buildTrainingCampCard(context, isPremium);
         }
-        
+
         final goal = goals[index - 1];
-        
+
         DateTime? expiryDate;
         int baseLimit = isPremium ? 10 : 2;
         int slotIndex = (index - 1) - baseLimit;
         if (slotIndex >= 0 && slotIndex < purchasedSlots.length) {
           expiryDate = purchasedSlots[slotIndex];
         }
-        
+
         final isLocked = (index - 1) >= totalAllowed;
-        
+
         return Dismissible(
           key: Key(goal.id),
           direction: DismissDirection.endToStart,
@@ -247,23 +266,29 @@ class GoalsListPage extends ConsumerWidget {
                     Text('Xác nhận xóa'),
                   ],
                 ),
-                content: Text('Bạn có chắc chắn muốn xóa mục tiêu "${goal.name}" không? Mục tiêu này sẽ được chuyển vào Thùng rác trong 7 ngày trước khi bị xóa vĩnh viễn.'),
+                content: Text(
+                    'Bạn có chắc chắn muốn xóa mục tiêu "${goal.name}" không? Mục tiêu này sẽ được chuyển vào Thùng rác trong 7 ngày trước khi bị xóa vĩnh viễn.'),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, false),
-                    child: const Text('Hủy', style: TextStyle(color: AppColors.textMuted)),
+                    child: const Text('Hủy',
+                        style: TextStyle(color: AppColors.textMuted)),
                   ),
                   ElevatedButton(
                     onPressed: () => Navigator.pop(ctx, true),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
-                    child: const Text('Xóa', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.danger),
+                    child: const Text('Xóa',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.white)),
                   ),
                 ],
               ),
             );
           },
           onDismissed: (direction) {
-            ref.read(goalsProvider.notifier).updateGoal(goal.copyWith(status: 'archived', updatedAt: DateTime.now()));
+            ref.read(goalsProvider.notifier).updateGoal(
+                goal.copyWith(status: 'archived', updatedAt: DateTime.now()));
           },
           child: _buildGoalCard(context, ref, goal, expiryDate, isLocked)
               .animate()
@@ -274,22 +299,30 @@ class GoalsListPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildArchivedGoalsTab(BuildContext context, WidgetRef ref, List<Goal> archivedGoals) {
+  Widget _buildArchivedGoalsTab(
+      BuildContext context, WidgetRef ref, List<Goal> archivedGoals) {
     if (archivedGoals.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.delete_outline, size: 80, color: AppColors.textMuted),
+            const Icon(Icons.delete_outline,
+                size: 80, color: AppColors.textMuted),
             const Gap(AppSizes.lg),
             Text(
-              'Thùng rác trống',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              '',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Gap(AppSizes.sm),
             Text(
               'Các mục tiêu đã xóa sẽ nằm ở đây trong 7 ngày.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -309,7 +342,7 @@ class GoalsListPage extends ConsumerWidget {
       itemBuilder: (context, index) {
         final goal = archivedGoals[index];
         final daysLeft = 7 - DateTime.now().difference(goal.updatedAt).inDays;
-        
+
         return Container(
           margin: const EdgeInsets.only(bottom: AppSizes.lg),
           padding: const EdgeInsets.all(AppSizes.md),
@@ -323,7 +356,8 @@ class GoalsListPage extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  Text(goal.emoji ?? '🎯', style: const TextStyle(fontSize: 24)),
+                  Text(goal.emoji ?? '🎯',
+                      style: const TextStyle(fontSize: 24)),
                   const Gap(AppSizes.md),
                   Expanded(
                     child: Column(
@@ -331,16 +365,18 @@ class GoalsListPage extends ConsumerWidget {
                       children: [
                         Text(
                           goal.name,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: AppColors.textMuted,
-                            decoration: TextDecoration.lineThrough,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: AppColors.textMuted,
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           'Sẽ bị xóa vĩnh viễn sau $daysLeft ngày',
-                          style: const TextStyle(fontSize: 12, color: AppColors.danger),
+                          style: const TextStyle(
+                              fontSize: 12, color: AppColors.danger),
                         ),
                       ],
                     ),
@@ -358,19 +394,27 @@ class GoalsListPage extends ConsumerWidget {
                         builder: (ctx) => AlertDialog(
                           backgroundColor: AppColors.surfaceElevatedDark,
                           title: const Text('Xóa vĩnh viễn'),
-                          content: const Text('Bạn không thể khôi phục mục tiêu này sau khi xóa vĩnh viễn. Tiếp tục?'),
+                          content: const Text(
+                              'Bạn không thể khôi phục mục tiêu này sau khi xóa vĩnh viễn. Tiếp tục?'),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(ctx),
-                              child: const Text('Hủy', style: TextStyle(color: AppColors.textMuted)),
+                              child: const Text('Hủy',
+                                  style: TextStyle(color: AppColors.textMuted)),
                             ),
                             ElevatedButton(
                               onPressed: () {
                                 Navigator.pop(ctx);
-                                ref.read(goalsProvider.notifier).deleteGoal(goal.id);
+                                ref
+                                    .read(goalsProvider.notifier)
+                                    .deleteGoal(goal.id);
                               },
-                              style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
-                              child: const Text('Xóa vĩnh viễn', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.danger),
+                              child: const Text('Xóa vĩnh viễn',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white)),
                             ),
                           ],
                         ),
@@ -386,7 +430,8 @@ class GoalsListPage extends ConsumerWidget {
                   const Gap(AppSizes.sm),
                   ElevatedButton.icon(
                     onPressed: () {
-                      ref.read(goalsProvider.notifier).updateGoal(goal.copyWith(status: 'active', updatedAt: DateTime.now()));
+                      ref.read(goalsProvider.notifier).updateGoal(goal.copyWith(
+                          status: 'active', updatedAt: DateTime.now()));
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Đã khôi phục mục tiêu!'),
@@ -396,7 +441,8 @@ class GoalsListPage extends ConsumerWidget {
                     },
                     icon: const Icon(Icons.restore, size: 16),
                     label: const Text('Khôi phục'),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary),
                   ),
                 ],
               ),
@@ -407,7 +453,8 @@ class GoalsListPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildGoalCard(BuildContext context, WidgetRef ref, Goal goal, DateTime? expiryDate, bool isLocked) {
+  Widget _buildGoalCard(BuildContext context, WidgetRef ref, Goal goal,
+      DateTime? expiryDate, bool isLocked) {
     final progress = goal.targetAmount > 0
         ? (goal.currentSavings / goal.targetAmount).clamp(0.0, 1.0)
         : 0.0;
@@ -474,22 +521,25 @@ class GoalsListPage extends ConsumerWidget {
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx),
-                            child: const Text('Để sau', style: TextStyle(color: AppColors.textMuted)),
+                            child: const Text('Để sau',
+                                style: TextStyle(color: AppColors.textMuted)),
                           ),
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(ctx);
                               context.push('/home/paywall');
                             },
-                            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                            child: const Text('Mở khóa Premium', style: TextStyle(fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary),
+                            child: const Text('Mở khóa Premium',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
                           ),
                         ],
                       ),
                     );
                     return;
                   }
-                  
+
                   if (!goal.isPrimary) {
                     ref.read(goalsProvider.notifier).setPrimaryGoal(goal.id);
                   }
@@ -502,136 +552,151 @@ class GoalsListPage extends ConsumerWidget {
                       horizontal: AppSizes.md,
                       vertical: AppSizes.sm,
                     ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(AppSizes.sm),
-                            decoration: BoxDecoration(
-                              color: goal.isPrimary
-                                  ? AppColors.primary.withValues(alpha: 0.1)
-                                  : AppColors.surfaceElevatedDark,
-                              borderRadius:
-                                  BorderRadius.circular(AppSizes.radiusMd),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(AppSizes.sm),
+                              decoration: BoxDecoration(
+                                color: goal.isPrimary
+                                    ? AppColors.primary.withValues(alpha: 0.1)
+                                    : AppColors.surfaceElevatedDark,
+                                borderRadius:
+                                    BorderRadius.circular(AppSizes.radiusMd),
+                              ),
+                              child: Text(goal.emoji ?? '🎯',
+                                  style: const TextStyle(fontSize: 24)),
                             ),
-                            child: Text(goal.emoji ?? '🎯',
-                                style: const TextStyle(fontSize: 24)),
-                          ),
-                          const Gap(AppSizes.md),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  goal.name,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
-                                      ?.copyWith(fontWeight: FontWeight.bold),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                if (expiryDate != null) ...[
-                                  const Gap(4),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primary.withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      'Hết hạn: ${expiryDate.day.toString().padLeft(2, '0')}/${expiryDate.month.toString().padLeft(2, '0')}/${expiryDate.year}',
-                                      style: const TextStyle(fontSize: 10, color: AppColors.primary),
-                                    ),
+                            const Gap(AppSizes.md),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    goal.name,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
+                                  if (expiryDate != null) ...[
+                                    const Gap(4),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary
+                                            .withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        'Hết hạn: ${expiryDate.day.toString().padLeft(2, '0')}/${expiryDate.month.toString().padLeft(2, '0')}/${expiryDate.year}',
+                                        style: const TextStyle(
+                                            fontSize: 10,
+                                            color: AppColors.primary),
+                                      ),
+                                    ),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
+                            // Removed isPrimary star as requested to avoid duplicate stars
+                            IconButton(
+                              icon: Icon(
+                                isLocked
+                                    ? Icons.lock
+                                    : (goal.isPinned
+                                        ? Icons.star_rounded
+                                        : Icons.star_outline_rounded),
+                                color: isLocked
+                                    ? AppColors.warning
+                                    : (goal.isPinned
+                                        ? AppColors.primary
+                                        : AppColors.textMuted),
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                if (isLocked) return;
+                                ref.read(goalsProvider.notifier).updateGoal(
+                                      goal.copyWith(isPinned: !goal.isPinned),
+                                    );
+                              },
+                            ),
+                          ],
+                        ),
+                        const Gap(AppSizes.sm),
+                        Text(
+                          'Đã tích lũy',
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                        ),
+                        const Gap(2),
+                        Text(
+                          CurrencyFormatter.format(goal.currentSavings),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.success,
+                              ),
+                        ),
+                        const Gap(AppSizes.sm),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Mục tiêu: ${CurrencyFormatter.format(goal.targetAmount)}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                            ),
+                            Text(
+                              '${(progress * 100).toStringAsFixed(1)}%',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ],
+                        ),
+                        const Gap(4),
+                        Container(
+                          height: 8,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: AppColors.backgroundDark,
+                            borderRadius: BorderRadius.circular(4),
                           ),
-                          // Removed isPrimary star as requested to avoid duplicate stars
-                          IconButton(
-                            icon: Icon(
-                              isLocked ? Icons.lock : (goal.isPinned ? Icons.star_rounded : Icons.star_outline_rounded),
-                              color: isLocked ? AppColors.warning : (goal.isPinned ? AppColors.primary : AppColors.textMuted),
-                              size: 20,
-                            ),
-                            onPressed: () {
-                              if (isLocked) return;
-                              ref.read(goalsProvider.notifier).updateGoal(
-                                goal.copyWith(isPinned: !goal.isPinned),
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              return Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  width: constraints.maxWidth * progress,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(4),
+                                    gradient: AppColors.gradientPrimary,
+                                  ),
+                                ),
                               );
                             },
                           ),
-                        ],
-                      ),
-                      const Gap(AppSizes.sm),
-                      Text(
-                        'Đã tích lũy',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                      ),
-                      const Gap(2),
-                      Text(
-                        CurrencyFormatter.format(goal.currentSavings),
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.success,
-                            ),
-                      ),
-                      const Gap(AppSizes.sm),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Mục tiêu: ${CurrencyFormatter.format(goal.targetAmount)}',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                          ),
-                          Text(
-                            '${(progress * 100).toStringAsFixed(1)}%',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ],
-                      ),
-                      const Gap(4),
-                      Container(
-                        height: 8,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: AppColors.backgroundDark,
-                          borderRadius: BorderRadius.circular(4),
                         ),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            return Align(
-                              alignment: Alignment.centerLeft,
-                              child: Container(
-                                width: constraints.maxWidth * progress,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4),
-                                  gradient: AppColors.gradientPrimary,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
                 ),
               ),
             ),
@@ -647,7 +712,10 @@ class GoalsListPage extends ConsumerWidget {
       padding: const EdgeInsets.all(AppSizes.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary.withValues(alpha: 0.15), AppColors.primaryDark.withValues(alpha: 0.15)],
+          colors: [
+            AppColors.primary.withValues(alpha: 0.15),
+            AppColors.primaryDark.withValues(alpha: 0.15)
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -665,14 +733,19 @@ class GoalsListPage extends ConsumerWidget {
                   color: AppColors.primary.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.sports_esports, color: AppColors.primary, size: 28),
+                child: const Icon(Icons.sports_esports,
+                    color: AppColors.primary, size: 28),
               ),
               const Gap(AppSizes.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Trại huấn luyện Cashflow', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                    Text('Trại huấn luyện Cashflow',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -689,11 +762,14 @@ class GoalsListPage extends ConsumerWidget {
               context.push(AppRoutes.cashflowBoardGame);
             },
             icon: const Icon(Icons.play_arrow, color: Colors.white),
-            label: const Text('Vào Trại Huấn Luyện', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            label: const Text('Vào Trại Huấn Luyện',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               minimumSize: const Size(double.infinity, AppSizes.buttonHeight),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
             ),
           ),
         ],

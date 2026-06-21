@@ -1,10 +1,13 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:fin_goal/core/errors/failures.dart';
 import 'package:fin_goal/features/auth/domain/entities/app_user.dart';
 import 'package:fin_goal/features/auth/domain/repositories/auth_repository.dart';
 import 'package:fin_goal/features/auth/data/models/user_model.dart';
+import 'package:fin_goal/app/di/injection.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final sb.SupabaseClient _client;
@@ -22,7 +25,20 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   AppUser? getCurrentUser() {
     final user = _client.auth.currentUser;
-    return user != null ? UserModel.fromSupabase(user).toEntity() : null;
+    if (user != null) return UserModel.fromSupabase(user).toEntity();
+    
+    // Fallback to local guest user
+    final prefs = getIt<SharedPreferences>();
+    final name = prefs.getString('local_username');
+    if (name != null && name.isNotEmpty) {
+      return AppUser(
+        id: 'local_user_id', 
+        displayName: name, 
+        email: 'offline@fingoal.local', 
+        createdAt: DateTime.now()
+      );
+    }
+    return null;
   }
 
   @override
@@ -83,6 +99,8 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, Unit>> signOut() async {
     try {
+      final prefs = getIt<SharedPreferences>();
+      await prefs.remove('local_username');
       await _client.auth.signOut();
       return const Right(unit);
     } catch (_) {
@@ -92,7 +110,24 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, AppUser>> signInWithName(String name) async {
-    return const Left(AuthFailure(message: 'Đăng nhập bằng tên không được hỗ trợ trong chế độ Online.'));
+    try {
+      final trimmedName = name.trim();
+      if (trimmedName.isEmpty) {
+        return const Left(AuthFailure(message: 'Tên không được để trống.'));
+      }
+      
+      final prefs = getIt<SharedPreferences>();
+      await prefs.setString('local_username', trimmedName);
+      
+      return Right(AppUser(
+        id: 'local_user_id',
+        displayName: trimmedName,
+        email: 'offline@fingoal.local',
+        createdAt: DateTime.now(),
+      ));
+    } catch (_) {
+      return const Left(StorageFailure(message: 'Không thể lưu tên người dùng.'));
+    }
   }
 
   @override

@@ -6,6 +6,7 @@ abstract class AppRoutes {
   static const register = '/register';
 
   // ── Onboarding ────────────────────────────────────────────────────────────
+  static const welcome = '/welcome';
   static const onboarding = '/onboarding';
 
   // ── Main shell ────────────────────────────────────────────────────────────

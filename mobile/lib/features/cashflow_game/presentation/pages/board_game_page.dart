@@ -25,7 +25,7 @@ import 'package:fin_goal/features/cashflow_game/presentation/providers/audio_pro
 // import 'package:fin_goal/core/services/ad_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
+
 
 class BoardGamePage extends ConsumerStatefulWidget {
   const BoardGamePage({super.key});

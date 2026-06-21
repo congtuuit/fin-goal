@@ -17,6 +17,7 @@ class LocalAuthRepositoryImpl implements AuthRepository {
 
   @override
   Stream<AppUser?> watchAuthState() async* {
+    await Future.microtask(() {});
     yield getCurrentUser();
     yield* _authStreamController.stream;
   }

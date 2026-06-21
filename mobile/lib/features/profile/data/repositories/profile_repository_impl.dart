@@ -78,6 +78,26 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<bool> hasCompletedOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_onboardingKey) ?? false;
+    final localCompleted = prefs.getBool(_onboardingKey) ?? false;
+    if (localCompleted) return true;
+
+    // Kểm tra online nếu local chưa có
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return false;
+
+    try {
+      final data = await _client
+          .from('financial_profiles')
+          .select('id')
+          .eq('user_id', userId)
+          .maybeSingle();
+      
+      if (data != null) {
+        await prefs.setBool(_onboardingKey, true);
+        return true;
+      }
+    } catch (_) {}
+
+    return false;
   }
 }

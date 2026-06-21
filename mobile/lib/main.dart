@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:fin_goal/app/app.dart';
 import 'package:fin_goal/app/di/injection.dart';
 import 'package:fin_goal/core/constants/app_config.dart';
