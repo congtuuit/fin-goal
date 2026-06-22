@@ -15,11 +15,27 @@
     "Cashflow Board Game",
     "Premium Paywall",
     "Goals List Management",
-    "AdMob Integration (Temporarily Disabled)"
+    "AdMob Integration (Temporarily Disabled)",
+    "AI Financial Coach (Stern, Encouraging, Analytical tones, local cache)",
+    "Draggable Floating AI Button & Bottom Sheet"
   ],
   "knowledge_items": { 
-    "patterns": ["Repository pattern with Riverpod", "Clean Architecture with Presentation/Domain/Data layers"], 
-    "gotchas": ["RenderFlex overflow with BottomSheet needs isScrollControlled: true & ConstrainedBox/SingleChildScrollView", "AppBar title constraints need centerTitle: false, titleSpacing: 0 when both leading and actions are present"], 
-    "conventions": ["Use CurrencyFormatter for money", "AppColors and AppSizes for UI constraints", "Strictly NO ADS on Home, Profile, and Settings screens. Ads must check isPremiumUserProvider before showing."] 
+    "patterns": [
+      "Repository pattern with Riverpod", 
+      "Clean Architecture with Presentation/Domain/Data layers",
+      "Offline-first local cache for heavy API features"
+    ], 
+    "gotchas": [
+      "RenderFlex overflow with BottomSheet needs isScrollControlled: true & ConstrainedBox/SingleChildScrollView", 
+      "AppBar title constraints need centerTitle: false, titleSpacing: 0 when both leading and actions are present",
+      "Supabase auth state stream onAuthStateChange can override local guest session with null if not filtered with local guest fallback",
+      "Local notification show/zonedSchedule must use named parameters due to library API updates"
+    ], 
+    "conventions": [
+      "Use CurrencyFormatter for money", 
+      "AppColors and AppSizes for UI constraints", 
+      "Strictly NO ADS on Home, Profile, and Settings screens. Ads must check isPremiumUserProvider before showing.",
+      "AI features must check and use local cached responses to save API costs"
+    ] 
   }
 }

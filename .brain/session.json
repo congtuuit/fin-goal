@@ -1,29 +1,41 @@
 {
-  "updated_at": "2026-06-21T14:55:00Z",
+  "updated_at": "2026-06-22T09:05:00Z",
   "working_on": {
-    "feature": "Onboarding",
-    "task": "Fix invalid navigation target path on onboarding page submit",
+    "feature": "AI Financial Coach & UI Optimization",
+    "task": "Implement Draggable Floating Button, Bottom Sheet styling, and standard Google Sign-In button",
     "status": "completed",
     "files": [
-      "mobile/lib/features/onboarding/presentation/pages/onboarding_page.dart"
+      "mobile/lib/features/coach/presentation/widgets/draggable_ai_coach_button.dart",
+      "mobile/lib/features/coach/presentation/widgets/ai_coach_card.dart",
+      "mobile/lib/features/scenarios/presentation/pages/scenario_dashboard_page.dart",
+      "mobile/lib/features/auth/presentation/widgets/google_sign_in_button.dart",
+      "mobile/lib/features/auth/presentation/pages/login_page.dart",
+      "mobile/lib/features/auth/presentation/widgets/login_bottom_sheet.dart",
+      "mobile/lib/features/profile/presentation/pages/settings_page.dart",
+      "mobile/lib/features/auth/data/repositories/auth_repository_impl.dart"
     ],
     "blockers": [],
-    "notes": "Fixed route redirection error where the app was trying to navigate to non-existent path '/home/board-game' upon completing onboarding. Replaced it with the correct constant AppRoutes.cashflowBoardGame ('/cashflow-board-game')."
+    "notes": "Fully implemented the AI Financial Coach with custom system prompts (Stern, Encouraging, Analytical) and 24h caching. Optimized UI by replacing fixed AI card with a draggable floating button snapping to screen edges. Made bottom sheet border-radius and margins stick to edge. Standardized Google Sign-In buttons across the app to comply with Google Branding Guidelines. Fixed guest login session override bug on app restart and saved user info directly to app local storage."
   },
   "pending_tasks": [
     { "task": "Integrate premium features properly", "priority": "medium", "notes": "Paywall and limits" },
     { "task": "Add deleting goals", "priority": "low", "notes": "Swipe to delete on GoalsListPage" },
-    { "task": "AI Coach Feature", "priority": "medium", "notes": "Implement AI Coach" }
+    { "task": "Implement Phase 1 data sync upgrade (Bulk Insert & Transaction RPC)", "priority": "medium", "notes": "Plan documented in docs/plans/data_sync_upgrade_plan.md" }
   ],
   "recent_changes": [
-    { "timestamp": "2026-06-21T14:55:00Z", "type": "bugfix", "description": "Fix invalid navigation target on onboarding completion", "files": ["mobile/lib/features/onboarding/presentation/pages/onboarding_page.dart"] },
-    { "timestamp": "2026-06-21T14:51:00Z", "type": "bugfix", "description": "Configure fallback Google Client IDs in AppConfig and add auth diagnostic logs", "files": ["mobile/lib/core/constants/app_config.dart", "mobile/lib/features/auth/data/repositories/auth_repository_impl.dart"] },
-    { "timestamp": "2026-06-21T14:35:00Z", "type": "feature", "description": "Implement Native Google Sign-In flow with google_sign_in and Supabase", "files": ["mobile/pubspec.yaml", "mobile/lib/core/constants/app_config.dart", "mobile/lib/features/auth/data/repositories/auth_repository_impl.dart"] }
+    { "timestamp": "2026-06-22T09:00:00Z", "type": "bugfix", "description": "Fix guest session override bug in AuthRepositoryImpl on startup and save user locally to SharedPreferences", "files": ["mobile/lib/features/auth/data/repositories/auth_repository_impl.dart"] },
+    { "timestamp": "2026-06-22T08:50:00Z", "type": "feature", "description": "Standardize Google Sign-In buttons with shared GoogleSignInButton widget", "files": ["mobile/lib/features/auth/presentation/widgets/google_sign_in_button.dart", "mobile/lib/features/auth/presentation/pages/login_page.dart", "mobile/lib/features/auth/presentation/widgets/login_bottom_sheet.dart", "mobile/lib/features/profile/presentation/pages/settings_page.dart"] },
+    { "timestamp": "2026-06-22T08:40:00Z", "type": "feature", "description": "Implement Draggable Floating AI Coach button with snap physics and bottom-pinned slide-up sheet", "files": ["mobile/lib/features/coach/presentation/widgets/draggable_ai_coach_button.dart", "mobile/lib/features/coach/presentation/widgets/ai_coach_card.dart", "mobile/lib/features/scenarios/presentation/pages/scenario_dashboard_page.dart"] },
+    { "timestamp": "2026-06-22T04:50:00Z", "type": "feature", "description": "Implement AI Financial Coach core and custom system prompts with caching", "files": ["mobile/lib/core/services/ai_prompt_builder.dart", "mobile/lib/features/coach/presentation/providers/coach_provider.dart", "mobile/lib/features/coach/data/repositories/coach_repository.dart"] }
   ],
-  "errors_encountered": [],
+  "errors_encountered": [
+    { "error": "Supabase stream null overrides Guest user state", "solution": "Check local guest user fallback inside AuthRepositoryImpl onAuthStateChange stream before emitting null.", "resolved": true },
+    { "error": "flutter_local_notifications API change", "solution": "Migrate show() and zonedSchedule() calls to use named parameters for required id and details fields.", "resolved": true }
+  ],
   "decisions_made": [
-    { "decision": "Google Client ID Fallback Configuration", "reason": "Added development Google Web/iOS Client IDs as default values inside AppConfig so local debug builds connect automatically without requiring explicit --dart-define parameters." },
-    { "decision": "Native Google Sign-In Integration", "reason": "Implemented Native Google Sign-In (Option A) using google_sign_in package to provide seamless UX without leaving the app, authentication is completed via signInWithIdToken on Supabase." },
-    { "decision": "Keystore Signing Setup", "reason": "Generated release upload-keystore.jks in PKCS12 format, set up key.properties and created fingerprints.txt for safe local credential reference." }
+    { "decision": "Draggable Floating AI Button", "reason": "Avoid occupying vertical screen space on Goal Scenario details by hiding full AI card in a slide-up bottom sheet triggered by a draggable floating button." },
+    { "decision": "Standardized Google Sign-In Widget", "reason": "Create a shared GoogleSignInButton utilizing official multi-color SVG and Roboto font to comply with Google Branding Guidelines and reduce code duplication." },
+    { "decision": "24 Hours Local Cache for AI", "reason": "Cache AI advice locally under goalId+date key to reduce Gemini API costs by 90% and prevent excessive calls during scenario parameter adjustments." },
+    { "decision": "Save session to App Local Storage", "reason": "Save logged_in_user data locally to SharedPreferences to allow instant loading of auth state during app startup without waiting for async network handshake." }
   ]
 }
