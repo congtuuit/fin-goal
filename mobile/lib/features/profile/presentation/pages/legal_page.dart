@@ -21,12 +21,18 @@ class LegalPage extends StatelessWidget {
           children: [
             Text(
               'Cập nhật lần cuối: 20/06/2026',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: AppColors.textMuted),
             ),
             const Gap(AppSizes.lg),
             Text(
               '1. Điều khoản chung',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Gap(AppSizes.sm),
             Text(
@@ -36,17 +42,23 @@ class LegalPage extends StatelessWidget {
             const Gap(AppSizes.md),
             Text(
               '2. Quyền riêng tư',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Gap(AppSizes.sm),
             Text(
-              'FinGoal cam kết bảo vệ quyền riêng tư của bạn. Mọi dữ liệu tài chính bạn nhập vào ứng dụng chỉ được lưu trữ cho mục đích tính toán mô phỏng và không được bán cho bất kỳ bên thứ ba nào.',
+              'Financial Goals cam kết bảo vệ quyền riêng tư của bạn. Mọi dữ liệu tài chính bạn nhập vào ứng dụng chỉ được lưu trữ cho mục đích tính toán mô phỏng và không được bán cho bất kỳ bên thứ ba nào.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const Gap(AppSizes.md),
             Text(
               '3. Tuyên bố miễn trừ trách nhiệm',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Gap(AppSizes.sm),
             Text(

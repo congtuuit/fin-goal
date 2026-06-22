@@ -126,7 +126,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(granted ? 'Đã được cấp quyền thông báo!' : 'Yêu cầu quyền thông báo bị từ chối.'),
+        content: Text(granted
+            ? 'Đã được cấp quyền thông báo!'
+            : 'Yêu cầu quyền thông báo bị từ chối.'),
         backgroundColor: granted ? AppColors.success : AppColors.danger,
       ),
     );
@@ -138,7 +140,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Thông báo test sẽ hiển thị sau 5 giây. Vui lòng chuyển app xuống nền/khóa màn hình!'),
+        content: Text(
+            'Thông báo test sẽ hiển thị sau 5 giây. Vui lòng chuyển app xuống nền/khóa màn hình!'),
         backgroundColor: AppColors.primary,
       ),
     );
@@ -173,15 +176,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 children: [
                   // 1. User Info Header Card
                   _buildUserInfoCard(user, isPremium),
-                  const Gap(AppSizes.lg),
 
                   // 2. Upgrade Banner (if not premium)
                   if (!isPremium) ...[
+                    const Gap(AppSizes.lg),
                     _buildUpgradeBanner(),
-                    const Gap(AppSizes.xl),
                   ],
 
-
+                  const Gap(AppSizes.xl),
 
                   // 3. AI Settings Panel
                   Padding(
@@ -228,7 +230,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ],
                   ),
 
-                  const Gap(AppSizes.xxl),
+                  const Gap(AppSizes.xl),
 
                   Padding(
                     padding: const EdgeInsets.only(left: 8, bottom: 8),
@@ -243,7 +245,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ),
                   _buildNotificationSettingsCard(),
 
-                  const Gap(AppSizes.xxl),
+                  const Gap(AppSizes.xl),
 
                   Padding(
                     padding: const EdgeInsets.only(left: 8, bottom: 8),
@@ -258,7 +260,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ),
                   _buildLegalZone(),
 
-                  const Gap(AppSizes.xxl),
+                  const Gap(AppSizes.xl),
 
                   // 5. Khác
                   Padding(
@@ -273,6 +275,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                   ),
                   _buildDangerZone(),
+
+                  const Gap(AppSizes.xl),
+                  _buildDeleteAccountButton(),
+                  const Gap(AppSizes.xl),
                 ],
               ),
             ),
@@ -293,7 +299,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           children: [
             Row(
               children: [
-                const Icon(Icons.notifications_active, color: AppColors.primary),
+                const Icon(Icons.notifications_active,
+                    color: AppColors.primary),
                 const Gap(AppSizes.md),
                 Expanded(
                   child: Column(
@@ -301,10 +308,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     children: [
                       Text(
                         'Nhắc nhở ngày nhận lương',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                       ),
                       const Gap(4),
                       Text(
@@ -347,7 +355,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final isGuest = user?.email == 'offline@fingoal.local';
 
     return Container(
-      padding: const EdgeInsets.all(AppSizes.xl),
+      padding: const EdgeInsets.all(AppSizes.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isPremium
@@ -386,7 +394,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ),
             ),
           ),
-          const Gap(AppSizes.lg),
+          const Gap(AppSizes.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,23 +406,27 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         color: Colors.white,
                       ),
                 ),
-                const Gap(8),
+                const Gap(AppSizes.xs),
                 if (isGuest) ...[
                   Text(
                     'Lưu trữ an toàn tiến trình',
                     style: TextStyle(color: Colors.white70, fontSize: 12),
                   ),
-                  const Gap(6),
+                  const Gap(AppSizes.xs),
                   ElevatedButton.icon(
                     onPressed: () {
-                      LoginBottomSheet.show(context, title: 'Lưu tiến trình', subtitle: 'Liên kết tài khoản Google để đồng bộ dữ liệu.');
+                      LoginBottomSheet.show(context,
+                          title: 'Lưu tiến trình',
+                          subtitle:
+                              'Liên kết tài khoản Google để đồng bộ dữ liệu.');
                     },
                     icon: const Icon(Icons.g_mobiledata, size: 24),
                     label: const Text('Đăng nhập'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black87,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 0),
                       minimumSize: const Size(0, 32),
                     ),
                   ),
@@ -488,7 +500,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       ),
     );
   }
-
 
   Widget _buildAiSettingsCard() {
     return Material(
@@ -597,12 +608,62 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       child: Column(
         children: [
           ListTile(
-            leading: const Icon(Icons.privacy_tip_outlined, color: AppColors.textPrimary),
-            title: const Text('Chính sách & Điều khoản'),
-            trailing: const Icon(Icons.chevron_right, color: AppColors.textMuted),
+            leading: const Icon(Icons.privacy_tip_outlined,
+                color: AppColors.textPrimary),
+            title: const Text('Privacy & Terms'),
+            trailing:
+                const Icon(Icons.chevron_right, color: AppColors.textMuted),
             onTap: () => context.push(AppRoutes.legal),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDeleteAccountButton() {
+    return Center(
+      child: TextButton(
+        onPressed: () async {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              backgroundColor: AppColors.surfaceElevatedDark,
+              title: const Text('Xóa tài khoản vĩnh viễn'),
+              content: const Text(
+                'Hành động này không thể hoàn tác. Toàn bộ dữ liệu mục tiêu và quá trình tích lũy của bạn sẽ bị xóa vĩnh viễn. Bạn có chắc chắn muốn xóa không?',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('Hủy'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: const Text('Xóa vĩnh viễn',
+                      style: TextStyle(color: AppColors.danger)),
+                ),
+              ],
+            ),
+          );
+
+          if (confirm == true) {
+            final error =
+                await ref.read(authProvider.notifier).deleteAccount();
+            if (mounted) {
+              if (error != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text('Lỗi: $error'),
+                      backgroundColor: AppColors.danger),
+                );
+              } else {
+                context.go(AppRoutes.login);
+              }
+            }
+          }
+        },
+        child: const Text('Xóa tài khoản',
+            style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
       ),
     );
   }
@@ -615,8 +676,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       child: Column(
         children: [
           ListTile(
-            leading: const Icon(Icons.logout_rounded, color: AppColors.textPrimary),
-            title: const Text('Đăng xuất'),
+            leading:
+                const Icon(Icons.logout_rounded, color: AppColors.danger),
+            title: const Text('Đăng xuất', style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.bold)),
             onTap: () async {
               final confirm = await showDialog<bool>(
                 context: context,
@@ -642,46 +704,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               if (confirm == true) {
                 await ref.read(authProvider.notifier).signOut();
                 if (mounted) context.go(AppRoutes.login);
-              }
-            },
-          ),
-          const Divider(height: 1, color: AppColors.borderDark, indent: 56),
-          ListTile(
-            leading: const Icon(Icons.delete_forever, color: AppColors.danger),
-            title: const Text('Xóa tài khoản', style: TextStyle(color: AppColors.danger)),
-            onTap: () async {
-              final confirm = await showDialog<bool>(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  backgroundColor: AppColors.surfaceElevatedDark,
-                  title: const Text('Xóa tài khoản vĩnh viễn'),
-                  content: const Text(
-                    'Hành động này không thể hoàn tác. Toàn bộ dữ liệu mục tiêu và quá trình tích lũy của bạn sẽ bị xóa vĩnh viễn. Bạn có chắc chắn muốn xóa không?',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      child: const Text('Hủy'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx, true),
-                      child: const Text('Xóa vĩnh viễn', style: TextStyle(color: AppColors.danger)),
-                    ),
-                  ],
-                ),
-              );
-
-              if (confirm == true) {
-                final error = await ref.read(authProvider.notifier).deleteAccount();
-                if (mounted) {
-                  if (error != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Lỗi: $error'), backgroundColor: AppColors.danger),
-                    );
-                  } else {
-                    context.go(AppRoutes.login);
-                  }
-                }
               }
             },
           ),

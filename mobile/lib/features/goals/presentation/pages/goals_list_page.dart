@@ -60,7 +60,21 @@ class GoalsListPage extends ConsumerWidget {
         appBar: AppBar(
           centerTitle: false,
           titleSpacing: 16,
-          title: const Text('Mục tiêu tài chính'),
+          title: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  'assets/images/plash.png',
+                  width: 32,
+                  height: 32,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const Gap(12),
+              const Text('Mục tiêu tài chính'),
+            ],
+          ),
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Đang thực hiện'),
