@@ -16,6 +16,7 @@ import 'package:fin_goal/features/scenarios/domain/entities/monthly_record.dart'
 import 'package:fin_goal/features/scenarios/presentation/providers/scenario_provider.dart';
 import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
 import 'package:fin_goal/app/router/routes.dart';
+import 'package:fin_goal/features/coach/presentation/widgets/ai_coach_card.dart';
 
 class ScenarioDashboardPage extends ConsumerStatefulWidget {
   const ScenarioDashboardPage({super.key});
@@ -454,6 +455,9 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
             ),
             const Gap(AppSizes.md),
             _buildTimelineCard(result, primaryGoal.targetAmount),
+            const Gap(AppSizes.md),
+            // ── AI Financial Coach Card ───────────────────────────────────
+            AiCoachCard(goal: primaryGoal),
             const Gap(AppSizes.md),
             _buildMacroControlPanel(isPremium),
             const Gap(AppSizes.md),

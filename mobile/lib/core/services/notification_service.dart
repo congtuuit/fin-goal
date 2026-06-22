@@ -184,6 +184,111 @@ class NotificationService {
     );
     debugPrint('NotificationService: Scheduled test notification in 5 seconds.');
   }
+
+  // ── AI Coach Proactive Notifications ─────────────────────────────────────
+
+  static const int coachMilestoneId = 2001;
+  static const int coachOffTrackId = 2002;
+  static const int coachCheckinId = 2003;
+  static const String coachChannelId = 'ai_coach_channel';
+  static const String coachChannelName = 'AI Financial Coach';
+  static const String coachChannelDescription =
+      'Thông báo nhắc nhở và phân tích từ AI Financial Coach';
+
+  static const _coachAndroidDetails = AndroidNotificationDetails(
+    coachChannelId,
+    coachChannelName,
+    channelDescription: coachChannelDescription,
+    importance: Importance.defaultImportance,
+    priority: Priority.defaultPriority,
+    icon: '@mipmap/ic_launcher',
+  );
+
+  static const _coachNotificationDetails = NotificationDetails(
+    android: _coachAndroidDetails,
+    iOS: DarwinNotificationDetails(presentAlert: true, presentSound: false),
+  );
+
+  /// Show a milestone celebration notification when user reaches a % milestone.
+  ///
+  /// Recommended thresholds: 25%, 50%, 75%, 90%, 100%.
+  Future<void> showMilestoneCelebration({
+    required String goalName,
+    required String goalEmoji,
+    required double progressPercent,
+  }) async {
+    final percent = progressPercent.toStringAsFixed(0);
+    final title = '$goalEmoji Chúc mừng! Bạn đạt $percent% mục tiêu!';
+    final body = progressPercent >= 100
+        ? 'Bạn đã hoàn thành mục tiêu "$goalName"! Thật xuất sắc! 🎉'
+        : 'Bạn đã tích lũy được $percent% cho mục tiêu "$goalName". Tiếp tục phát huy nhé!';
+
+    await _localNotifications.show(
+      id: coachMilestoneId,
+      title: title,
+      body: body,
+      notificationDetails: _coachNotificationDetails,
+      payload: 'milestone_$goalName',
+    );
+    debugPrint('NotificationService: Showed milestone notification ($percent%) for "$goalName".');
+  }
+
+  /// Show an off-track warning notification.
+  /// Call when actual progress is significantly behind planned schedule.
+  Future<void> showOffTrackWarning({
+    required String goalName,
+    required int delayMonths,
+    required int suggestedMonthlySavingVnd,
+  }) async {
+    final extraAmount = _formatVnd(suggestedMonthlySavingVnd);
+    await _localNotifications.show(
+      id: coachOffTrackId,
+      title: '⚠️ AI Coach: Mục tiêu "$goalName" có thể bị trễ',
+      body: 'Nếu tiếp tục như hiện tại, mục tiêu có thể chậm $delayMonths tháng. '
+          'Tăng thêm $extraAmount/tháng để về đích đúng hạn.',
+      notificationDetails: _coachNotificationDetails,
+      payload: 'off_track_$goalName',
+    );
+    debugPrint('NotificationService: Showed off-track warning for "$goalName" (delay: $delayMonths months).');
+  }
+
+  /// Schedule a monthly "Coach Checkin" notification to prompt user
+  /// to review their goals and get fresh AI analysis.
+  Future<void> scheduleMonthlyCoachCheckin({required int dayOfMonth}) async {
+    final now = tz.TZDateTime.now(tz.local);
+    final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
+    final clampedDay = dayOfMonth.clamp(1, daysInMonth);
+
+    var scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, clampedDay, 10, 0);
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = tz.TZDateTime(tz.local, now.year, now.month + 1, clampedDay, 10, 0);
+    }
+
+    await _localNotifications.zonedSchedule(
+      id: coachCheckinId,
+      title: '🤖 AI Coach nhắc bạn kiểm tra mục tiêu tháng này',
+      body: 'Bạn đã đạt được bao nhiêu % mục tiêu tháng này? Vào app để AI Coach phân tích và đưa lời khuyên nhé!',
+      scheduledDate: scheduledDate,
+      notificationDetails: _coachNotificationDetails,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.dayOfMonthAndTime,
+    );
+    debugPrint('NotificationService: Scheduled monthly coach checkin on day $clampedDay.');
+  }
+
+  /// Cancel all AI Coach notifications.
+  Future<void> cancelCoachNotifications() async {
+    await _localNotifications.cancel(id: coachMilestoneId);
+    await _localNotifications.cancel(id: coachOffTrackId);
+    await _localNotifications.cancel(id: coachCheckinId);
+    debugPrint('NotificationService: Cancelled all coach notifications.');
+  }
+
+  String _formatVnd(int amount) {
+    if (amount >= 1000000) return '${(amount / 1000000).toStringAsFixed(0)} triệu';
+    if (amount >= 1000) return '${(amount / 1000).toStringAsFixed(0)}k';
+    return '$amount VNĐ';
+  }
 }
 
 @riverpod

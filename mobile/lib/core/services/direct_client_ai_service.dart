@@ -34,6 +34,9 @@ class DirectClientAiService implements AiService {
     }
   }
 
+  @override
+  Future<String> chat(String prompt) => generateScenarioSimulation(prompt);
+
   Future<bool> testConnection(String provider, String apiKey, String model) async {
     const prompt = "Hello";
     if (apiKey.trim().isEmpty) {
