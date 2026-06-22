@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 import 'package:google_sign_in/google_sign_in.dart';
@@ -20,16 +21,66 @@ class AuthRepositoryImpl implements AuthRepository {
 
   AuthRepositoryImpl(this._client);
 
+  // ── Helper Local Storage ──────────────────────────────────────────────────
+  Future<void> _saveUserLocal(AppUser user) async {
+    try {
+      final prefs = getIt<SharedPreferences>();
+      final jsonStr = jsonEncode({
+        'id': user.id,
+        'email': user.email,
+        'displayName': user.displayName,
+        'avatarUrl': user.avatarUrl,
+        'createdAt': user.createdAt.toIso8601String(),
+      });
+      await prefs.setString('logged_in_user', jsonStr);
+    } catch (e) {
+      debugPrint('Error saving user local: $e');
+    }
+  }
+
+  Future<void> _clearUserLocal() async {
+    try {
+      final prefs = getIt<SharedPreferences>();
+      await prefs.remove('logged_in_user');
+    } catch (e) {
+      debugPrint('Error clearing user local: $e');
+    }
+  }
+
+  AppUser? _getUserLocal() {
+    try {
+      final prefs = getIt<SharedPreferences>();
+      final jsonStr = prefs.getString('logged_in_user');
+      if (jsonStr == null || jsonStr.isEmpty) return null;
+      final map = jsonDecode(jsonStr) as Map<String, dynamic>;
+      return AppUser(
+        id: map['id'] as String,
+        email: map['email'] as String?,
+        displayName: map['displayName'] as String?,
+        avatarUrl: map['avatarUrl'] as String?,
+        createdAt: DateTime.parse(map['createdAt'] as String),
+      );
+    } catch (e) {
+      debugPrint('Error reading user local: $e');
+      return null;
+    }
+  }
+
   @override
   Stream<AppUser?> watchAuthState() async* {
     yield getCurrentUser();
     
     final controller = StreamController<AppUser?>.broadcast();
     
-    final sub = _client.auth.onAuthStateChange.map((event) {
+    final sub = _client.auth.onAuthStateChange.listen((event) {
       final user = event.session?.user;
-      return user != null ? UserModel.fromSupabase(user).toEntity() : null;
-    }).listen(controller.add);
+      if (user != null) {
+        controller.add(UserModel.fromSupabase(user).toEntity());
+      } else {
+        // Fallback to local guest user if Supabase has no active session
+        controller.add(getCurrentUser());
+      }
+    });
     
     final localSub = _localAuthStreamController.stream.listen(controller.add);
     
@@ -44,19 +95,30 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   AppUser? getCurrentUser() {
+    // Read directly from app local storage first
+    final localUser = _getUserLocal();
+    if (localUser != null) return localUser;
+
+    // Check if there is an online Supabase user session (e.g. initial setup)
     final user = _client.auth.currentUser;
-    if (user != null) return UserModel.fromSupabase(user).toEntity();
+    if (user != null) {
+      final entity = UserModel.fromSupabase(user).toEntity();
+      _saveUserLocal(entity);
+      return entity;
+    }
     
-    // Fallback to local guest user
+    // Fallback to local guest username (backward compatibility)
     final prefs = getIt<SharedPreferences>();
     final name = prefs.getString('local_username');
     if (name != null && name.isNotEmpty) {
-      return AppUser(
+      final guestUser = AppUser(
         id: 'local_user_id', 
         displayName: name, 
         email: 'offline@fingoal.local', 
         createdAt: DateTime.now()
       );
+      _saveUserLocal(guestUser);
+      return guestUser;
     }
     return null;
   }
@@ -73,7 +135,9 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       final user = response.user;
       if (user == null) return const Left(AuthFailure());
-      return Right(UserModel.fromSupabase(user).toEntity());
+      final entity = UserModel.fromSupabase(user).toEntity();
+      await _saveUserLocal(entity);
+      return Right(entity);
     } on sb.AuthException catch (e) {
       return Left(AuthFailure(message: _translateAuthError(e.message), code: e.statusCode));
     } catch (_) {
@@ -93,7 +157,9 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       final user = response.user;
       if (user == null) return const Left(AuthFailure());
-      return Right(UserModel.fromSupabase(user).toEntity());
+      final entity = UserModel.fromSupabase(user).toEntity();
+      await _saveUserLocal(entity);
+      return Right(entity);
     } on sb.AuthException catch (e) {
       return Left(AuthFailure(message: _translateAuthError(e.message), code: e.statusCode));
     } catch (_) {
@@ -151,7 +217,10 @@ class AuthRepositoryImpl implements AuthRepository {
       final prefs = getIt<SharedPreferences>();
       await prefs.setBool('has_logged_in_with_google', true);
       
-      return Right(UserModel.fromSupabase(user).toEntity());
+      final entity = UserModel.fromSupabase(user).toEntity();
+      await _saveUserLocal(entity);
+      
+      return Right(entity);
     } on sb.AuthException catch (e) {
       debugPrint('Google Sign-In Supabase AuthException: ${e.message} (status: ${e.statusCode})');
       return Left(AuthFailure(
@@ -167,6 +236,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, Unit>> signOut() async {
     try {
+      await _clearUserLocal();
       final prefs = getIt<SharedPreferences>();
       await prefs.remove('local_username');
       
@@ -198,15 +268,16 @@ class AuthRepositoryImpl implements AuthRepository {
         return const Left(AuthFailure(message: 'Tên không được để trống.'));
       }
       
-      final prefs = getIt<SharedPreferences>();
-      await prefs.setString('local_username', trimmedName);
-      
       final user = AppUser(
         id: 'local_user_id',
         displayName: trimmedName,
         email: 'offline@fingoal.local',
         createdAt: DateTime.now(),
       );
+      
+      await _saveUserLocal(user);
+      final prefs = getIt<SharedPreferences>();
+      await prefs.setString('local_username', trimmedName);
       
       _localAuthStreamController.add(user);
       return Right(user);
@@ -253,6 +324,7 @@ class AuthRepositoryImpl implements AuthRepository {
         debugPrint('Google Sign-Out during account deletion error: $e');
       }
       
+      await _clearUserLocal();
       _localAuthStreamController.add(null);
       final prefs = getIt<SharedPreferences>();
       await prefs.remove('has_logged_in_with_google');
