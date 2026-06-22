@@ -698,70 +698,69 @@ class GoalsListPage extends ConsumerWidget {
   Widget _buildTrainingCampCard(BuildContext context, bool isPremium) {
     return Container(
       margin: const EdgeInsets.only(top: AppSizes.lg, bottom: AppSizes.xl),
-      padding: const EdgeInsets.all(AppSizes.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
             AppColors.primary.withValues(alpha: 0.15),
-            AppColors.primaryDark.withValues(alpha: 0.15)
+            AppColors.primaryDark.withValues(alpha: 0.05)
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(AppSizes.radiusXl),
+        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
         border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(AppSizes.sm),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+          onTap: () {
+            context.push(AppRoutes.cashflowBoardGame);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(AppSizes.md),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppSizes.sm),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.sports_esports,
+                      color: AppColors.primary, size: 28),
                 ),
-                child: const Icon(Icons.sports_esports,
-                    color: AppColors.primary, size: 28),
-              ),
-              const Gap(AppSizes.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Trại huấn luyện Cashflow',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(fontWeight: FontWeight.bold)),
-                  ],
+                const Gap(AppSizes.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Trại huấn luyện Cashflow',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold)),
+                      const Gap(4),
+                      Text(
+                        'Học cách thoát khỏi vòng xoáy Rat Race.',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const Gap(AppSizes.md),
-          Text(
-            'Chơi game mô phỏng dòng tiền để học cách quản lý tài chính và thoát khỏi "Rat Race".',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const Gap(AppSizes.lg),
-          ElevatedButton.icon(
-            onPressed: () {
-              context.push(AppRoutes.cashflowBoardGame);
-            },
-            icon: const Icon(Icons.play_arrow, color: Colors.white),
-            label: const Text('Vào Trại Huấn Luyện',
-                style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              minimumSize: const Size(double.infinity, AppSizes.buttonHeight),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
+                const Gap(AppSizes.sm),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.play_arrow, color: Colors.white, size: 20),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
