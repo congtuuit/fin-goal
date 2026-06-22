@@ -459,6 +459,19 @@ class GoalsListPage extends ConsumerWidget {
         ? (goal.currentSavings / goal.targetAmount).clamp(0.0, 1.0)
         : 0.0;
 
+    String expectedDateText = '';
+    if (goal.currentSavings >= goal.targetAmount) {
+      expectedDateText = 'Đã hoàn thành 🎉';
+    } else if (goal.monthlySaving > 0) {
+      final remaining = goal.targetAmount - goal.currentSavings;
+      final months = (remaining / goal.monthlySaving).ceil();
+      final now = DateTime.now();
+      final expected = DateTime(now.year, now.month + months);
+      expectedDateText = 'Dự kiến: ${expected.month}/${expected.year}';
+    } else {
+      expectedDateText = 'Chưa có dòng tiền';
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppSizes.lg),
       decoration: BoxDecoration(
@@ -676,12 +689,29 @@ class GoalsListPage extends ConsumerWidget {
                           ],
                         ),
                         const Gap(AppSizes.xs),
-                        Text(
-                          'Mục tiêu: ${CurrencyFormatter.format(goal.targetAmount)}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: AppColors.textMuted),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Mục tiêu: ${CurrencyFormatter.format(goal.targetAmount)}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(color: AppColors.textMuted),
+                            ),
+                            Text(
+                              expectedDateText,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: expectedDateText.contains('Đã') 
+                                      ? AppColors.success 
+                                      : AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
