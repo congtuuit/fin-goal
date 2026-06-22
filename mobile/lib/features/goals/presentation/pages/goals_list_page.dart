@@ -630,69 +630,58 @@ class GoalsListPage extends ConsumerWidget {
                         ),
                         const Gap(AppSizes.sm),
                         Text(
-                          'Đã tích lũy',
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
-                        ),
-                        const Gap(2),
-                        Text(
                           CurrencyFormatter.format(goal.currentSavings),
                           style: Theme.of(context)
                               .textTheme
-                              .headlineMedium
+                              .titleLarge
                               ?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.success,
                               ),
                         ),
-                        const Gap(AppSizes.sm),
+                        const Gap(AppSizes.xs),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Mục tiêu: ${CurrencyFormatter.format(goal.targetAmount)}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
+                            Expanded(
+                              child: Container(
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: AppColors.backgroundDark,
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    return Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Container(
+                                        width: constraints.maxWidth * progress,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(3),
+                                          gradient: AppColors.gradientPrimary,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
+                            const Gap(AppSizes.md),
                             Text(
                               '${(progress * 100).toStringAsFixed(1)}%',
                               style: Theme.of(context)
                                   .textTheme
-                                  .titleSmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  .labelLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
-                        const Gap(4),
-                        Container(
-                          height: 8,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: AppColors.backgroundDark,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              return Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  width: constraints.maxWidth * progress,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(4),
-                                    gradient: AppColors.gradientPrimary,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
+                        const Gap(AppSizes.xs),
+                        Text(
+                          'Mục tiêu: ${CurrencyFormatter.format(goal.targetAmount)}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: AppColors.textMuted),
                         ),
                       ],
                     ),

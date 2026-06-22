@@ -435,18 +435,36 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Row(
+              children: [
+                Text(
+                  primaryGoal.emoji ?? '🎯',
+                  style: const TextStyle(fontSize: 32),
+                ),
+                const Gap(AppSizes.md),
+                Expanded(
+                  child: Text(
+                    primaryGoal.name,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+            const Gap(AppSizes.md),
             _buildTimelineCard(result, primaryGoal.targetAmount),
-            const Gap(AppSizes.xl),
+            const Gap(AppSizes.md),
             _buildMacroControlPanel(isPremium),
-            const Gap(AppSizes.xl),
+            const Gap(AppSizes.md),
             _buildReliabilityScore(result.planReliability),
-            const Gap(AppSizes.xl),
+            const Gap(AppSizes.md),
             _buildMonthlySavingSlider(profile.disposableIncome, monthlySaving),
-            const Gap(AppSizes.xxl),
+            const Gap(AppSizes.lg),
             _buildActionButtons(context, thisMonthRecord),
-            const Gap(AppSizes.xxl),
+            const Gap(AppSizes.lg),
             _buildHistorySection(records),
-            const Gap(AppSizes.xxl),
+            const Gap(AppSizes.xl),
           ],
         ),
       ),
@@ -548,69 +566,89 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
   }
 
   Widget _buildTimelineCard(ScenarioResult result, int target) {
-    // Determine the year/month based on expected months
     final now = DateTime.now();
     final expectedDate = DateTime(now.year, now.month + result.expectedMonths);
     final isReached = result.expectedMonths == 0;
 
     return Container(
-      padding: const EdgeInsets.all(AppSizes.xl),
+      padding: const EdgeInsets.all(AppSizes.lg),
       decoration: BoxDecoration(
         color: AppColors.surfaceElevatedDark,
         borderRadius: BorderRadius.circular(AppSizes.radiusXl),
         border: Border.all(color: AppColors.borderDark),
       ),
-      child: Column(
-        children: [
-          Text(
-            isReached ? 'Mục tiêu đã hoàn thành! 🎉' : 'Dự kiến hoàn thành vào',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const Gap(AppSizes.sm),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              isReached
-                  ? 'Ngay bây giờ'
-                  : 'Tháng ${expectedDate.month}/${expectedDate.year}',
-              style: Theme.of(context)
-                  .textTheme
-                  .displaySmall
-                  ?.copyWith(color: AppColors.primary),
-              maxLines: 1,
+      child: IntrinsicHeight(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    isReached ? 'Đã hoàn thành! 🎉' : 'Dự kiến hoàn thành',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const Gap(AppSizes.xs),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      isReached
+                          ? 'Ngay bây giờ'
+                          : '${expectedDate.month}/${expectedDate.year}',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const Gap(AppSizes.lg),
-          const Divider(),
-          const Gap(AppSizes.lg),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildCaseStat(
-                  'Sớm nhất', result.bestCaseMonths, AppColors.success),
-              _buildCaseStat(
-                  'Chậm nhất', result.worstCaseMonths, AppColors.danger),
-            ],
-          ),
-        ],
+            if (!isReached) ...[
+              const Gap(AppSizes.sm),
+              const VerticalDivider(width: 1, color: AppColors.borderDark),
+              const Gap(AppSizes.md),
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildCompactCaseStat('Sớm nhất', result.bestCaseMonths, AppColors.success),
+                    const Gap(AppSizes.sm),
+                    _buildCompactCaseStat('Chậm nhất', result.worstCaseMonths, AppColors.danger),
+                  ],
+                ),
+              ),
+            ]
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildCaseStat(String label, int months, Color color) {
-    if (months == 0) return const SizedBox();
+  Widget _buildCompactCaseStat(String label, int months, Color color) {
+    if (months <= 0) return const SizedBox();
 
     final now = DateTime.now();
     final date = DateTime(now.year, now.month + months);
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: Theme.of(context).textTheme.bodySmall),
-        const Gap(4),
+        const Gap(2),
         Text(
           'T${date.month}/${date.year}',
-          style:
-              Theme.of(context).textTheme.titleMedium?.copyWith(color: color),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: color, 
+            fontWeight: FontWeight.bold
+          ),
         ),
       ],
     );
@@ -618,7 +656,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
 
   Widget _buildMacroControlPanel(bool isPremium) {
     return Container(
-      padding: const EdgeInsets.all(AppSizes.xl),
+      padding: const EdgeInsets.all(AppSizes.lg),
       decoration: BoxDecoration(
         color: AppColors.surfaceElevatedDark,
         borderRadius: BorderRadius.circular(AppSizes.radiusXl),
@@ -635,7 +673,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
               const Spacer(),
             ],
           ),
-          const Gap(AppSizes.lg),
+          const Gap(AppSizes.md),
           _buildMacroSlider(
             label: 'Lạm phát',
             value: _customInflationRate,
@@ -643,7 +681,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
             max: 0.15,
             onChanged: (val) => setState(() => _customInflationRate = val),
           ),
-          const Gap(AppSizes.md),
+          const Gap(AppSizes.sm),
           _buildMacroSlider(
             label: 'Lãi suất đầu tư',
             value: _customInvestmentReturn,
@@ -651,7 +689,7 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
             max: 0.20,
             onChanged: (val) => setState(() => _customInvestmentReturn = val),
           ),
-          const Gap(AppSizes.md),
+          const Gap(AppSizes.sm),
           _buildMacroSlider(
             label: 'Tăng thu nhập/năm',
             value: _customIncomeGrowth,
