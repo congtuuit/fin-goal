@@ -1,0 +1,8 @@
+1. Màn hình home, danh sách các mục tiêu. Hiện tại card không đánh dấu * và item card đầu tiên đang có highlight, và chỉ có item card đầu tiên mới có thể ghim thông qua đánh dấu "*".
+=> mong đợi: Cho phép bất kỳ item card nào trong danh sách có thể dánh dấu "*" để ghim, và item nào được ghim mới highlight
+
+2. Tạo mục tiêu và xem chi tiết mục tiêu vừa tạo bị trống. Khi vừa tạo mục tiêu mới xong, click vào mục tiêu đó để navigate tới màn hình chi tiết mục tiêu, nhưng màn hình này trống.
+=> mong đợi: tôi muốn hiển thị màn hình chi tiết như ở mode offline - và lưu ý mode offline sẽ không cần phân biệt giữa offline và online nữa. chúng ta sẽ sử dụng mode offine như đăng nhập với guest là chỉ lưu local, còn lại tính năng vẫn giống nhau giữa offline và online. Nên cần bố trí kiến trúc dữ liệu lưu ở local sao cho hợp lý để khi khách login vào có thể đồng bộ toàn bộ lên DB online cho khách (đối với tài khoản chưa có dữ liệu sau khi đăng ký lần đầu)
+
+3. Màn hình thanh toán, khi mua thêm 1 mục tiêu chưa có cộng thêm 1 mục tiêu vào tài khoản của khách.
+=> Mong đợi: Sau khi thanh toán thành công mua thêm 1 mục tiêu nên cộng thêm 1 mục tiêu vào tài khoản của khách, và điều hướng về màn hình home.

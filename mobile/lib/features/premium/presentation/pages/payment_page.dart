@@ -40,9 +40,21 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
         final currentSlots = List<DateTime>.from(profileState.profile!.purchasedGoalSlots);
         currentSlots.add(DateTime.now().add(const Duration(days: 365)));
         final updatedProfile = profileState.profile!.copyWith(purchasedGoalSlots: currentSlots);
-        await ref.read(profileProvider.notifier).updateProfile(updatedProfile);
+        final failure = await ref.read(profileProvider.notifier).updateProfile(updatedProfile);
         
         if (!mounted) return;
+        
+        if (failure != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Lỗi cập nhật tài khoản: ${failure.message}'),
+              backgroundColor: AppColors.danger,
+            ),
+          );
+          setState(() => _isLoading = false);
+          return;
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Thanh toán thành công! Bạn đã có thêm 1 mục tiêu.'),

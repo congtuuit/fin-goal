@@ -462,17 +462,17 @@ class GoalsListPage extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSizes.lg),
       decoration: BoxDecoration(
-        color: goal.isPrimary
+        color: goal.isPinned
             ? AppColors.surfaceElevatedDark
             : AppColors.surfaceDark,
         borderRadius: BorderRadius.circular(AppSizes.radiusLg),
         border: Border.all(
-          color: goal.isPrimary
+          color: goal.isPinned
               ? AppColors.primary.withValues(alpha: 0.5)
               : AppColors.borderDark,
-          width: goal.isPrimary ? 1.5 : 1,
+          width: goal.isPinned ? 1.5 : 1,
         ),
-        boxShadow: goal.isPrimary
+        boxShadow: goal.isPinned
             ? [
                 BoxShadow(
                   color: AppColors.primary.withValues(alpha: 0.15),
@@ -560,7 +560,7 @@ class GoalsListPage extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.all(AppSizes.sm),
                               decoration: BoxDecoration(
-                                color: goal.isPrimary
+                                color: goal.isPinned
                                     ? AppColors.primary.withValues(alpha: 0.1)
                                     : AppColors.surfaceElevatedDark,
                                 borderRadius:

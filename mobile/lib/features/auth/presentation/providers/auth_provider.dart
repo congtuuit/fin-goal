@@ -101,10 +101,15 @@ class AuthNotifier extends _$AuthNotifier {
           email: email,
           password: password,
         );
-    state = result.fold(
-      (failure) => AuthError(failure.message),
-      (user) => AuthSuccess(user),
-    );
+    
+    if (result.isRight()) {
+      final user = result.getOrElse(() => throw Exception());
+      await ref.read(dataSyncRepositoryProvider).syncLocalDataToOnline();
+      state = AuthSuccess(user);
+    } else {
+      final failure = result.fold((l) => l, (r) => throw Exception());
+      state = AuthError(failure.message);
+    }
   }
 
   Future<void> signUpWithEmail({
@@ -116,10 +121,15 @@ class AuthNotifier extends _$AuthNotifier {
           email: email,
           password: password,
         );
-    state = result.fold(
-      (failure) => AuthError(failure.message),
-      (user) => AuthSuccess(user),
-    );
+        
+    if (result.isRight()) {
+      final user = result.getOrElse(() => throw Exception());
+      await ref.read(dataSyncRepositoryProvider).syncLocalDataToOnline();
+      state = AuthSuccess(user);
+    } else {
+      final failure = result.fold((l) => l, (r) => throw Exception());
+      state = AuthError(failure.message);
+    }
   }
 
   Future<void> signInWithGoogle() async {
