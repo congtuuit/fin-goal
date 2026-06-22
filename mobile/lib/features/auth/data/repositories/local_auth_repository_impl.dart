@@ -97,15 +97,39 @@ class LocalAuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> deleteAccount() async {
-    // Remove only guest-specific data keys. Do NOT call _prefs.clear()
-    // as that would wipe global app settings (welcome flags, preferences, etc.)
+    // Remove only user-specific data keys. Do NOT call _prefs.clear()
+    // as that would wipe global app settings (welcome flags, ai keys, etc.)
+
+    // ── Auth & identity ──────────────────────────────────────────────────────
     await _prefs.remove(_keyUsername);
     await _prefs.remove('logged_in_user');
+
+    // ── Onboarding ───────────────────────────────────────────────────────────
+    await _prefs.remove('onboarding_completed');
+
+    // ── Goal / scenario / profile ────────────────────────────────────────────
     await _prefs.remove('local_goals');
     await _prefs.remove('local_records');
     await _prefs.remove('local_scenarios');
     await _prefs.remove('local_financial_profile');
-    await _prefs.remove('onboarding_completed');
+
+    // ── Cashflow game state (guest userId = 'local_user_id') ─────────────────
+    await _prefs.remove('cashflow_game_v2_local_user_id');
+
+    // ── AI Coach cache (all goalId-prefixed entries) ──────────────────────────
+    final coachKeys = _prefs
+        .getKeys()
+        .where((k) =>
+            k.startsWith('coach_advice_') ||
+            k.startsWith('coach_advice_time_'))
+        .toList();
+    for (final k in coachKeys) {
+      await _prefs.remove(k);
+    }
+
+    // ── Coach tone preference ─────────────────────────────────────────────────
+    await _prefs.remove('coach_tone');
+
     _authStreamController.add(null);
     return const Right(unit);
   }

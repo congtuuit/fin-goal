@@ -13,6 +13,7 @@ import 'package:fin_goal/features/auth/presentation/widgets/login_bottom_sheet.d
 import 'package:fin_goal/features/auth/presentation/widgets/google_sign_in_button.dart';
 import 'package:fin_goal/core/services/direct_client_ai_service.dart';
 import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
+import 'package:fin_goal/features/profile/presentation/providers/profile_provider.dart';
 import 'package:fin_goal/core/services/notification_service.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -651,6 +652,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       backgroundColor: AppColors.danger),
                 );
               } else {
+                // Invalidate onboarding provider so the router re-evaluates
+                // and sends the user through onboarding on next login.
+                // Without this, a re-login with the same Google account
+                // would skip onboarding and crash on ScenarioDashboardPage.
+                ref.invalidate(hasCompletedOnboardingProvider);
                 context.go(AppRoutes.login);
               }
             }

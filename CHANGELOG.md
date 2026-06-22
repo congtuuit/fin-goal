@@ -2,6 +2,26 @@
 
 Dự án: **fin-goal (Financial Simulator App)**
 
+## [2026-06-22] — QC: Auth & Data Isolation Fixes
+
+### Fixed
+- **[Critical] Data leakage giữa accounts (Riverpod stale state):**
+  - Tất cả Notifiers với `keepAlive: true` nay watch repository provider trong `build()` để tự rebuild khi account thay đổi.
+  - Affected: `GoalsNotifier`, `ScenarioQueriesNotifier`, `RecordsNotifier`, `hasCheckedInThisMonth`, `ProfileNotifier`, `CashflowGameNotifier`.
+- **[Critical] Login Google lại sau khi xóa tài khoản → crash "Chưa có profile":**
+  - `deleteAccount()` (online) nay xóa `onboarding_completed` khỏi SharedPreferences.
+  - `settings_page.dart` nay gọi `ref.invalidate(hasCompletedOnboardingProvider)` sau khi xóa, buộc router re-evaluate.
+- **[Major] Guest delete account xóa không đúng:** Thay `_prefs.clear()` bằng selective key removal, bảo toàn app-wide settings (AI keys, sound, welcome flags).
+- **[Minor] Thiếu cleanup khi delete account:**
+  - Game state (`cashflow_game_v2_{userId}`) nay được xóa.
+  - AI Coach cache (`coach_advice_*`, `coach_advice_time_*`) nay được xóa.
+  - Coach tone preference (`coach_tone`) nay được xóa.
+  - `has_logged_in_with_google` nay được xóa trong cả Guest delete path.
+
+### Added
+- Helper `_clearAllUserData(userId)` trong `AuthRepositoryImpl` — điểm tập trung duy nhất xử lý cleanup toàn bộ user data khi xóa tài khoản.
+- Tài liệu audit: `docs/specs/shared_prefs_audit_260622.md` — liệt kê toàn bộ SharedPreferences keys, phân loại user data vs app settings.
+
 ## [2026-06-03]
 ### Added
 - **MVP Offline Hoàn Toàn & Định hướng Hybrid**:

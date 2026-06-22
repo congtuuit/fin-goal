@@ -47,6 +47,49 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// Removes ALL user-scoped SharedPreferences keys.
+  /// Called on account deletion (both Guest and Online paths).
+  /// Preserves app-wide settings: ai_provider, ai_api_key, ai_model,
+  /// sfx_muted, has_seen_welcome.
+  Future<void> _clearAllUserData(String userId) async {
+    try {
+      final prefs = getIt<SharedPreferences>();
+
+      // ── Auth & identity ───────────────────────────────────────────────────
+      await prefs.remove('logged_in_user');
+      await prefs.remove('local_username');
+      await prefs.remove('has_logged_in_with_google');
+
+      // ── Onboarding ────────────────────────────────────────────────────────
+      await prefs.remove('onboarding_completed');
+
+      // ── Goal / scenario / profile (guest data) ────────────────────────────
+      await prefs.remove('local_goals');
+      await prefs.remove('local_records');
+      await prefs.remove('local_scenarios');
+      await prefs.remove('local_financial_profile');
+
+      // ── Cashflow game state (keyed by userId) ─────────────────────────────
+      await prefs.remove('cashflow_game_v2_$userId');
+
+      // ── AI Coach cache (keyed by goalId prefix) ───────────────────────────
+      final coachKeys = prefs
+          .getKeys()
+          .where((k) =>
+              k.startsWith('coach_advice_') ||
+              k.startsWith('coach_advice_time_'))
+          .toList();
+      for (final k in coachKeys) {
+        await prefs.remove(k);
+      }
+
+      // ── Coach tone preference ─────────────────────────────────────────────
+      await prefs.remove('coach_tone');
+    } catch (e) {
+      debugPrint('Error clearing all user data: $e');
+    }
+  }
+
   AppUser? _getUserLocal() {
     try {
       final prefs = getIt<SharedPreferences>();
@@ -305,14 +348,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // Guest users only have local data — clean up their specific keys.
       final localUser = _getUserLocal();
       if (localUser != null && localUser.id == 'local_user_id') {
-        final prefs = getIt<SharedPreferences>();
-        await prefs.remove('local_goals');
-        await prefs.remove('local_records');
-        await prefs.remove('local_scenarios');
-        await prefs.remove('local_financial_profile');
-        await prefs.remove('onboarding_completed');
-        await prefs.remove('local_username');
-        await prefs.remove('logged_in_user');
+        await _clearAllUserData('local_user_id');
         _localAuthStreamController.add(null);
         return const Right(unit);
       }
@@ -341,10 +377,8 @@ class AuthRepositoryImpl implements AuthRepository {
         debugPrint('Google Sign-Out during account deletion error: $e');
       }
       
-      await _clearUserLocal();
+      await _clearAllUserData(userId);
       _localAuthStreamController.add(null);
-      final prefs = getIt<SharedPreferences>();
-      await prefs.remove('has_logged_in_with_google');
       // Sign out locally to clear session cache since user record is deleted
       await _client.auth.signOut(scope: sb.SignOutScope.local);
       return const Right(unit);

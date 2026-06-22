@@ -1,41 +1,42 @@
 {
-  "updated_at": "2026-06-22T09:05:00Z",
+  "updated_at": "2026-06-22T14:23:00Z",
   "working_on": {
-    "feature": "AI Financial Coach & UI Optimization",
-    "task": "Implement Draggable Floating Button, Bottom Sheet styling, and standard Google Sign-In button",
+    "feature": "QC: Auth & Data Isolation Fixes",
+    "task": "Completed — all issues resolved and docs saved",
     "status": "completed",
     "files": [
-      "mobile/lib/features/coach/presentation/widgets/draggable_ai_coach_button.dart",
-      "mobile/lib/features/coach/presentation/widgets/ai_coach_card.dart",
-      "mobile/lib/features/scenarios/presentation/pages/scenario_dashboard_page.dart",
-      "mobile/lib/features/auth/presentation/widgets/google_sign_in_button.dart",
-      "mobile/lib/features/auth/presentation/pages/login_page.dart",
-      "mobile/lib/features/auth/presentation/widgets/login_bottom_sheet.dart",
+      "mobile/lib/features/auth/data/repositories/auth_repository_impl.dart",
+      "mobile/lib/features/auth/data/repositories/local_auth_repository_impl.dart",
       "mobile/lib/features/profile/presentation/pages/settings_page.dart",
-      "mobile/lib/features/auth/data/repositories/auth_repository_impl.dart"
+      "mobile/lib/features/goals/presentation/providers/goal_provider.dart",
+      "mobile/lib/features/scenarios/presentation/providers/scenario_provider.dart",
+      "mobile/lib/features/profile/presentation/providers/profile_provider.dart",
+      "mobile/lib/features/cashflow_game/presentation/providers/game_provider.dart"
     ],
     "blockers": [],
-    "notes": "Fully implemented the AI Financial Coach with custom system prompts (Stern, Encouraging, Analytical) and 24h caching. Optimized UI by replacing fixed AI card with a draggable floating button snapping to screen edges. Made bottom sheet border-radius and margins stick to edge. Standardized Google Sign-In buttons across the app to comply with Google Branding Guidelines. Fixed guest login session override bug on app restart and saved user info directly to app local storage."
+    "notes": "Fixed 3 QC issues: (1) Data leakage between accounts via Riverpod reactive rebuild, (2) Guest delete wiping app settings → selective key removal, (3) Re-login with same Google after delete → crash 'no profile' fixed by clearing onboarding_completed flag and invalidating hasCompletedOnboardingProvider. Also audited all SharedPreferences keys and added _clearAllUserData() helper."
   },
   "pending_tasks": [
+    { "task": "QC manual test: Data isolation scenarios", "priority": "high", "notes": "Test 5 cases in docs/specs/shared_prefs_audit_260622.md" },
     { "task": "Integrate premium features properly", "priority": "medium", "notes": "Paywall and limits" },
     { "task": "Add deleting goals", "priority": "low", "notes": "Swipe to delete on GoalsListPage" },
     { "task": "Implement Phase 1 data sync upgrade (Bulk Insert & Transaction RPC)", "priority": "medium", "notes": "Plan documented in docs/plans/data_sync_upgrade_plan.md" }
   ],
   "recent_changes": [
-    { "timestamp": "2026-06-22T09:00:00Z", "type": "bugfix", "description": "Fix guest session override bug in AuthRepositoryImpl on startup and save user locally to SharedPreferences", "files": ["mobile/lib/features/auth/data/repositories/auth_repository_impl.dart"] },
-    { "timestamp": "2026-06-22T08:50:00Z", "type": "feature", "description": "Standardize Google Sign-In buttons with shared GoogleSignInButton widget", "files": ["mobile/lib/features/auth/presentation/widgets/google_sign_in_button.dart", "mobile/lib/features/auth/presentation/pages/login_page.dart", "mobile/lib/features/auth/presentation/widgets/login_bottom_sheet.dart", "mobile/lib/features/profile/presentation/pages/settings_page.dart"] },
-    { "timestamp": "2026-06-22T08:40:00Z", "type": "feature", "description": "Implement Draggable Floating AI Coach button with snap physics and bottom-pinned slide-up sheet", "files": ["mobile/lib/features/coach/presentation/widgets/draggable_ai_coach_button.dart", "mobile/lib/features/coach/presentation/widgets/ai_coach_card.dart", "mobile/lib/features/scenarios/presentation/pages/scenario_dashboard_page.dart"] },
-    { "timestamp": "2026-06-22T04:50:00Z", "type": "feature", "description": "Implement AI Financial Coach core and custom system prompts with caching", "files": ["mobile/lib/core/services/ai_prompt_builder.dart", "mobile/lib/features/coach/presentation/providers/coach_provider.dart", "mobile/lib/features/coach/data/repositories/coach_repository.dart"] }
+    { "timestamp": "2026-06-22T14:20:00Z", "type": "bugfix", "description": "Audit all SharedPreferences keys; add _clearAllUserData() helper; fix game + coach cache cleanup on account deletion (both Guest and Online paths)", "files": ["mobile/lib/features/auth/data/repositories/auth_repository_impl.dart", "mobile/lib/features/auth/data/repositories/local_auth_repository_impl.dart"] },
+    { "timestamp": "2026-06-22T14:18:00Z", "type": "bugfix", "description": "Fix 'Chua co profile' crash after re-login with same Google email post delete-account by clearing onboarding_completed flag and invalidating hasCompletedOnboardingProvider", "files": ["mobile/lib/features/auth/data/repositories/auth_repository_impl.dart", "mobile/lib/features/profile/presentation/pages/settings_page.dart"] },
+    { "timestamp": "2026-06-22T13:10:00Z", "type": "bugfix", "description": "Fix data leakage between accounts: all keepAlive Riverpod Notifiers now watch their repository provider in build() to trigger reactive rebuild on user change", "files": ["mobile/lib/features/goals/presentation/providers/goal_provider.dart", "mobile/lib/features/scenarios/presentation/providers/scenario_provider.dart", "mobile/lib/features/profile/presentation/providers/profile_provider.dart", "mobile/lib/features/cashflow_game/presentation/providers/game_provider.dart"] },
+    { "timestamp": "2026-06-22T09:00:00Z", "type": "bugfix", "description": "Fix guest session override bug in AuthRepositoryImpl on startup and save user locally to SharedPreferences", "files": ["mobile/lib/features/auth/data/repositories/auth_repository_impl.dart"] }
   ],
   "errors_encountered": [
-    { "error": "Supabase stream null overrides Guest user state", "solution": "Check local guest user fallback inside AuthRepositoryImpl onAuthStateChange stream before emitting null.", "resolved": true },
-    { "error": "flutter_local_notifications API change", "solution": "Migrate show() and zonedSchedule() calls to use named parameters for required id and details fields.", "resolved": true }
+    { "error": "Circular dependency khi import hasCompletedOnboardingProvider vào auth_provider.dart", "solution": "Thực hiện ref.invalidate() ở UI layer (settings_page.dart) thay vì trong AuthNotifier. Tránh circular import giữa auth và profile providers.", "resolved": true },
+    { "error": "Supabase stream null overrides Guest user state", "solution": "Check local guest user fallback inside AuthRepositoryImpl onAuthStateChange stream before emitting null.", "resolved": true }
   ],
   "decisions_made": [
+    { "decision": "Centralize SharedPreferences cleanup in _clearAllUserData(userId)", "reason": "Tránh rải rác prefs.remove() calls ở nhiều nơi, dễ miss khi thêm key mới. Single responsibility, dễ audit." },
+    { "decision": "Invalidate hasCompletedOnboardingProvider ở UI layer (settings_page), không phải AuthNotifier", "reason": "Tránh circular dependency. AuthNotifier không nên import từ profile feature." },
+    { "decision": "Preserve app-wide settings (ai_provider, ai_api_key, sfx_muted, has_seen_welcome) khi xóa account", "reason": "User cài AI key một lần, không nên mất khi đổi account. Sound và welcome settings là app preferences, không phải user data." },
     { "decision": "Draggable Floating AI Button", "reason": "Avoid occupying vertical screen space on Goal Scenario details by hiding full AI card in a slide-up bottom sheet triggered by a draggable floating button." },
-    { "decision": "Standardized Google Sign-In Widget", "reason": "Create a shared GoogleSignInButton utilizing official multi-color SVG and Roboto font to comply with Google Branding Guidelines and reduce code duplication." },
-    { "decision": "24 Hours Local Cache for AI", "reason": "Cache AI advice locally under goalId+date key to reduce Gemini API costs by 90% and prevent excessive calls during scenario parameter adjustments." },
-    { "decision": "Save session to App Local Storage", "reason": "Save logged_in_user data locally to SharedPreferences to allow instant loading of auth state during app startup without waiting for async network handshake." }
+    { "decision": "24 Hours Local Cache for AI", "reason": "Cache AI advice locally under goalId+date key to reduce Gemini API costs by 90% and prevent excessive calls during scenario parameter adjustments." }
   ]
 }
