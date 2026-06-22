@@ -1,0 +1,7 @@
+1. Khi user đăng nhập bằng google hoặc đăng nhặp bằng tên với mode là guest, sau đó tạo mục tiêu và sinh dữ liệu. Tiếp theo user đăng xuất hoặc xóa tài khoản. Tiến hành đăng nhập lại bằng user khác thì dữ liệu bên trong vẫn giữ theo tài khoản trước đó. 
+=> mong đợi: mỗi tài khoản đăng nhập thì fetch thông tin dữ liệu theo đúng tài khoản đó.
+
+2. Khi user đăng nhập bằng mode guest và sinh dữ liệu. Khi đăng xuất và vào màn hình đăng nhập lại thì sẽ tự input tên và user đăng nhập bình thường, dữ liệu local vẫn là mode guest. Khi user guest "Xóa tài khoản" thì mới xóa dữ liệu local.
+=> mong đợi: Khi user mode guest, đăng xuất thì giữ data local, khi xóa thì xóa data local
+
+3. [improvement] Kiểm tra lại hàm login, đăng xuất, xóa tài khoản. Mọi dữ liệu đảm bảo đúng logic theo từng tài khoản

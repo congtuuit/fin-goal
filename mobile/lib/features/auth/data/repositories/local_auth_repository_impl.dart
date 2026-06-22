@@ -97,7 +97,15 @@ class LocalAuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> deleteAccount() async {
-    await _prefs.clear();
+    // Remove only guest-specific data keys. Do NOT call _prefs.clear()
+    // as that would wipe global app settings (welcome flags, preferences, etc.)
+    await _prefs.remove(_keyUsername);
+    await _prefs.remove('logged_in_user');
+    await _prefs.remove('local_goals');
+    await _prefs.remove('local_records');
+    await _prefs.remove('local_scenarios');
+    await _prefs.remove('local_financial_profile');
+    await _prefs.remove('onboarding_completed');
     _authStreamController.add(null);
     return const Right(unit);
   }

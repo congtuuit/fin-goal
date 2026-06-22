@@ -38,6 +38,8 @@ RecordRepository recordRepository(Ref ref) {
 class ScenarioQueriesNotifier extends _$ScenarioQueriesNotifier {
   @override
   FutureOr<List<ScenarioQuery>> build(String goalId) async {
+    // Watch so this notifier rebuilds when the active user changes.
+    ref.watch(scenarioRepositoryProvider);
     final result = await ref.read(scenarioRepositoryProvider).getQueries(goalId);
     return result.fold(
       (failure) => throw failure,
@@ -62,6 +64,8 @@ class ScenarioQueriesNotifier extends _$ScenarioQueriesNotifier {
 class RecordsNotifier extends _$RecordsNotifier {
   @override
   FutureOr<List<MonthlyRecord>> build(String goalId) async {
+    // Watch so this notifier rebuilds when the active user changes.
+    ref.watch(recordRepositoryProvider);
     final result = await ref.read(recordRepositoryProvider).getRecords(goalId);
     return result.fold(
       (failure) => throw failure,
@@ -96,6 +100,8 @@ class RecordsNotifier extends _$RecordsNotifier {
 
 @Riverpod(keepAlive: true)
 Future<bool> hasCheckedInThisMonth(Ref ref, String goalId) async {
+  // Watch so this provider rebuilds when the active user changes.
+  ref.watch(recordRepositoryProvider);
   final result = await ref.read(recordRepositoryProvider).hasCheckedInThisMonth(goalId, DateTime.now());
   return result.fold((l) => false, (r) => r);
 }

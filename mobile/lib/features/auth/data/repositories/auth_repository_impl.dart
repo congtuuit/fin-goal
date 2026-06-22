@@ -301,6 +301,23 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, Unit>> deleteAccount() async {
     try {
+      // ── Guest account deletion ────────────────────────────────────────────
+      // Guest users only have local data — clean up their specific keys.
+      final localUser = _getUserLocal();
+      if (localUser != null && localUser.id == 'local_user_id') {
+        final prefs = getIt<SharedPreferences>();
+        await prefs.remove('local_goals');
+        await prefs.remove('local_records');
+        await prefs.remove('local_scenarios');
+        await prefs.remove('local_financial_profile');
+        await prefs.remove('onboarding_completed');
+        await prefs.remove('local_username');
+        await prefs.remove('logged_in_user');
+        _localAuthStreamController.add(null);
+        return const Right(unit);
+      }
+
+      // ── Online account deletion ───────────────────────────────────────────
       final userId = _client.auth.currentUser?.id;
       if (userId == null) return const Left(UnauthorizedFailure());
       

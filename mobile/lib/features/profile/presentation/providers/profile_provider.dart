@@ -55,6 +55,9 @@ class ProfileError extends ProfileState {
 class ProfileNotifier extends _$ProfileNotifier {
   @override
   ProfileState build() {
+    // Watch the repository so this notifier rebuilds when the active user
+    // changes, ensuring profile data is always scoped to the correct account.
+    ref.watch(profileRepositoryProvider);
     _fetchProfile();
     return const ProfileLoading();
   }

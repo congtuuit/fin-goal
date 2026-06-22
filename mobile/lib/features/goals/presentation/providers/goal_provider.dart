@@ -49,6 +49,10 @@ class GoalsError extends GoalsState {
 class GoalsNotifier extends _$GoalsNotifier {
   @override
   GoalsState build() {
+    // Watch the repository so this notifier rebuilds when the active user
+    // changes (e.g. Google → Guest → new account). This guarantees goals
+    // are always fetched for the correct account.
+    ref.watch(goalRepositoryProvider);
     _fetchGoals();
     return const GoalsLoading();
   }

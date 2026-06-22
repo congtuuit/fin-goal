@@ -99,6 +99,9 @@ class GameUiError extends CashflowGameUiState {
 class CashflowGameNotifier extends _$CashflowGameNotifier {
   @override
   CashflowGameUiState build() {
+    // Watch currentUser so this notifier rebuilds when the active user changes.
+    // This ensures the game session is always loaded for the correct player.
+    ref.watch(currentUserProvider);
     _init();
     return const GameUiLoading();
   }
