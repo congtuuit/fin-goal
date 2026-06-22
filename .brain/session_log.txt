@@ -35,3 +35,10 @@ RatRaceBoardWidget
 [11:48] DONE task: Add proactive AI Coach notifications (milestone, off-track, monthly checkin) to NotificationService
 [11:50] END ai-financial-coach implementation ✅
 [12:44] DONE task: Fix compilation errors in notification_service.dart (migrated local notification show/zonedSchedule calls to named parameters)
+[14:15] START draggable-floating-ai-button optimization
+[14:18] DONE task: Create DraggableAiCoachButton widget with physics-based snap animation
+[14:20] DONE task: Remove AiCoachCard from scenario_dashboard_page.dart, wrap page in Stack and add DraggableAiCoachButton
+[14:21] END draggable-floating-ai-button optimization ✅
+[14:44] DONE task: Clean unused imports and replace deprecated withOpacity in draggable_ai_coach_button.dart
+[15:36] DONE task: Reduce size of draggable floating button to 46.0 and icon size to 20.0
+[15:40] DONE task: Style AiCoachCard to stick to bottom and side margins when isBottomSheet is true, remove floating padding

@@ -16,7 +16,7 @@ import 'package:fin_goal/features/scenarios/domain/entities/monthly_record.dart'
 import 'package:fin_goal/features/scenarios/presentation/providers/scenario_provider.dart';
 import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
 import 'package:fin_goal/app/router/routes.dart';
-import 'package:fin_goal/features/coach/presentation/widgets/ai_coach_card.dart';
+import 'package:fin_goal/features/coach/presentation/widgets/draggable_ai_coach_button.dart';
 
 class ScenarioDashboardPage extends ConsumerStatefulWidget {
   const ScenarioDashboardPage({super.key});
@@ -374,8 +374,10 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
     final isPremium = ref.watch(isPremiumUserProvider);
 
     // 5. Build UI
-    return Scaffold(
-      appBar: AppBar(
+    return Stack(
+      children: [
+        Scaffold(
+          appBar: AppBar(
         centerTitle: false,
         titleSpacing: 0,
         title: InkWell(
@@ -456,9 +458,6 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
             const Gap(AppSizes.md),
             _buildTimelineCard(result, primaryGoal.targetAmount),
             const Gap(AppSizes.md),
-            // ── AI Financial Coach Card ───────────────────────────────────
-            AiCoachCard(goal: primaryGoal),
-            const Gap(AppSizes.md),
             _buildMacroControlPanel(isPremium),
             const Gap(AppSizes.md),
             _buildReliabilityScore(result.planReliability),
@@ -472,6 +471,9 @@ class _ScenarioDashboardPageState extends ConsumerState<ScenarioDashboardPage> {
           ],
         ),
       ),
+    ),
+        DraggableAiCoachButton(goal: primaryGoal),
+      ],
     );
   }
 

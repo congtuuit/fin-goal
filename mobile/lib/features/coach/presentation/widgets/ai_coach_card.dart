@@ -20,11 +20,13 @@ import 'package:fin_goal/features/coach/presentation/providers/coach_provider.da
 class AiCoachCard extends ConsumerStatefulWidget {
   final Goal goal;
   final bool autoFetch;
+  final bool isBottomSheet;
 
   const AiCoachCard({
     super.key,
     required this.goal,
     this.autoFetch = true,
+    this.isBottomSheet = false,
   });
 
   @override
@@ -73,18 +75,43 @@ class _AiCoachCardState extends ConsumerState<AiCoachCard>
           end: Alignment.bottomRight,
           colors: [Color(0xFF1E1B4B), Color(0xFF312E81)],
         ),
-        borderRadius: BorderRadius.circular(AppSizes.radiusXl),
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.35),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.15),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        borderRadius: widget.isBottomSheet
+            ? const BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl))
+            : BorderRadius.circular(AppSizes.radiusXl),
+        border: widget.isBottomSheet
+            ? Border(
+                top: BorderSide(
+                  color: AppColors.primary.withValues(alpha: 0.35),
+                  width: 1,
+                ),
+                left: BorderSide(
+                  color: AppColors.primary.withValues(alpha: 0.35),
+                  width: 1,
+                ),
+                right: BorderSide(
+                  color: AppColors.primary.withValues(alpha: 0.35),
+                  width: 1,
+                ),
+              )
+            : Border.all(
+                color: AppColors.primary.withValues(alpha: 0.35),
+                width: 1,
+              ),
+        boxShadow: widget.isBottomSheet
+            ? [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  blurRadius: 16,
+                  offset: const Offset(0, -4),
+                ),
+              ]
+            : [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 6),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,11 +121,13 @@ class _AiCoachCardState extends ConsumerState<AiCoachCard>
 
           // ── Content ───────────────────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.fromLTRB(
+            padding: EdgeInsets.fromLTRB(
               AppSizes.lg,
               0,
               AppSizes.lg,
-              AppSizes.lg,
+              widget.isBottomSheet
+                  ? AppSizes.lg + MediaQuery.of(context).padding.bottom
+                  : AppSizes.lg,
             ),
             child: adviceAsync.when(
               data: (advice) {
