@@ -178,6 +178,30 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         .slideY(begin: 0.1, duration: 400.ms, curve: Curves.easeOut);
   }
 
+  Widget _buildSuggestionChip(String label, int value, TextEditingController controller) {
+    return ActionChip(
+      label: Text(
+        label,
+        style: const TextStyle(
+          color: AppColors.primaryLight,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      backgroundColor: AppColors.surfaceDark,
+      side: const BorderSide(color: AppColors.borderDark),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+      ),
+      onPressed: () {
+        final formatted = CurrencyFormatter.formatInput(value);
+        setState(() {
+          controller.text = formatted;
+          controller.selection = TextSelection.collapsed(offset: formatted.length);
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final progressWidth =
@@ -254,11 +278,26 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     title: 'Chỉ số Thu Nhập',
                     subtitle:
                         'Mỗi tháng nhân vật của bạn tạo ra dòng tiền dương bao nhiêu?',
-                    child: _buildCurrencyInput(
-                      _incomeCtrl,
-                      '20.000.000',
-                      Validators.income,
-                      _focusNodes[1],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildCurrencyInput(
+                          _incomeCtrl,
+                          '20.000.000',
+                          Validators.income,
+                          _focusNodes[1],
+                        ),
+                        const Gap(AppSizes.md),
+                        Wrap(
+                          spacing: AppSizes.sm,
+                          runSpacing: AppSizes.sm,
+                          children: [
+                            _buildSuggestionChip('Cơ bản (~7M)', 7000000, _incomeCtrl),
+                            _buildSuggestionChip('Văn phòng (~15M)', 15000000, _incomeCtrl),
+                            _buildSuggestionChip('Chuyên gia (~30M)', 30000000, _incomeCtrl),
+                          ],
+                        ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
+                      ],
                     ),
                   ),
 
@@ -268,13 +307,28 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     title: 'Chi Phí Sinh Hoạt',
                     subtitle:
                         'Mỗi tháng bạn cần chi tiêu tối thiểu bao nhiêu để duy trì cuộc sống?',
-                    child: _buildCurrencyInput(
-                      _expenseCtrl,
-                      '10.000.000',
-                      (v) => Validators.expenses(v,
-                          income:
-                              CurrencyFormatter.parse(_incomeCtrl.text) ?? 0),
-                      _focusNodes[2],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildCurrencyInput(
+                          _expenseCtrl,
+                          '10.000.000',
+                          (v) => Validators.expenses(v,
+                              income:
+                                  CurrencyFormatter.parse(_incomeCtrl.text) ?? 0),
+                          _focusNodes[2],
+                        ),
+                        const Gap(AppSizes.md),
+                        Wrap(
+                          spacing: AppSizes.sm,
+                          runSpacing: AppSizes.sm,
+                          children: [
+                            _buildSuggestionChip('Tiết kiệm (~4M)', 4000000, _expenseCtrl),
+                            _buildSuggestionChip('Trung bình (~8M)', 8000000, _expenseCtrl),
+                            _buildSuggestionChip('Thoải mái (~15M)', 15000000, _expenseCtrl),
+                          ],
+                        ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
+                      ],
                     ),
                   ),
 
