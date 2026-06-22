@@ -42,3 +42,4 @@ RatRaceBoardWidget
 [14:44] DONE task: Clean unused imports and replace deprecated withOpacity in draggable_ai_coach_button.dart
 [15:36] DONE task: Reduce size of draggable floating button to 46.0 and icon size to 20.0
 [15:40] DONE task: Style AiCoachCard to stick to bottom and side margins when isBottomSheet is true, remove floating padding
+[15:44] DONE task: Create shared GoogleSignInButton complying with branding policy, apply to login_page, login_bottom_sheet, and settings_page

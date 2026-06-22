@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:fin_goal/core/constants/app_colors.dart';
 import 'package:fin_goal/core/constants/app_sizes.dart';
 import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
+import 'package:fin_goal/features/auth/presentation/widgets/google_sign_in_button.dart';
 
 class LoginBottomSheet extends ConsumerWidget {
   final String title;
@@ -92,29 +93,11 @@ class LoginBottomSheet extends ConsumerWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSizes.xl),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: isLoading
-                  ? null
-                  : () {
-                      ref.read(authProvider.notifier).signInWithGoogle();
-                    },
-              icon: isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Icon(Icons.g_mobiledata, size: 28),
-              label: const Text('Đăng nhập với Google'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black87,
-                elevation: 1,
-                padding: const EdgeInsets.symmetric(vertical: AppSizes.md),
-              ),
-            ),
+          GoogleSignInButton(
+            isLoading: isLoading,
+            onPressed: () {
+              ref.read(authProvider.notifier).signInWithGoogle();
+            },
           ),
           const SizedBox(height: AppSizes.md),
           TextButton(

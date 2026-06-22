@@ -10,6 +10,7 @@ import 'package:fin_goal/app/di/injection.dart';
 import 'package:fin_goal/app/router/routes.dart';
 import 'package:fin_goal/features/auth/presentation/providers/auth_provider.dart';
 import 'package:fin_goal/features/auth/presentation/widgets/login_bottom_sheet.dart';
+import 'package:fin_goal/features/auth/presentation/widgets/google_sign_in_button.dart';
 import 'package:fin_goal/core/services/direct_client_ai_service.dart';
 import 'package:fin_goal/features/premium/presentation/providers/subscription_provider.dart';
 import 'package:fin_goal/core/services/notification_service.dart';
@@ -413,22 +414,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     style: TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                   const Gap(AppSizes.xs),
-                  ElevatedButton.icon(
+                  GoogleSignInButton(
+                    isMini: true,
+                    text: 'Đăng nhập',
                     onPressed: () {
                       LoginBottomSheet.show(context,
                           title: 'Lưu tiến trình',
                           subtitle:
                               'Liên kết tài khoản Google để đồng bộ dữ liệu.');
                     },
-                    icon: const Icon(Icons.g_mobiledata, size: 24),
-                    label: const Text('Đăng nhập'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black87,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 0),
-                      minimumSize: const Size(0, 32),
-                    ),
                   ),
                 ] else ...[
                   Container(
